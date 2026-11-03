@@ -158,30 +158,28 @@ def _registrar_app_id():
 
 _registrar_app_id()
 
-from PIL import Image, ImageDraw  # noqa: E402
+from PIL import Image  # noqa: E402
 import pystray  # noqa: E402
 
 CORES = {
-    "esperando": (120, 120, 130),   # cinza: client fechado
-    "conectado": (200, 170, 110),   # dourado: pronto
-    "erro": (200, 60, 60),          # vermelho: deu ruim
+    "esperando": "cinza",       # client fechado
+    "conectado": None,          # o icone como e: pronto
+    "erro": (200, 60, 60),      # vermelho: deu ruim
 }
+_BASE_ICONE = Image.open(BASE / "ping.png").convert("RGBA")
 
 
 def desenhar(cor, n):
-    """Sinal de ping: losango no centro de dois aneis. Desenha 8x maior e reduz (o ImageDraw nao suaviza borda)."""
-    N = n * 8
-    k = N / 64
-
-    def P(pts):
-        return [(x * k, y * k) for x, y in pts]
-
-    img = Image.new("RGBA", (N, N), (0, 0, 0, 0))
-    d = ImageDraw.Draw(img)
-    d.ellipse(P([(1.5, 1.5), (62.5, 62.5)]), fill=cor)
-    d.ellipse(P([(6.5, 6.5), (57.5, 57.5)]), fill=(12, 20, 32))
-    d.ellipse(P([(14, 14), (50, 50)]), outline=cor, width=round(3 * k))
-    d.polygon(P([(32, 20), (44, 32), (32, 44), (20, 32)]), fill=cor)
+    """O icone do Ping no tamanho n: original, apagado em cinza ou tingido de vermelho."""
+    img = _BASE_ICONE.copy()
+    if cor == "cinza":
+        cinza = img.convert("LA").convert("RGBA")
+        img = Image.blend(cinza, Image.new("RGBA", img.size, (0, 0, 0, 0)), 0.25)
+        img.putalpha(_BASE_ICONE.getchannel("A"))
+    elif cor:
+        tinta = Image.new("RGBA", img.size, cor + (255,))
+        img = Image.blend(img, tinta, 0.55)
+        img.putalpha(_BASE_ICONE.getchannel("A"))
     return img.resize((n, n), Image.LANCZOS)
 
 

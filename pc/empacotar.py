@@ -37,7 +37,7 @@ LOCK = "requirements.lock"
 
 # arquivos do programa (o resto da pasta e de desenvolvimento ou gerado: cache, dist, log, config)
 APP = ("ping.pyw", "ponte.py", "lcu.py", "painel.py", "avisos.py", "hoje.py", "servidor.py", "atualizar.py",
-       "assinatura.py", "inicio_windows.py", "qrcodegen.py", "requirements.txt", "ping.ico", "ui/index.html")
+       "assinatura.py", "inicio_windows.py", "qrcodegen.py", "requirements.txt", "ping.ico", "ping.png", "ui/index.html")
 # pedacos do Python que o app nao usa
 PY_FORA = ("include/", "libs/", "Scripts/", "Lib/ensurepip/", "Lib/venv/", "Lib/lib2to3/", "Lib/pydoc_data/",
            "Lib/idlelib/", "Lib/tkinter/", "Lib/turtledemo/", "Lib/test/", "Lib/site-packages/")
