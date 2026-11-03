@@ -1,0 +1,74 @@
+{
+  "rules": {
+    "push": {
+      "$uid": {
+        "$aparelho": {
+          ".write": "auth != null && auth.uid === $uid",
+          ".validate": "$aparelho.length <= 40 && newData.hasChildren(['endpoint', 'keys']) && newData.child('endpoint').isString() && newData.child('endpoint').val().beginsWith('https://') && newData.child('endpoint').val().length <= 600",
+          "endpoint": {},
+          "keys": {
+            ".validate": "newData.hasChildren(['p256dh', 'auth'])",
+            "p256dh": { ".validate": "newData.isString() && newData.val().length <= 120" },
+            "auth": { ".validate": "newData.isString() && newData.val().length <= 40" },
+            "$outro": { ".validate": false }
+          },
+          "em": { ".validate": "newData.isNumber()" },
+          "ua": { ".validate": "newData.isString() && newData.val().length <= 200" },
+          "pc": { ".validate": "newData.isString() && newData.val().length <= 128" },
+          "sempre": { ".validate": "newData.isBoolean()" },
+          "tipos": {
+            "$tipo": { ".validate": "$tipo.matches(/^[a-z_]{1,20}$/) && newData.isBoolean()" }
+          },
+          "$outro": { ".validate": false }
+        }
+      }
+    },
+    "pcs": {
+      "$pc": {
+        ".read": "auth != null && auth.uid === $pc",
+        "conta": {
+          ".write": "auth != null && auth.uid === $pc",
+          ".validate": "newData.isString() && newData.val().length <= 128"
+        }
+      }
+    },
+    "contas": {
+      "$uid": {
+        ".read": "auth != null && auth.uid === $uid",
+        "atual": {
+          ".write": "auth != null && auth.uid === $uid",
+          ".validate": "newData.isString() && newData.val().length <= 128"
+        },
+        "pcs": {
+          "$pc": {
+            ".write": "auth != null && auth.uid === $uid && (!newData.exists() || root.child('pcs/' + $pc + '/conta').val() === $uid)",
+            ".validate": "$pc.length <= 128 && newData.hasChildren(['desde']) && newData.child('desde').isNumber()",
+            "desde": {},
+            "nome": { ".validate": "newData.isString() && newData.val().length <= 40" },
+            "pc": { ".validate": "newData.isString() && newData.val().length <= 40" },
+            "lol": {
+              "$k": { ".validate": "$k.length <= 80 && newData.isString() && newData.val().length <= 40" }
+            },
+            "$outro": { ".validate": false }
+          }
+        },
+        "$outro": { ".validate": false }
+      }
+    },
+    "ao_vivo": {
+      "$pc": {
+        ".read": "auth != null && (auth.uid === $pc || root.child('pcs/' + $pc + '/conta').val() === auth.uid)",
+        ".write": "auth != null && auth.uid === $pc"
+      }
+    },
+    "comandos": {
+      "$pc": {
+        ".read": "auth != null && auth.uid === $pc",
+        "$cmd": {
+          ".write": "auth != null && ((auth.uid === $pc && !newData.exists()) || (!data.exists() && root.child('pcs/' + $pc + '/conta').val() === auth.uid))",
+          ".validate": "newData.hasChildren(['tipo', 'em', 'de']) && newData.child('tipo').isString() && newData.child('tipo').val().matches(/^(aceitar|recusar|sair_fila|buscar|campeao|chat|criar_sala|convidar|sair_sala|sair_selecao|skin|runa_pagina|runa_salvar|abrir_lol|fechar_lol|(troca|pos|ordem)_(pedir|aceitar|recusar|cancelar)|banco|carta|feitico|posicao|dm|dm_lida|olhando)$/) && newData.child('em').val() === now && newData.child('de').val() === auth.uid && ((newData.child('tipo').val() !== 'chat' && newData.child('tipo').val() !== 'dm') || (newData.child('texto').isString() && newData.child('texto').val().length >= 1 && newData.child('texto').val().length <= 200)) && (newData.child('tipo').val() !== 'olhando' || newData.child('valor').isBoolean()) && (newData.child('tipo').val() !== 'campeao' || (newData.child('campeao').isNumber() && newData.child('acao').isString() && newData.child('acao').val().matches(/^(pick|ban)$/) && newData.child('travar').isBoolean())) && (newData.child('tipo').val() !== 'criar_sala' || newData.child('fila').isNumber()) && (newData.child('tipo').val() !== 'skin' || newData.child('skin').isNumber()) && (newData.child('tipo').val() !== 'runa_pagina' || newData.child('pagina').isNumber()) && (newData.child('tipo').val() !== 'runa_salvar' || (newData.child('pagina').isNumber() && newData.child('nome').isString() && newData.child('nome').val().length <= 25 && newData.child('primaria').isNumber() && newData.child('secundaria').isNumber() && newData.child('perks').hasChildren())) && (newData.child('tipo').val() !== 'convidar' || newData.child('quem').hasChildren()) && (!newData.child('tipo').val().matches(/^(troca|pos|ordem)_pedir$/) || newData.child('cell').isNumber()) && (!newData.child('tipo').val().matches(/^(troca|pos|ordem)_(aceitar|recusar|cancelar)$/) || newData.child('id').isNumber()) && ((newData.child('tipo').val() !== 'banco' && newData.child('tipo').val() !== 'carta') || newData.child('campeao').isNumber()) && ((newData.child('tipo').val() !== 'dm' && newData.child('tipo').val() !== 'dm_lida') || (newData.child('puuid').isString() && newData.child('puuid').val().length <= 100)) && (newData.child('tipo').val() !== 'feitico' || (newData.child('slot').isNumber() && newData.child('feitico').isNumber())) && (newData.child('tipo').val() !== 'posicao' || ((newData.child('papel').val() === 0 || newData.child('papel').val() === 1) && newData.child('pos').isString() && newData.child('pos').val().matches(/^(TOP|JUNGLE|MIDDLE|BOTTOM|UTILITY|FILL)$/)))"
+        }
+      }
+    }
+  }
+}

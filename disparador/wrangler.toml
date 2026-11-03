@@ -1,0 +1,12 @@
+name = "ping-avisos"
+main = "src/index.js"
+compatibility_date = "2026-10-01"
+
+[vars]
+FIREBASE_PROJETO = "ping-celular"
+VAPID_PUBLICA = "BBhVK0TcVYlDGEb1ID3P3L8ugpctlT0NJPSMaCk5g8TQNO23gyfrHvTP14X3RSIZ9shNO45PVs6AGnEjgSdRVqA"
+VAPID_ASSUNTO = "https://ping-celular.web.app"
+
+# Segredos (npx wrangler secret put NOME, nunca no arquivo):
+#   VAPID_PRIVADA    JWK da chave privada VAPID (npm run vapid)
+#   FIREBASE_CONTA   JSON da conta de serviço do projeto Firebase

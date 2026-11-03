@@ -1,0 +1,47 @@
+name: App do celular
+
+# a cada push na main que mexe no app (ou nas regras): confere e publica no Firebase Hosting
+on:
+  push:
+    branches: [main]
+    paths: ["app/**", "firebase.json", ".github/workflows/app.yml"]
+  pull_request:
+    paths: ["app/**"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: app-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  app:
+    runs-on: ubuntu-latest
+    env:
+      TEM_CONTA: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_PING != '' }}
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+
+      - uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 # v2
+        with:
+          flutter-version: "3.38.5"
+          channel: stable
+          cache: true
+
+      - name: Confere e monta
+        working-directory: app
+        run: |
+          flutter pub get
+          dart analyze
+          flutter build web --release --base-href / --no-wasm-dry-run
+
+      # so no repositorio original (fork sem o secret pula a publicacao)
+      - uses: FirebaseExtended/action-hosting-deploy@500ac625ca2dd40cbd15f7659af953801858032a # v0
+        if: github.event_name != 'pull_request' && env.TEM_CONTA == 'true'
+        with:
+          repoToken: ${{ secrets.GITHUB_TOKEN }}
+          firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_PING }}
+          projectId: ping-celular
+          channelId: live

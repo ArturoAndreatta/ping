@@ -1,0 +1,7 @@
+PING
+
+1. Abra o arquivo .exe.
+   Se o Windows avisar: Mais informacoes > Executar assim mesmo.
+2. Pronto. O Ping fica perto do relogio e abre junto com o Windows.
+
+Pra atualizar: ele se atualiza sozinho (ou abra o .exe da versao nova).

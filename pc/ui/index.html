@@ -1,0 +1,407 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ping</title>
+<link rel="icon" href="/logo.ico?t=__TOKEN__">
+<script>
+  // modo escuro/claro antes de pintar (sem piscar)
+  try { if (localStorage.getItem("modo") === "claro") document.documentElement.dataset.modo = "claro"; } catch (e) {}
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  color-scheme: dark;
+  --bg: #010A13;
+  --panel: #0A1219;
+  --panel-2: #111B23;
+  --line: #1A242D;
+  --line-2: #2E3A44;
+  --gold: #C8AA6E;
+  --gold-hi: #F0E6D2;
+  --gold-lo: #785A28;
+  --teal: #0AC8B9;
+  --text: #DCD3BF;
+  --muted: #A09B8C;
+  --faint: #5B5A56;
+  --red: #E84057;
+  --input: #050D15;
+  --qr-fundo: #FFFFFF;
+  --sombra: rgba(0, 0, 0, .55);
+  --sobre-ouro: #0A0E14;
+  --fundo-a: rgba(200, 170, 110, .08);
+  --fundo-b: rgba(10, 200, 185, .05);
+  --r1: 2px;
+  --r2: 4px;
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --fonte: "Barlow", "Segoe UI", system-ui, sans-serif;
+  --titulo: "Cinzel", Georgia, serif;
+}
+:root[data-modo="claro"] {
+  color-scheme: light;
+  --bg: #F2ECE0;
+  --panel: #FBF8F2;
+  --panel-2: #F3EDE1;
+  --line: #E3D9C5;
+  --line-2: #CFC1A2;
+  --gold: #8A6A2E;
+  --gold-hi: #3A2A0F;
+  --gold-lo: #B79A5E;
+  --teal: #087F86;
+  --text: #2A2822;
+  --muted: #6C6553;
+  --faint: #A9A08A;
+  --red: #C2304A;
+  --input: #FFFFFF;
+  --sombra: rgba(70, 50, 20, .16);
+  --sobre-ouro: #FFFFFF;
+  --fundo-a: rgba(200, 170, 110, .16);
+  --fundo-b: rgba(8, 127, 134, .06);
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body {
+  background: var(--bg);
+  background-image: radial-gradient(900px 500px at 10% -10%, var(--fundo-a), transparent 70%),
+                    radial-gradient(700px 400px at 110% 110%, var(--fundo-b), transparent 70%);
+  background-attachment: fixed;
+  color: var(--text);
+  font: 15px/1.5 var(--fonte);
+  min-height: 100vh;
+}
+button, input { font: inherit; color: inherit; }
+
+/* topo */
+header {
+  display: flex; align-items: center; gap: 14px;
+  padding: 14px 24px; border-bottom: 1px solid var(--line);
+  position: sticky; top: 0; z-index: 2;
+  background: color-mix(in srgb, var(--bg) 88%, transparent);
+  backdrop-filter: saturate(1.2) blur(6px);
+}
+.marca { display: flex; align-items: center; gap: 10px; }
+.marca svg { width: 30px; height: 30px; }
+.marca b { font: 700 20px/1 var(--titulo); letter-spacing: .12em; color: var(--gold); }
+.status { display: flex; align-items: center; gap: 8px; color: var(--muted); font-size: 14px; margin-left: 8px; }
+.losango { width: 9px; height: 9px; transform: rotate(45deg); background: var(--faint); transition: background .3s; }
+.status.on .losango { background: var(--teal); animation: pulso 2.4s var(--ease-out) infinite; }
+@keyframes pulso { 0% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--teal) 60%, transparent); }
+                   70%, 100% { box-shadow: 0 0 0 8px transparent; } }
+.espaco { flex: 1; }
+.icone-btn {
+  width: 36px; height: 36px; display: grid; place-items: center; border-radius: var(--r1);
+  border: 1px solid var(--line-2); background: transparent; color: var(--gold); cursor: pointer;
+  transition: border-color .2s, background .2s, transform .12s;
+}
+.icone-btn:hover { border-color: var(--gold); background: var(--panel-2); }
+.icone-btn:active { transform: scale(.94); }
+.icone-btn svg { width: 18px; height: 18px; }
+#tema .lua, :root[data-modo="claro"] #tema .sol { display: none; }
+:root[data-modo="claro"] #tema .lua { display: block; }
+.girando svg { animation: gira .9s linear infinite; }
+@keyframes gira { to { transform: rotate(360deg); } }
+
+/* conteudo */
+main { max-width: 980px; margin: 0 auto; padding: 24px; display: grid; grid-template-columns: 1fr 1fr; gap: 18px; align-items: start; }
+.col { display: grid; gap: 18px; }
+.card {
+  background: var(--panel); border: 1px solid var(--line); border-radius: var(--r2); padding: 20px;
+  box-shadow: 0 10px 30px -18px var(--sombra);
+  opacity: 0; transform: translateY(8px); animation: entra .5s var(--ease-out) forwards;
+}
+.col:nth-child(2) .card { animation-delay: .06s; }
+.card + .card { animation-delay: .12s; }
+@keyframes entra { to { opacity: 1; transform: none; } }
+.card h2 { margin: 0 0 14px; font: 700 13px/1 var(--titulo); letter-spacing: .14em; text-transform: uppercase; color: var(--gold); }
+.card p { margin: 0 0 12px; color: var(--muted); }
+.vazio { color: var(--faint); }
+
+/* formulario */
+label.campo { display: block; margin-bottom: 12px; }
+label.campo span { display: block; font-size: 13px; color: var(--muted); margin-bottom: 4px; }
+input[type=email], input[type=password] {
+  width: 100%; padding: 10px 12px; border-radius: var(--r1); border: 1px solid var(--line-2);
+  background: var(--input); outline: none; transition: border-color .2s, box-shadow .2s;
+}
+input:focus { border-color: var(--gold); box-shadow: 0 0 0 3px color-mix(in srgb, var(--gold) 20%, transparent); }
+.botoes { display: flex; gap: 10px; flex-wrap: wrap; }
+.btn {
+  padding: 10px 16px; border-radius: var(--r1); border: 1px solid var(--gold); background: transparent;
+  color: var(--gold); font-weight: 600; letter-spacing: .06em; text-transform: uppercase; font-size: 13px;
+  cursor: pointer; transition: background .2s, color .2s, transform .12s, opacity .2s;
+}
+.btn:hover { background: color-mix(in srgb, var(--gold) 12%, transparent); }
+.btn:active { transform: scale(.97); }
+.btn.cheio { background: var(--gold); color: var(--sobre-ouro); }
+.btn.cheio:hover { background: var(--gold-hi); border-color: var(--gold-hi); }
+.btn:disabled { opacity: .5; cursor: default; }
+.erro { color: var(--red); font-size: 14px; min-height: 1.5em; margin: 6px 0 0; }
+.erro:empty { min-height: 0; margin: 0; }
+.conta-linha { display: flex; align-items: center; gap: 12px; }
+.avatar { width: 40px; height: 40px; transform: rotate(45deg); border: 1px solid var(--gold); display: grid; place-items: center; flex: none; }
+.avatar b { transform: rotate(-45deg); color: var(--gold); font: 700 16px var(--titulo); }
+.conta-linha .email { flex: 1; min-width: 0; overflow-wrap: anywhere; }
+
+/* QR */
+.qr { display: flex; gap: 18px; align-items: center; }
+.qr .codigo { width: 150px; height: 150px; flex: none; background: var(--qr-fundo); padding: 6px; border-radius: var(--r1); }
+.qr .codigo svg { width: 100%; height: 100%; display: block; }
+ol.passos { margin: 0; padding-left: 20px; color: var(--muted); }
+ol.passos li { margin-bottom: 6px; }
+ol.passos b { color: var(--text); font-weight: 600; }
+.link { margin-top: 12px; display: flex; gap: 8px; align-items: center; font-size: 13px; color: var(--faint); overflow-wrap: anywhere; }
+
+/* hoje */
+.numeros { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+.numero { background: var(--panel-2); border: 1px solid var(--line); border-radius: var(--r1); padding: 12px; }
+.numero small { display: block; color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: .08em; }
+.numero b { font: 600 22px/1.2 var(--fonte); color: var(--gold-hi); }
+.mvp { margin-top: 10px; color: var(--muted); font-size: 14px; }
+
+/* opcoes */
+.opcao { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-top: 1px solid var(--line); }
+.opcao:first-of-type { border-top: 0; padding-top: 0; }
+.opcao span { flex: 1; }
+.opcao small { display: block; color: var(--muted); font-size: 13px; }
+.chave { position: relative; width: 42px; height: 22px; flex: none; }
+.chave input { position: absolute; inset: 0; opacity: 0; margin: 0; cursor: pointer; }
+.chave i { position: absolute; inset: 0; border-radius: 11px; border: 1px solid var(--line-2); background: var(--input); transition: background .2s, border-color .2s; pointer-events: none; }
+.chave i::after { content: ""; position: absolute; top: 5px; left: 6px; width: 10px; height: 10px; transform: rotate(45deg); background: var(--faint); transition: transform .25s var(--ease-out), background .2s; }
+.chave input:checked + i { border-color: var(--gold); background: color-mix(in srgb, var(--gold) 18%, var(--input)); }
+.chave input:checked + i::after { transform: translateX(18px) rotate(45deg); background: var(--gold); }
+.chave input:focus-visible + i { box-shadow: 0 0 0 3px color-mix(in srgb, var(--gold) 30%, transparent); }
+.versao { margin-top: 12px; font-size: 13px; color: var(--faint); }
+
+/* toast */
+#toast {
+  position: fixed; left: 50%; bottom: 24px; transform: translate(-50%, 16px); opacity: 0; pointer-events: none;
+  background: var(--panel-2); border: 1px solid var(--gold-lo); color: var(--text); padding: 10px 16px; border-radius: var(--r2);
+  box-shadow: 0 10px 30px -10px var(--sombra); transition: opacity .25s, transform .25s var(--ease-out);
+}
+#toast.vis { opacity: 1; transform: translate(-50%, 0); }
+
+/* sem conexao */
+#offline { display: none; position: fixed; inset: 0; background: color-mix(in srgb, var(--bg) 80%, transparent); z-index: 5; place-items: center; text-align: center; color: var(--muted); }
+#offline.vis { display: grid; animation: entra .3s var(--ease-out) forwards; }
+
+@media (max-width: 760px) {
+  main { grid-template-columns: 1fr; padding: 16px; }
+  header { padding: 12px 16px; }
+  .qr { flex-direction: column; align-items: flex-start; }
+  .status span { display: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="marca">
+    <svg viewBox="0 0 64 64" aria-hidden="true">
+      <circle cx="32" cy="32" r="28" fill="none" stroke="var(--gold)" stroke-width="4"/>
+      <circle cx="32" cy="32" r="17" fill="none" stroke="var(--gold)" stroke-width="2.5" opacity=".7"/>
+      <path d="M32 21 L43 32 L32 43 L21 32 Z" fill="var(--gold)"/>
+    </svg>
+    <b>PING</b>
+  </div>
+  <div class="status" id="status"><i class="losango"></i><span>Procurando o LoL...</span></div>
+  <div class="espaco"></div>
+  <button class="icone-btn" id="tema" title="Modo claro ou escuro" aria-label="Modo claro ou escuro">
+    <svg class="sol" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+    <svg class="lua" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+  </button>
+  <button class="icone-btn" id="reiniciar" title="Reiniciar o Ping" aria-label="Reiniciar o Ping">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 1 1-3-6.7L21 8"/><path d="M21 3v5h-5"/></svg>
+  </button>
+</header>
+
+<main>
+  <div class="col">
+    <section class="card" id="cardConta">
+      <h2>Sua conta</h2>
+      <div id="conta"></div>
+    </section>
+    <section class="card">
+      <h2>No celular</h2>
+      <div class="qr">
+        <div class="codigo" id="qr"></div>
+        <ol class="passos">
+          <li>Aponte a câmera do celular pro código.</li>
+          <li>Entre com a <b>mesma conta</b> deste PC.</li>
+          <li>No iPhone, toque em Compartilhar e <b>Adicionar à Tela de Início</b>.</li>
+        </ol>
+      </div>
+      <div class="link"><span id="link"></span><button class="btn" id="copiar">Copiar link</button></div>
+    </section>
+  </div>
+  <div class="col">
+    <section class="card">
+      <h2>Hoje</h2>
+      <div id="hoje"><p class="vazio">Carregando...</p></div>
+    </section>
+    <section class="card">
+      <h2>Opções</h2>
+      <div id="opcoes"></div>
+      <div class="versao" id="versao"></div>
+    </section>
+  </div>
+</main>
+
+<div id="toast" role="status" aria-live="polite"></div>
+<div id="offline"><div><b>Sem conexão com o Ping</b><br>Ele foi fechado? Abra de novo pelo atalho.</div></div>
+
+<script>
+const TOKEN = "__TOKEN__";
+const $ = (s) => document.querySelector(s);
+const esc = (t) => String(t ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+
+async function api(caminho, corpo) {
+  const r = await fetch(caminho, corpo === undefined ? { headers: { "X-Token": TOKEN } } : {
+    method: "POST", headers: { "X-Token": TOKEN, "Content-Type": "application/json" }, body: JSON.stringify(corpo),
+  });
+  const j = await r.json().catch(() => ({}));
+  if (!r.ok) throw new Error(j.erro || "Não deu certo. Tente de novo.");
+  return j;
+}
+
+let tToast;
+function toast(texto) {
+  const t = $("#toast");
+  t.textContent = texto;
+  t.classList.add("vis");
+  clearTimeout(tToast);
+  tToast = setTimeout(() => t.classList.remove("vis"), 2600);
+}
+
+// ---------- conta ----------
+function desenharConta(c) {
+  const el = $("#conta");
+  if (c.conta) {
+    const email = c.conta.email || "";
+    el.innerHTML = `<div class="conta-linha">
+        <div class="avatar"><b>${esc((email[0] || "?").toUpperCase())}</b></div>
+        <div class="email">${esc(email)}<br><small class="vazio">Este PC aparece no app de quem entrar com esta conta.</small></div>
+        <button class="btn" id="sair">Sair</button>
+      </div>`;
+    $("#sair").onclick = async () => {
+      if (!confirm("Tirar este PC da conta? O celular para de ver este PC.")) return;
+      try { desenharConta(await api("/api/conta/sair", {})); toast("PC fora da conta"); }
+      catch (e) { toast(e.message); }
+    };
+    return;
+  }
+  el.innerHTML = `<p>Entre ou crie uma conta. O celular que entrar nela controla o LoL deste PC.</p>
+    <form id="form">
+      <label class="campo"><span>E-mail</span><input type="email" id="email" autocomplete="email" required></label>
+      <label class="campo"><span>Senha</span><input type="password" id="senha" autocomplete="current-password" required minlength="6"></label>
+      <div class="botoes"><button class="btn cheio" type="submit">Entrar</button><button class="btn" type="button" id="criar">Criar conta</button></div>
+      <p class="erro" id="erroConta"></p>
+    </form>`;
+  const enviar = async (criar) => {
+    const botoes = el.querySelectorAll("button");
+    botoes.forEach((b) => (b.disabled = true));
+    $("#erroConta").textContent = "";
+    try {
+      desenharConta(await api("/api/conta", { email: $("#email").value, senha: $("#senha").value, criar }));
+      toast(criar ? "Conta criada" : "Conta conectada");
+    } catch (e) {
+      $("#erroConta").textContent = e.message;
+      botoes.forEach((b) => (b.disabled = false));
+    }
+  };
+  $("#form").onsubmit = (ev) => { ev.preventDefault(); enviar(false); };
+  $("#criar").onclick = () => { if ($("#form").reportValidity()) enviar(true); };
+}
+
+async function carregarConta() {
+  const c = await api("/api/conta");
+  desenharConta(c);
+  $("#qr").innerHTML = c.qr.svg;
+  $("#link").textContent = c.qr.url;
+  $("#copiar").onclick = async () => {
+    try { await navigator.clipboard.writeText(c.qr.url); toast("Link copiado"); } catch (e) { toast("Não consegui copiar"); }
+  };
+}
+
+// ---------- hoje ----------
+async function carregarHoje() {
+  try {
+    const h = await api("/api/hoje");
+    const r = h.resumo;
+    if (!r) { $("#hoje").innerHTML = `<p class="vazio">Nenhuma partida hoje ainda.</p>`; return; }
+    $("#hoje").innerHTML = `<div class="numeros">
+        <div class="numero"><small>Partidas</small><b>${r.partidas}</b></div>
+        <div class="numero"><small>Vitórias</small><b>${r.vitorias}</b></div>
+        <div class="numero"><small>KDA</small><b>${r.kda.toFixed(2)}</b></div>
+      </div>
+      <div class="mvp">Destaque: <b>${esc(r.mvp.nome)}</b> (${r.mvp.vitorias} de ${r.mvp.partidas})</div>`;
+  } catch (e) {
+    $("#hoje").innerHTML = `<p class="vazio">Abra o LoL pra ver o resumo do dia.</p>`;
+  }
+}
+
+// ---------- opcoes ----------
+const OPCOES = [
+  ["abrir_com_windows", "Abrir com o Windows", "Liga sozinho quando você entra no PC."],
+  ["atualizar_sozinho", "Atualizar sozinho", "Baixa a versão nova com o LoL parado."],
+  ["resumo_dia", "Resumo do dia", "Mostra como foi o dia quando você fecha o LoL."],
+];
+function desenharOpcoes(o) {
+  $("#opcoes").innerHTML = OPCOES.map(([k, nome, dica]) => `<div class="opcao">
+      <span>${nome}<small>${dica}</small></span>
+      <label class="chave"><input type="checkbox" data-k="${k}" ${o.opcoes[k] ? "checked" : ""} aria-label="${nome}"><i></i></label>
+    </div>`).join("");
+  $("#versao").textContent = o.versao ? `Versão ${o.versao}` : "Versão de desenvolvimento";
+}
+$("#opcoes").addEventListener("change", async (ev) => {
+  const k = ev.target.dataset.k;
+  if (!k) return;
+  try { desenharOpcoes(await api("/api/opcoes", { [k]: ev.target.checked })); toast("Salvo"); }
+  catch (e) { toast(e.message); ev.target.checked = !ev.target.checked; }
+});
+
+// ---------- status ----------
+let boot = null, falhas = 0;
+async function pulso() {
+  try {
+    const a = await api("/api/atividade");
+    falhas = 0;
+    $("#offline").classList.remove("vis");
+    if (boot && a.boot !== boot) location.reload();  // reiniciou: pega a versao nova
+    boot = a.boot;
+    const s = $("#status");
+    s.classList.toggle("on", a.conectado);
+    s.querySelector("span").textContent = a.conectado ? "Conectado ao LoL" : "Esperando o LoL abrir";
+  } catch (e) {
+    if (++falhas >= 3) $("#offline").classList.add("vis");
+  }
+}
+
+// ---------- topo ----------
+$("#tema").onclick = () => {
+  const claro = document.documentElement.dataset.modo !== "claro";
+  const trocar = () => {
+    if (claro) document.documentElement.dataset.modo = "claro"; else delete document.documentElement.dataset.modo;
+  };
+  if (document.startViewTransition && !matchMedia("(prefers-reduced-motion: reduce)").matches) document.startViewTransition(trocar);
+  else trocar();
+  try { localStorage.setItem("modo", claro ? "claro" : "escuro"); } catch (e) {}
+};
+$("#reiniciar").onclick = async () => {
+  $("#reiniciar").classList.add("girando");
+  try { await api("/api/reiniciar", {}); } catch (e) { toast(e.message); $("#reiniciar").classList.remove("girando"); }
+};
+
+carregarConta().catch((e) => toast(e.message));
+api("/api/opcoes").then(desenharOpcoes).catch(() => {});
+carregarHoje();
+pulso();
+setInterval(pulso, 3000);
+setInterval(carregarHoje, 60000);
+</script>
+</body>
+</html>

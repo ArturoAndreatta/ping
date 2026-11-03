@@ -1,0 +1,21 @@
+PING
+
+O Ping fica perto do relogio e abre junto com o Windows.
+Clique no icone pra abrir a janela dele.
+
+1. Na janela do Ping, entre (ou crie) a sua conta.
+2. Escaneie o QR code com o celular e entre com a mesma conta.
+3. Pronto: fila, partida encontrada, selecao de campeao e chat no celular.
+
+Nada acontece no LoL sem voce tocar no celular.
+
+Pra atualizar: ele se atualiza sozinho (ou abra o .exe da versao nova).
+Pra remover: Configuracoes do Windows > Apps > Apps instalados > Ping.
+
+O que aparece no celular passa pelo servidor do Ping (Firebase), so na sua
+conta. O codigo e aberto: https://github.com/ArturoAndreatta/ping
+
+O Ping nao e endossado pela Riot Games e nao reflete a visao ou opiniao da
+Riot Games nem de ninguem envolvido oficialmente na producao ou gestao de
+League of Legends. League of Legends e Riot Games sao marcas registradas da
+Riot Games, Inc.

@@ -1,0 +1,14 @@
+{
+  "name": "ping-avisos",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "teste": "node teste/criptografia.test.js && node teste/ping.test.js",
+    "vapid": "node ferramentas/gerar-vapid.js",
+    "publicar": "wrangler deploy"
+  },
+  "devDependencies": {
+    "http_ece": "^1.2.0",
+    "wrangler": "^4.153.0"
+  }
+}

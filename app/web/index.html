@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <base href="$FLUTTER_BASE_HREF">
+  <meta charset="UTF-8">
+  <!-- viewport-fit=cover: o app vai ate o topo, por baixo do relogio (o atalho do iPhone guarda o
+       black-translucent de quando foi criado). Ao subir, o engine troca esta tag pela dele sem o cover, e a
+       viewport encolhia pelo topo no meio do carregamento: o script devolve o cover na hora em que a tag entra.
+       (Mesmo conserto do GymBuffs.) -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <script>
+    new MutationObserver(function (mudancas) {
+      mudancas.forEach(function (m) {
+        m.addedNodes.forEach(function (no) {
+          if (no.nodeName === 'META' && no.name === 'viewport' && no.content.indexOf('viewport-fit') < 0) {
+            no.content += ', viewport-fit=cover';
+          }
+        });
+      });
+    }).observe(document.head, { childList: true });
+  </script>
+  <meta name="description" content="Ping: controle o League of Legends pelo celular.">
+  <meta name="theme-color" content="#010A13">
+
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Ping">
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+  <link rel="icon" type="image/png" href="favicon.png">
+
+  <title>Ping</title>
+  <link rel="manifest" href="manifest.json">
+  <!-- So as letras do nome da abertura (poucos KB); block: sem trocar de fonte no meio da animacao -->
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700&text=PING&display=block">
+  <style>
+    /* Area segura (relogio e home indicator) pro Flutter ler: o engine web nao repassa. */
+    :root {
+      --k-safe-top: env(safe-area-inset-top, 0px);
+      --k-safe-bottom: env(safe-area-inset-bottom, 0px);
+      --k-safe-left: env(safe-area-inset-left, 0px);
+      --k-safe-right: env(safe-area-inset-right, 0px);
+    }
+    /* O documento nao rola, e e isso que mantem o toque no lugar. No iPhone o Safari rola o documento
+       (~47px) em vez de so redimensionar a viewport; o Flutter converte o toque contando com o body em y = 0,
+       entao todo toque chegava mais baixo que o dedo: era preciso tocar acima do botao. Sem nada pra rolar,
+       o deslocamento some. A altura em pixels vem do script no fim do body. (Mesmo conserto do GymBuffs.) */
+    html {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      height: 100dvh;
+      overflow: hidden;
+      background: #010A13;
+    }
+    body { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background: #010A13; }
+    /* Abertura: cobre o tempo em que o Flutter baixa e compila e so sai quando o app tem o que mostrar (evento
+       ping-pronto do Dart: ja sabe se tem conta e ja leu o PC), nao no primeiro quadro. Um losango dourado no
+       centro manda o sinal: aneis saem dele e somem, um atras do outro.
+       Tudo que anda e transform ou opacity: enquanto isto roda a thread principal esta compilando alguns MB de
+       main.dart.js, e so o compositor segue liso. */
+    :root { --ab-ciclo: 2400ms; }
+    #abertura {
+      position: fixed; inset: 0; z-index: 99;
+      display: flex; align-items: center; justify-content: center;
+      /* o mesmo brilho dourado do topo do app: a troca nao muda o fundo */
+      background: radial-gradient(circle 130vmin at 50% -5%, rgba(200,170,110,.12), rgba(1,10,19,0)) #010A13;
+      -webkit-user-select: none; user-select: none;
+      transition: opacity 420ms cubic-bezier(.4,0,.2,1);
+    }
+    #abertura.saindo { opacity: 0; pointer-events: none; }
+    .ab-saida { display: flex; flex-direction: column; align-items: center;
+      transition: transform 420ms cubic-bezier(.4,0,.2,1); }
+    #abertura.saindo .ab-saida { transform: scale(1.06); }
+
+    .ab-palco { position: relative; width: 148px; height: 148px; margin-bottom: 34px;
+      animation: ab-entra 700ms cubic-bezier(.23,1,.32,1) both; }
+    .ab-palco > div { position: absolute; left: 50%; top: 50%; }
+    .ab-halo { width: 150px; height: 150px; margin: -75px 0 0 -75px; border-radius: 50%;
+      background: radial-gradient(closest-side, rgba(200,170,110,.18), rgba(200,170,110,0));
+      animation: ab-brilho var(--ab-ciclo) ease-in-out infinite both; will-change: opacity; }
+    /* aneis do sinal: nascem no tamanho do losango, crescem e somem (escala e opacidade so) */
+    .ab-anel { width: 136px; height: 136px; margin: -68px 0 0 -68px; border-radius: 50%;
+      border: 1.5px solid #C8AA6E; opacity: 0;
+      animation: ab-sinal var(--ab-ciclo) cubic-bezier(.2,.6,.35,1) infinite;
+      will-change: transform, opacity; }
+    .ab-anel.b { animation-delay: calc(var(--ab-ciclo) / -3); }
+    .ab-anel.c { animation-delay: calc(var(--ab-ciclo) / -1.5); }
+    /* o losango: moldura dourada, miolo escuro e um losango menor aceso dentro; pulsa de leve a cada sinal */
+    .ab-losango { width: 40px; height: 40px; margin: -20px 0 0 -20px;
+      animation: ab-pulsa calc(var(--ab-ciclo) / 3) ease-in-out infinite; will-change: transform; }
+    .ab-losango::before, .ab-losango::after { content: ""; position: absolute; transform: rotate(45deg); }
+    .ab-losango::before { inset: 4px; background: #010A13; border: 2px solid #C8AA6E;
+      box-shadow: 0 0 18px rgba(200,170,110,.35); }
+    .ab-losango::after { inset: 13px; background: linear-gradient(135deg, #F0E6D2, #C8AA6E 55%, #785A28); }
+    .ab-nome { font: 700 21px "Cinzel", "Times New Roman", serif; letter-spacing: .36em; margin-right: -.36em;
+      color: #F0E6D2; text-shadow: 0 0 18px rgba(200,170,110,.25);
+      animation: ab-sobe 800ms cubic-bezier(.23,1,.32,1) 180ms both; }
+    @keyframes ab-entra { from { opacity: 0; transform: scale(.86); } to { opacity: 1; transform: none; } }
+    @keyframes ab-sobe { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+    @keyframes ab-sinal {
+      0% { opacity: 0; transform: scale(.22); }
+      12% { opacity: .9; }
+      100% { opacity: 0; transform: scale(1); }
+    }
+    @keyframes ab-pulsa { 0%, 100% { transform: scale(1); } 18% { transform: scale(1.08); } }
+    @keyframes ab-brilho { 0%, 100% { opacity: .55; } 50% { opacity: 1; } }
+    @media (prefers-reduced-motion: reduce) {
+      #abertura, #abertura * { animation: none !important; }
+      #abertura.saindo .ab-saida { transform: none; }
+      .ab-anel { opacity: .35; transform: scale(.6); }
+      .ab-anel.b, .ab-anel.c { display: none; }
+    }
+  </style>
+</head>
+<body>
+  <div id="abertura" role="status" aria-label="Carregando o Ping">
+    <div class="ab-saida">
+      <div class="ab-palco" aria-hidden="true">
+        <div class="ab-halo"></div>
+        <div class="ab-anel"></div>
+        <div class="ab-anel b"></div>
+        <div class="ab-anel c"></div>
+        <div class="ab-losango"></div>
+      </div>
+      <div class="ab-nome">PING</div>
+    </div>
+  </div>
+  <script>
+    // Aviso de versao nova (skill aviso-nova-versao, caminho A): o pop-up mora em lib/atualizacao.dart.
+/*
+ * Aviso de versão nova por SERVICE WORKER, para qualquer app web.
+ *
+ * Serve para qualquer stack com service worker (PWA feito à mão, Workbox,
+ * Flutter Web, etc.). Observa o registro e avisa. Para app SEM service
+ * worker, use `version-poll.js`.
+ *
+ * **O worker precisa ficar num endereço fixo.** Quem registra com um número
+ * no endereço (`sw.js?v=123`, o padrão do Flutter) registra de novo quando o
+ * número muda, e isso acontece logo depois do "Atualizar agora": o mesmo
+ * worker instala outra vez e o aviso reabre já na versão nova. Se o framework
+ * faz isso, tire o registro dele e ligue SW_URL abaixo (Flutter: ver a skill,
+ * caminho A).
+ *
+ * Carregue ANTES do bundle do app (um <script> no <head> ou no fim do <body>,
+ * antes do script principal). Emite dois eventos em `window` e deixa duas
+ * marcas globais, lidas por quem nascer depois do evento:
+ *
+ *   'ping-update-found'  + window.pingUpdateFound = true
+ *       achou versão nova; ainda baixando. O aviso abre, botão esperando.
+ *   'ping-update-ready'  + window.pingUpdateReady = true
+ *       baixou e o worker novo assumiu. O botão libera.
+ *
+ * ADAPTAR:
+ *   - APP_READY_EVENT: evento que diz "o app está na tela" (o framework
+ *     costuma ter um; sem nenhum, dispare um no fim do boot do app).
+ *   - APP_CODE_SELECTOR: o <script> do bundle principal do app, e também o
+ *     `<link rel="preload">` dele, se houver: o preload baixa o código velho
+ *     antes de a tag existir.
+ *   - SW_URL: o worker a registrar aqui, ou null se o framework já registra
+ *     num endereço fixo. Flutter: 'flutter_service_worker' + '.js', em dois
+ *     pedaços porque o build acrescenta `?v=` ao nome inteiro no index.html.
+ *   - o prefixo `app` dos nomes, se houver mais de um app na mesma origem.
+ *
+ * **O service worker precisa assumir sozinho** (`skipWaiting()` no install e
+ * `clients.claim()` no activate), senão o worker novo fica em `waiting` até
+ * todas as abas fecharem e o 'ready' nunca chega. Workbox: `skipWaiting: true`
+ * e `clientsClaim: true`. Flutter Web: já faz.
+ */
+(function () {
+  var APP_READY_EVENT = 'flutter-first-frame';
+  var APP_CODE_SELECTOR = 'script[src*="main.dart.js"], link[rel="preload"][href*="main.dart.js"]';
+  var SW_URL = 'flutter_service_worker' + '.js'; // dois pedacos: o build poe ?v= no nome inteiro
+  var CHECK_EVERY_MS = 10 * 1000; // 10s
+
+  var appReady = false;
+  window.pingUpdateFound = false;
+  window.pingUpdateReady = false;
+
+  window.addEventListener(APP_READY_EVENT, function () {
+    appReady = true;
+  });
+
+  // Se o bundle velho já começou a subir. Antes disso, o app ainda vai ser
+  // baixado, e já virá do worker novo: recarregar seria espera à toa.
+  function appCodeLoaded() {
+    return !!document.querySelector(APP_CODE_SELECTOR);
+  }
+
+  function announceFound() {
+    // Antes de o app estar na tela não há aviso para abrir: quem resolve é o
+    // recarregar de `announceReady`, quando o download terminar.
+    if (!appReady) return;
+    window.pingUpdateFound = true;
+    window.dispatchEvent(new Event('ping-update-found'));
+  }
+
+  function announceReady() {
+    if (!appReady && !appCodeLoaded()) return;
+    if (!appReady) {
+      // Só há splash na tela: recarrega sozinho, uma vez a cada 30 s no
+      // máximo (dois deploys se atropelando não viram recarga em círculo).
+      var key = 'ping-sw-reloaded-at';
+      var last = 0;
+      try { last = Number(sessionStorage.getItem(key)) || 0; } catch (_) {}
+      if (Date.now() - last > 30000) {
+        try { sessionStorage.setItem(key, String(Date.now())); } catch (_) {}
+        location.reload();
+        return;
+      }
+    }
+    window.pingUpdateReady = true;
+    window.dispatchEvent(new Event('ping-update-ready'));
+  }
+
+  if (!('serviceWorker' in navigator)) return;
+  // `updateViaCache: 'none'`: os `importScripts` do worker também vêm da rede
+  // a cada conferência, sem passar pelo cache HTTP.
+  if (SW_URL) {
+    navigator.serviceWorker
+      .register(SW_URL, { updateViaCache: 'none' })
+      .catch(function () {});
+  }
+  navigator.serviceWorker.ready.then(function (registration) {
+    function track(worker) {
+      // Sem worker ativo antes, é a primeira visita: não há versão velha.
+      if (!worker || !registration.active || worker === registration.active) {
+        return;
+      }
+      // Endereço diferente do ativo é o mesmo app registrado de novo, não
+      // versão nova (a migração de `sw.js?v=` para o endereço fixo).
+      if (worker.scriptURL !== registration.active.scriptURL) return;
+      announceFound();
+      worker.addEventListener('statechange', function () {
+        if (worker.state === 'activated') announceReady();
+      });
+    }
+
+    // Um worker novo pode já estar instalando quando `ready` resolve.
+    track(registration.installing || registration.waiting);
+    registration.addEventListener('updatefound', function () {
+      track(registration.installing);
+    });
+
+    // O navegador só confere sozinho a cada navegação; uma aba aberta o dia
+    // inteiro não navega. Aba escondida não confere (a volta confere). `focus`
+    // porque trocar de janela no computador não esconde a aba. Mínimo de 2 s
+    // entre conferências: `visibilitychange` e `focus` chegam juntos.
+    var lastCheck = 0;
+    function check() {
+      if (document.visibilityState !== 'visible') return;
+      if (Date.now() - lastCheck < 2000) return;
+      lastCheck = Date.now();
+      registration.update().catch(function () {});
+    }
+    setInterval(check, CHECK_EVERY_MS);
+    document.addEventListener('visibilitychange', check);
+    window.addEventListener('focus', check);
+    window.addEventListener('online', check);
+  });
+})();
+
+  </script>
+  <script>
+    // Som no iPhone: o Safari so libera audio num toque que TERMINA (touchend/click), nao no pointerdown que o
+    // Flutter usa. O AudioContext nasce aqui (o app baixa e decodifica os sons nele mesmo antes do toque) e cada
+    // toque tenta destravar: o iPhone tambem suspende o audio quando o app vai pro fundo.
+    // Tocar no silencioso (Mais > Sons, ligado por padrao): com a sessao de audio em "playback" o iPhone toca
+    // mesmo com a chave do silencioso, no volume dos botoes. "ambient" respeita a chave e nao corta a musica de
+    // fundo. Precisa ser antes de criar o AudioContext (Safari 17+; sem a API nada muda).
+    (function () {
+      window.pingSilencioso = function (tocar) {
+        try {
+          if (navigator.audioSession) navigator.audioSession.type = tocar ? "playback" : "ambient";
+        } catch (e) {}
+      };
+      var v = null;
+      try { v = localStorage.getItem("ping-silencioso"); } catch (e) {}
+      window.pingSilencioso(v !== "0");
+    })();
+    (function () {
+      var C = window.AudioContext || window.webkitAudioContext;
+      if (!C) return;
+      try { window.pingAudio = new C(); } catch (e) { return; }
+      function destravar() {
+        var a = window.pingAudio;
+        if (!a || a.state === "running") return;
+        try {
+          a.resume();
+          var s = a.createBufferSource();
+          s.buffer = a.createBuffer(1, 1, 22050);
+          s.connect(a.destination);
+          s.start(0);
+        } catch (e) {}
+      }
+      ["touchend", "click", "keydown"].forEach(function (t) {
+        document.addEventListener(t, destravar, true);
+      });
+    })();
+  </script>
+  <script>
+    // Abertura (ver o CSS do #abertura): sai quando o app avisa que tem o que mostrar (ping-pronto, depois do
+    // primeiro quadro), nunca antes de a entrada terminar. Se o aviso nao vier (erro no app), sai 10s depois do
+    // primeiro quadro pra nao prender a tela.
+    (function () {
+      var a = document.getElementById('abertura');
+      var MINIMO = 900; // ms desde a pagina abrir: a entrada (700ms) termina e a troca nao pisca
+      var saiu = false;
+      function sair() {
+        if (saiu) return;
+        saiu = true;
+        setTimeout(function () {
+          a.classList.add('saindo');
+          setTimeout(function () { a.remove(); }, 460);
+        }, Math.max(0, MINIMO - performance.now()));
+      }
+      window.addEventListener('ping-pronto', sair);
+      window.addEventListener('flutter-first-frame', function () { setTimeout(sair, 10000); });
+    })();
+  </script>
+  <script>
+    // Toque no lugar certo no iPhone, com ou sem teclado. O Flutter descobre onde o dedo encostou pelo
+    // offsetX/offsetY do evento (posicao dentro do elemento tocado). O Safari do iOS calcula esse numero errado
+    // quando a viewport visual esta deslocada (teclado aberto empurra a tela; barra de URL), e o toque chegava
+    // abaixo do dedo: era preciso tocar acima do botao. clientX/Y e getBoundingClientRect vem no mesmo sistema e
+    // nao tem esse erro: antes do Flutter ler, o offset e refeito a partir deles. Vale pra todo toque do app.
+    (function () {
+      var ios = /iPhone|iPad|iPod/.test(navigator.userAgent) ||
+        (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+      if (!ios) return;
+      function corrigir(e) {
+        var alvo = e.target;
+        if (!alvo || !alvo.getBoundingClientRect || typeof e.clientX !== 'number') return;
+        var r = alvo.getBoundingClientRect();
+        try {
+          Object.defineProperty(e, 'offsetX', { value: e.clientX - r.left, configurable: true });
+          Object.defineProperty(e, 'offsetY', { value: e.clientY - r.top, configurable: true });
+        } catch (_) {}
+      }
+      ['pointerdown', 'pointermove', 'pointerup', 'pointercancel', 'mousedown', 'mousemove', 'mouseup', 'click',
+       'wheel'].forEach(function (t) {
+        window.addEventListener(t, corrigir, { capture: true, passive: true });
+      });
+    })();
+
+    // Mantem o <html> na altura visual e o documento sem deslocamento (o CSS impede o scroll; isto cuida do que
+    // muda em execucao). No iOS o engine le o tamanho de document.documentElement.clientHeight. O <body> e do
+    // engine: nao mexer. Teclado aberto (altura < 75% da maior vista) nao mexe, senao o app acha que nao ha
+    // teclado e o campo fica embaixo dele. Leituras de layout vao pro quadro seguinte (requestAnimationFrame).
+    (function () {
+      var vv = window.visualViewport;
+      if (!vv) return;
+      var ultima = 0, maxima = 0, agendado = false;
+      // App instalado no iPhone (barra de status translucida): a altura da viewport vem sem a barra de status
+      // (~47px), mas o app desenha a partir do topo da tela; sobrava uma faixa vazia embaixo. Ali a altura
+      // certa e a da tela inteira (screen e sempre em pe: deitado, a altura e o lado menor).
+      function tela() {
+        if (!navigator.standalone || !window.screen) return 0;
+        var a = screen.width, b = screen.height;
+        return window.matchMedia('(orientation: landscape)').matches ? Math.min(a, b) : Math.max(a, b);
+      }
+      // O Flutter no iOS mede a tela por document.documentElement.clientHeight, que no root e a altura da
+      // viewport e ignora o CSS: no app instalado ela vem sem a barra de status e o app ficava curto, com a
+      // faixa vazia embaixo. Aqui o root responde a altura da tela inteira quando a diferenca e so essa barra.
+      var alturaDoRoot = Object.getOwnPropertyDescriptor(Element.prototype, 'clientHeight');
+      if (navigator.standalone && alturaDoRoot && alturaDoRoot.get) {
+        Object.defineProperty(document.documentElement, 'clientHeight', {
+          configurable: true,
+          get: function () {
+            var h = alturaDoRoot.get.call(this);
+            var t = tela();
+            return t > h && t - h <= 80 ? t : h;
+          }
+        });
+      }
+      function ajustar() {
+        var altura = Math.round(vv.height);
+        if (altura <= 0) return;
+        if (altura > maxima) maxima = altura;
+        if (altura < maxima * 0.75) return;
+        var visivel = altura;
+        altura = Math.max(altura, tela());
+        if (altura === ultima) return;
+        ultima = altura;
+        var html = document.documentElement;
+        html.style.height = altura + 'px';
+        // Mais alto que a area que o iPhone informa (app instalado): preso com position: fixed, o <html> era
+        // cortado no fim dessa area e o pe do app (botao de banir/travar) sumia. Solto ele vai ate o fim da
+        // tela; o scroll que isso permitiria e desfeito em desfazerScroll e o toque continua certo (corrigir).
+        html.style.position = altura > visivel ? 'absolute' : '';
+      }
+      function desfazerScroll() {
+        if (window.scrollY !== 0 || window.scrollX !== 0) window.scrollTo(0, 0);
+        if (Math.round(vv.offsetTop) !== 0) ajustar();
+      }
+      function agendar() {
+        if (agendado) return;
+        agendado = true;
+        window.requestAnimationFrame(function () { agendado = false; ajustar(); desfazerScroll(); });
+      }
+      ajustar();
+      vv.addEventListener('resize', ajustar, { passive: true });
+      vv.addEventListener('scroll', agendar, { passive: true });
+      window.addEventListener('scroll', agendar, { passive: true });
+      window.addEventListener('orientationchange', function () {
+        maxima = 0; ultima = 0;
+        window.requestAnimationFrame(ajustar);
+      });
+    })();
+  </script>
+  <script src="push.js"></script>
+  <script src="flutter_bootstrap.js" async></script>
+</body>
+</html>
