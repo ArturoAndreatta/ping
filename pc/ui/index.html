@@ -6,14 +6,21 @@
 <title>Ping</title>
 <link rel="icon" href="/logo.ico?t=__TOKEN__">
 <script>
-  // modo escuro/claro antes de pintar (sem piscar)
-  try { if (localStorage.getItem("modo") === "claro") document.documentElement.dataset.modo = "claro"; } catch (e) {}
+  // tema antes de pintar (sem piscar o escuro): regiao em data-tema (sem ele, a do client) e modo em data-modo
+  // (sem ele, escuro). A lista tem que bater com TEMAS la embaixo
+  try {
+    const t = localStorage.getItem("tema");
+    if (["demacia", "noxus", "piltover", "zaun", "freljord", "ionia", "shurima", "bilgewater", "sombras", "targon", "bandopolis", "ixtal", "vazio"].includes(t)) document.documentElement.dataset.tema = t;
+    if (localStorage.getItem("modo") === "claro") document.documentElement.dataset.modo = "claro";
+  } catch (e) {}
 </script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
-:root {
+/* tema = regiao (a do client ou uma de Runeterra) + modo (escuro ou claro), os mesmos do celular.
+   O cartao de previa (.tc) ja nasce no proprio tema (data-tema, data-modo) */
+:root, .tc[data-tema="escuro"] {
   color-scheme: dark;
   --bg: #010A13;
   --panel: #0A1219;
@@ -40,7 +47,7 @@
   --fonte: "Barlow", "Segoe UI", system-ui, sans-serif;
   --titulo: "Cinzel", Georgia, serif;
 }
-:root[data-modo="claro"] {
+:root[data-modo="claro"], .tc[data-modo="claro"] {
   color-scheme: light;
   --bg: #F2ECE0;
   --panel: #FBF8F2;
@@ -60,6 +67,61 @@
   --sobre-ouro: #FFFFFF;
   --fundo-a: rgba(200, 170, 110, .16);
   --fundo-b: rgba(8, 127, 134, .06);
+}
+/* regioes: cada uma so escolhe 5 cores (fundo, superficie, destaque, segundo destaque, texto); o resto sai delas.
+   Mesmas cores de app/lib/tema.dart: mexeu la, mexe aqui */
+[data-tema="demacia"]     { --r-bg: #0A1226; --r-surf: #26385C; --r-acc: #86ADEE; --r-acc2: #E6C25C; --r-text: #E6ECF8; }
+[data-tema="noxus"]       { --r-bg: #130808; --r-surf: #3C1A1C; --r-acc: #E0554F; --r-acc2: #9AAFC2; --r-text: #E9D9D3; }
+[data-tema="piltover"]    { --r-bg: #0B1417; --r-surf: #2A3F3E; --r-acc: #D9895A; --r-acc2: #3FC8F0; --r-text: #E8DFCF; }
+[data-tema="zaun"]        { --r-bg: #080F0B; --r-surf: #1B3C2B; --r-acc: #43EE8C; --r-acc2: #C562FF; --r-text: #D5E6D8; }
+[data-tema="freljord"]    { --r-bg: #09111A; --r-surf: #27394C; --r-acc: #9DDCF6; --r-acc2: #6E9CD8; --r-text: #E4EEF5; }
+[data-tema="ionia"]       { --r-bg: #130C17; --r-surf: #3B2742; --r-acc: #F4A9C4; --r-acc2: #8FD8B0; --r-text: #F5ECDD; }
+[data-tema="shurima"]     { --r-bg: #150F05; --r-surf: #3D2E12; --r-acc: #EBBB3E; --r-acc2: #3FBAA9; --r-text: #F1E4C9; }
+[data-tema="bilgewater"]  { --r-bg: #08131A; --r-surf: #26403F; --r-acc: #D0803F; --r-acc2: #3FA9C8; --r-text: #DCE5E0; }
+[data-tema="sombras"]     { --r-bg: #040F0E; --r-surf: #163430; --r-acc: #48DBAA; --r-acc2: #9AB0AA; --r-text: #CDE4DE; }
+[data-tema="targon"]      { --r-bg: #0A0C22; --r-surf: #2A2C5E; --r-acc: #9B7CFF; --r-acc2: #D5DCF2; --r-text: #E6E4F6; }
+[data-tema="bandopolis"]  { --r-bg: #120F2A; --r-surf: #3A2C66; --r-acc: #FF63AE; --r-acc2: #FFD54A; --r-text: #F2E8F6; }
+[data-tema="ixtal"]       { --r-bg: #0A1409; --r-surf: #34421F; --r-acc: #A9D24B; --r-acc2: #3FCFA6; --r-text: #E2EBD3; }
+[data-tema="vazio"]       { --r-bg: #0A0612; --r-surf: #2B1647; --r-acc: #A950FF; --r-acc2: #FF4F9C; --r-text: #E1D5EF; }
+[data-tema]:not([data-tema="escuro"]):not([data-modo="claro"]) {
+  color-scheme: dark;
+  --bg: var(--r-bg);
+  --panel: color-mix(in srgb, var(--r-bg) 70%, var(--r-surf));
+  --panel-2: color-mix(in srgb, var(--r-bg) 42%, var(--r-surf));
+  --line: color-mix(in srgb, var(--r-bg) 30%, var(--r-surf));
+  --line-2: color-mix(in srgb, var(--r-surf) 86%, var(--r-text));
+  --gold: var(--r-acc);
+  --gold-hi: color-mix(in srgb, var(--r-acc) 30%, #fff);
+  --gold-lo: color-mix(in srgb, var(--r-acc) 60%, var(--r-bg));
+  --teal: var(--r-acc2);
+  --text: var(--r-text);
+  --muted: color-mix(in srgb, var(--r-text) 72%, var(--r-bg));
+  --faint: color-mix(in srgb, var(--r-text) 38%, var(--r-bg));
+  --input: color-mix(in srgb, var(--r-bg) 85%, var(--r-surf));
+  --fundo-a: color-mix(in srgb, var(--r-acc) 9%, transparent);
+  --fundo-b: color-mix(in srgb, var(--r-acc2) 6%, transparent);
+  --sobre-ouro: color-mix(in srgb, var(--r-bg) 60%, #000);
+}
+/* a mesma regiao no claro: papel com o tom da superficie, tinta do fundo e destaques escurecidos pra ler no papel */
+[data-tema][data-modo="claro"]:not([data-tema="escuro"]) {
+  color-scheme: light;
+  --bg: color-mix(in srgb, var(--r-surf) 11%, #fff);
+  --panel: color-mix(in srgb, var(--r-surf) 4%, #fff);
+  --panel-2: color-mix(in srgb, var(--r-surf) 10%, #fff);
+  --line: color-mix(in srgb, var(--r-surf) 20%, #fff);
+  --line-2: color-mix(in srgb, var(--r-surf) 34%, #fff);
+  --text: color-mix(in srgb, var(--r-bg) 70%, #000);
+  --muted: color-mix(in srgb, var(--text) 66%, #fff);
+  --faint: color-mix(in srgb, var(--text) 36%, #fff);
+  --gold: color-mix(in srgb, var(--r-acc) 52%, #000);
+  --gold-hi: color-mix(in srgb, var(--gold) 35%, #000);
+  --gold-lo: color-mix(in srgb, var(--gold) 55%, #fff);
+  --teal: color-mix(in srgb, var(--r-acc2) 48%, #000);
+  --input: color-mix(in srgb, var(--r-surf) 2%, #fff);
+  --sombra: color-mix(in srgb, var(--r-bg) 18%, transparent);
+  --fundo-a: color-mix(in srgb, var(--r-acc) 16%, transparent);
+  --fundo-b: color-mix(in srgb, var(--r-acc2) 7%, transparent);
+  --sobre-ouro: #FFFFFF;
 }
 * { box-sizing: border-box; }
 html, body { margin: 0; }
@@ -99,8 +161,8 @@ header {
 .icone-btn:hover { border-color: var(--gold); background: var(--panel-2); }
 .icone-btn:active { transform: scale(.94); }
 .icone-btn svg { width: 18px; height: 18px; }
-#tema .lua, :root[data-modo="claro"] #tema .sol { display: none; }
-:root[data-modo="claro"] #tema .lua { display: block; }
+#tema svg { transition: transform .4s var(--ease-out); }
+#tema:hover svg { transform: rotate(-20deg); }
 .girando svg { animation: gira .9s linear infinite; }
 @keyframes gira { to { transform: rotate(360deg); } }
 
@@ -169,6 +231,56 @@ ol.passos b { color: var(--text); font-weight: 600; }
 /* versao: fora dos cards, no canto de baixo a direita */
 .versao { max-width: 980px; margin: -10px auto 0; padding: 0 24px 12px; text-align: right; font-size: 12px; color: var(--faint); }
 
+/* janela do tema: modo (escuro ou claro) e regiao, cada cartao ja no proprio tema */
+#janelaTema {
+  width: min(720px, calc(100vw - 32px)); max-height: calc(100vh - 32px); padding: 0; overflow: auto;
+  background: var(--panel); color: var(--text); border: 1px solid var(--line-2); border-radius: var(--r2);
+  box-shadow: 0 24px 60px -20px var(--sombra);
+  opacity: 0; transform: translateY(10px) scale(.98);
+  transition: opacity .22s var(--ease-out), transform .26s var(--ease-out), overlay .26s allow-discrete, display .26s allow-discrete;
+}
+#janelaTema[open] { opacity: 1; transform: none; }
+@starting-style { #janelaTema[open] { opacity: 0; transform: translateY(10px) scale(.98); } }
+#janelaTema::backdrop { background: color-mix(in srgb, var(--bg) 70%, transparent); opacity: 0;
+  transition: opacity .22s, overlay .26s allow-discrete, display .26s allow-discrete; }
+#janelaTema[open]::backdrop { opacity: 1; }
+@starting-style { #janelaTema[open]::backdrop { opacity: 0; } }
+.jt-topo { display: flex; align-items: center; gap: 12px; padding: 16px 16px 0 20px; }
+.jt-topo h2 { flex: 1; margin: 0; font: 700 13px/1 var(--titulo); letter-spacing: .14em; text-transform: uppercase; color: var(--gold); }
+.jt-corpo { padding: 14px 20px 20px; }
+.jt-corpo > p { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
+.seg { position: relative; display: grid; grid-template-columns: 1fr 1fr; padding: 3px; border: 1px solid var(--line-2); border-radius: var(--r2); margin-bottom: 16px; }
+.seg::before { content: ""; position: absolute; top: 3px; bottom: 3px; left: 3px; width: calc(50% - 3px); border-radius: var(--r1);
+  border: 1px solid var(--gold-lo); background: color-mix(in srgb, var(--gold) 12%, transparent); transition: transform .28s var(--ease-out); }
+:root[data-modo="claro"] .seg::before { transform: translateX(100%); }
+.seg button { position: relative; display: inline-flex; align-items: center; justify-content: center; gap: 8px; height: 38px; border: 0; background: none;
+  color: var(--muted); cursor: pointer; font-weight: 600; font-size: 12.5px; letter-spacing: .08em; text-transform: uppercase; transition: color .2s, transform .12s var(--ease-out); }
+.seg button svg { width: 16px; height: 16px; }
+.seg button:hover { color: var(--text); }
+.seg button:active { transform: scale(.97); }
+.seg button[aria-checked="true"] { color: var(--gold-hi); }
+.temas { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; }
+.tc { position: relative; display: flex; flex-direction: column; gap: 12px; padding: 14px 12px 12px; text-align: left; cursor: pointer;
+  background: var(--bg); color: var(--text); border: 1px solid var(--line-2); border-radius: var(--r2); overflow: hidden;
+  transition: transform .18s var(--ease-out), border-color .2s, box-shadow .25s, background .25s; }
+.tc::before { content: ""; position: absolute; left: 0; right: 0; top: 0; height: 2px; background: linear-gradient(90deg, var(--gold-lo), var(--gold), var(--gold-lo)); }
+.tc:hover { transform: translateY(-2px); border-color: var(--gold-lo); }
+.tc:active { transform: scale(.97); }
+.tc:focus-visible { outline: 2px solid var(--sel); outline-offset: 2px; }
+.tc[aria-checked="true"] { border-color: var(--sel); box-shadow: 0 0 0 1px var(--sel), 0 6px 18px -8px var(--sel); }
+.tc .tn { font: 700 12px/1.2 var(--titulo); letter-spacing: .12em; overflow-wrap: anywhere; text-transform: uppercase; color: var(--gold-hi); }
+.tc .pontos { display: flex; gap: 9px; padding-left: 2px; }
+.tc .pontos i { width: 11px; height: 11px; border-radius: 1px; transform: rotate(45deg); border: 1px solid transparent; }
+.tc .pontos i:nth-child(1) { background: var(--gold); }
+.tc .pontos i:nth-child(2) { background: var(--teal); }
+.tc .pontos i:nth-child(3) { background: var(--panel-2); border-color: var(--line-2); }
+.tc .pontos i:nth-child(4) { background: var(--text); }
+/* losango no canto do tema em uso */
+.tc::after { content: ""; position: absolute; right: 10px; top: 14px; width: 8px; height: 8px; border-radius: 1px; background: var(--sel);
+  transform: rotate(45deg) scale(0); transition: transform .3s var(--ease-out); }
+.tc[aria-checked="true"]::after { transform: rotate(45deg) scale(1); }
+:root { --sel: var(--gold); }
+
 /* toast */
 #toast {
   position: fixed; left: 50%; bottom: 24px; transform: translate(-50%, 16px); opacity: 0; pointer-events: none;
@@ -189,6 +301,7 @@ ol.passos b { color: var(--text); font-weight: 600; }
   header { padding: 12px 16px; }
   .qr { flex-direction: column; align-items: flex-start; }
   .status span { display: none; }
+  .temas { grid-template-columns: 1fr 1fr; }
 }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
@@ -207,9 +320,8 @@ ol.passos b { color: var(--text); font-weight: 600; }
   </div>
   <div class="status" id="status"><i class="losango"></i><span>Procurando o LoL...</span></div>
   <div class="espaco"></div>
-  <button class="icone-btn" id="tema" title="Modo claro ou escuro" aria-label="Modo claro ou escuro">
-    <svg class="sol" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
-    <svg class="lua" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+  <button class="icone-btn" id="tema" title="Tema" aria-label="Tema" aria-haspopup="dialog">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a9 9 0 1 0 0 18c1.1 0 1.8-.8 1.8-1.8 0-.5-.2-.9-.5-1.2-.3-.3-.5-.7-.5-1.2 0-1 .8-1.8 1.8-1.8H17a4 4 0 0 0 4-4c0-4.4-4-8-9-8z"/><circle cx="7.5" cy="11.5" r="1"/><circle cx="10.5" cy="7.5" r="1"/><circle cx="15" cy="7.5" r="1"/></svg>
   </button>
   <button class="icone-btn" id="reiniciar" title="Reiniciar o Ping" aria-label="Reiniciar o Ping">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 1 1-3-6.7L21 8"/><path d="M21 3v5h-5"/></svg>
@@ -238,6 +350,27 @@ ol.passos b { color: var(--text); font-weight: 600; }
   </section>
 </main>
 <footer class="versao" id="versao"></footer>
+
+<dialog id="janelaTema" aria-labelledby="jtTitulo">
+  <div class="jt-topo">
+    <h2 id="jtTitulo">Tema</h2>
+    <button class="icone-btn" id="jtFechar" title="Fechar" aria-label="Fechar">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
+    </button>
+  </div>
+  <div class="jt-corpo">
+    <p>As cores desta janela. O app do celular tem os mesmos temas.</p>
+    <div class="seg" role="radiogroup" aria-label="Modo">
+      <button type="button" role="radio" data-modo="escuro">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>Escuro
+      </button>
+      <button type="button" role="radio" data-modo="claro">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>Claro
+      </button>
+    </div>
+    <div class="temas" id="temas" role="radiogroup" aria-label="Região"></div>
+  </div>
+</dialog>
 
 <div id="toast" role="status" aria-live="polite"></div>
 <div id="offline"><div><b>Sem conexão com o Ping</b><br>Ele foi fechado? Abra de novo pelo atalho.</div></div>
@@ -347,16 +480,51 @@ async function pulso() {
   }
 }
 
-// ---------- topo ----------
-$("#tema").onclick = () => {
-  const claro = document.documentElement.dataset.modo !== "claro";
-  const trocar = () => {
-    if (claro) document.documentElement.dataset.modo = "claro"; else delete document.documentElement.dataset.modo;
-  };
-  if (document.startViewTransition && !matchMedia("(prefers-reduced-motion: reduce)").matches) document.startViewTransition(trocar);
-  else trocar();
+// ---------- tema ----------
+// regiao + modo, os mesmos do celular (app/lib/tema.dart). A lista do script do <head> tem que bater com esta
+const TEMAS = [["escuro", "Client"], ["demacia", "Demacia"], ["noxus", "Noxus"], ["piltover", "Piltover"], ["zaun", "Zaun"],
+  ["freljord", "Freljord"], ["ionia", "Ionia"], ["shurima", "Shurima"], ["bilgewater", "Águas de Sentina"],
+  ["sombras", "Ilha das Sombras"], ["targon", "Targon"], ["bandopolis", "Bandópolis"], ["ixtal", "Ixtal"], ["vazio", "Vazio"]];
+const raiz = document.documentElement;
+const temaAtual = () => raiz.dataset.tema || "escuro";
+const claroAtual = () => raiz.dataset.modo === "claro";
+function trocarTema(muda) {
+  const semMovimento = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  if (document.startViewTransition && !semMovimento) document.startViewTransition(muda);
+  else muda();
+}
+function desenharTemas() {
+  const modo = claroAtual() ? ' data-modo="claro"' : "";
+  $("#temas").innerHTML = TEMAS.map(([id, nome]) => `<button type="button" class="tc" role="radio" data-tema="${id}"${modo}
+      aria-checked="${id === temaAtual()}" aria-label="Tema ${nome}"><span class="pontos"><i></i><i></i><i></i><i></i></span>
+      <span class="tn">${nome}</span></button>`).join("");
+  document.querySelectorAll(".seg button").forEach((b) => b.setAttribute("aria-checked", String((b.dataset.modo === "claro") === claroAtual())));
+}
+$("#temas").addEventListener("click", (ev) => {
+  const c = ev.target.closest(".tc");
+  if (!c || c.dataset.tema === temaAtual()) return;
+  const id = c.dataset.tema;
+  trocarTema(() => {
+    if (id === "escuro") delete raiz.dataset.tema; else raiz.dataset.tema = id;
+    desenharTemas();
+  });
+  try { localStorage.setItem("tema", id); } catch (e) {}
+});
+document.querySelectorAll(".seg button").forEach((b) => (b.onclick = () => {
+  const claro = b.dataset.modo === "claro";
+  if (claro === claroAtual()) return;
+  trocarTema(() => {
+    if (claro) raiz.dataset.modo = "claro"; else delete raiz.dataset.modo;
+    desenharTemas();
+  });
   try { localStorage.setItem("modo", claro ? "claro" : "escuro"); } catch (e) {}
-};
+}));
+const janelaTema = $("#janelaTema");
+$("#tema").onclick = () => { desenharTemas(); janelaTema.showModal(); };
+$("#jtFechar").onclick = () => janelaTema.close();
+janelaTema.addEventListener("click", (ev) => { if (ev.target === janelaTema) janelaTema.close(); });  // clique fora fecha
+
+// ---------- topo ----------
 $("#reiniciar").onclick = async () => {
   $("#reiniciar").classList.add("girando");
   try { await api("/api/reiniciar", {}); } catch (e) { toast(e.message); $("#reiniciar").classList.remove("girando"); }
