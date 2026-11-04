@@ -2304,8 +2304,8 @@ def _fim_da_selecao(s):
 
 
 def _espacar():
-    """Duas acoes seguidas na selecao pelo celular (troca, banco): nunca no mesmo instante, com um respiro
-    sorteado entre elas, como quem clica de novo."""
+    """Duas acoes seguidas na selecao pelo celular (troca, banco): nunca no mesmo instante, com um intervalo
+    entre elas para nao sobrecarregar o client."""
     falta = _vivo["escrita_sel"] + random.uniform(0.8, 1.4) - time.time()
     if falta > 0:
         time.sleep(falta)
@@ -2473,14 +2473,14 @@ def _escolher(cid, acao, travar):
     if travar:
         corpo["completed"] = True
         if a.get("championId") != cid:
-            # o campeao ainda nao estava marcado: marca e trava depois de um tempo humano, nunca junto
+            # o campeao ainda nao estava marcado: marca primeiro e trava depois, como a tela do client faz
             try:
                 r = _lcu("PATCH", f"/lol-champ-select/v1/session/actions/{a['id']}", json={"championId": cid})
             except requests.RequestException:
                 r = None
             if r is None or not r.ok:
                 return False, "O LoL recusou esse campeão"
-            # tempo de gente entre marcar e travar, mas sem passar do turno (antes travar rapido que dodge)
+            # intervalo curto entre marcar e travar, sem passar do turno (antes travar rapido que perder a vez)
             t = s.get("timer") or {}
             fim = (t.get("internalNowInEpochMs") or 0) + (t.get("adjustedTimeLeftInPhase") or 0)
             restante = (fim - time.time() * 1000) / 1000 if t.get("internalNowInEpochMs") else 10.0
