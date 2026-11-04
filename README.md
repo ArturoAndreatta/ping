@@ -46,13 +46,29 @@ E mais:
 - **Temas** das regiões de Runeterra
 - **Se atualiza sozinho** quando sai versão nova
 
-<img src="docs/sala.jpg" width="200" alt="Sala com os jogadores, as posições e o chat">
-&nbsp;
-<img src="docs/carregamento.jpg" width="200" alt="Tela de carregamento com os dez jogadores, skins e elos">
-&nbsp;
-<img src="docs/jogo.jpg" width="200" alt="Partida em andamento com o tempo, o placar e os objetivos">
-&nbsp;
-<img src="docs/vitoria.jpg" width="200" alt="Tela de vitória com KDA, CS e tempo">
+<p align="center">
+  <img src="docs/sala.jpg" width="139" alt="Sala com os jogadores, as posições e o chat, com o celular em pé">
+  &nbsp;
+  <img src="docs/sala-deitado.jpg" width="649" alt="Sala com os jogadores, as posições e o chat, com o celular deitado">
+</p>
+
+<p align="center">
+  <img src="docs/carregamento.jpg" width="139" alt="Tela de carregamento com os dez jogadores, skins e elos, com o celular em pé">
+  &nbsp;
+  <img src="docs/carregamento-deitado.jpg" width="649" alt="Tela de carregamento com os dez jogadores, skins e elos, com o celular deitado">
+</p>
+
+<p align="center">
+  <img src="docs/jogo.jpg" width="139" alt="Partida em andamento com o tempo, o placar e os objetivos, com o celular em pé">
+  &nbsp;
+  <img src="docs/jogo-deitado.jpg" width="649" alt="Partida em andamento com o tempo, o placar e os objetivos, com o celular deitado">
+</p>
+
+<p align="center">
+  <img src="docs/vitoria.jpg" width="139" alt="Tela de vitória com KDA, CS e tempo, com o celular em pé">
+  &nbsp;
+  <img src="docs/vitoria-deitado.jpg" width="649" alt="Tela de vitória com KDA, CS e tempo, com o celular deitado">
+</p>
 
 ## Instalar
 
