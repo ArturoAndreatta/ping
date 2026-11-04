@@ -105,15 +105,16 @@ header {
 @keyframes gira { to { transform: rotate(360deg); } }
 
 /* conteudo */
-main { max-width: 980px; margin: 0 auto; padding: 24px; display: grid; grid-template-columns: 1fr 1fr; gap: 18px; align-items: start; }
-.col { display: grid; gap: 18px; }
+main { max-width: 980px; margin: 0 auto; padding: 24px; display: grid; grid-template-columns: 1fr 1fr; gap: 18px; align-items: stretch; }
 .card {
   background: var(--panel); border: 1px solid var(--line); border-radius: var(--r2); padding: 20px;
   box-shadow: 0 10px 30px -18px var(--sombra);
   opacity: 0; transform: translateY(8px); animation: entra .5s var(--ease-out) forwards;
 }
-.col:nth-child(2) .card { animation-delay: .06s; }
-.card + .card { animation-delay: .12s; }
+/* grade 2x2: os dois cards de cada linha ficam da mesma altura */
+.card:nth-child(2) { animation-delay: .06s; }
+.card:nth-child(3) { animation-delay: .12s; }
+.card:nth-child(4) { animation-delay: .18s; }
 @keyframes entra { to { opacity: 1; transform: none; } }
 .card h2 { margin: 0 0 14px; font: 700 13px/1 var(--titulo); letter-spacing: .14em; text-transform: uppercase; color: var(--gold); }
 .card p { margin: 0 0 12px; color: var(--muted); }
@@ -189,6 +190,9 @@ ol.passos b { color: var(--text); font-weight: 600; }
 
 @media (max-width: 760px) {
   main { grid-template-columns: 1fr; padding: 16px; }
+  #cardCelular { order: 1; }
+  #cardHoje { order: 2; }
+  #cardOpcoes { order: 3; }
   header { padding: 12px 16px; }
   .qr { flex-direction: column; align-items: flex-start; }
   .status span { display: none; }
@@ -220,35 +224,31 @@ ol.passos b { color: var(--text); font-weight: 600; }
 </header>
 
 <main>
-  <div class="col">
-    <section class="card" id="cardConta">
-      <h2>Sua conta</h2>
-      <div id="conta"></div>
-    </section>
-    <section class="card">
-      <h2>No celular</h2>
-      <div class="qr">
-        <div class="codigo" id="qr"></div>
-        <ol class="passos">
-          <li>Aponte a câmera do celular pro código.</li>
-          <li>Entre com a <b>mesma conta</b> deste PC.</li>
-          <li>No iPhone, toque em Compartilhar e <b>Adicionar à Tela de Início</b>.</li>
-        </ol>
-      </div>
-      <div class="link"><span id="link"></span><button class="btn" id="copiar">Copiar link</button></div>
-    </section>
-  </div>
-  <div class="col">
-    <section class="card">
-      <h2>Hoje</h2>
-      <div id="hoje"><p class="vazio">Carregando...</p></div>
-    </section>
-    <section class="card">
-      <h2>Opções</h2>
-      <div id="opcoes"></div>
-      <div class="versao" id="versao"></div>
-    </section>
-  </div>
+  <section class="card" id="cardConta">
+    <h2>Sua conta</h2>
+    <div id="conta"></div>
+  </section>
+  <section class="card" id="cardHoje">
+    <h2>Hoje</h2>
+    <div id="hoje"><p class="vazio">Carregando...</p></div>
+  </section>
+  <section class="card" id="cardCelular">
+    <h2>No celular</h2>
+    <div class="qr">
+      <div class="codigo" id="qr"></div>
+      <ol class="passos">
+        <li>Aponte a câmera do celular pro código.</li>
+        <li>Entre com a <b>mesma conta</b> deste PC.</li>
+        <li>No iPhone, toque em Compartilhar e <b>Adicionar à Tela de Início</b>.</li>
+      </ol>
+    </div>
+    <div class="link"><span id="link"></span><button class="btn" id="copiar">Copiar link</button></div>
+  </section>
+  <section class="card" id="cardOpcoes">
+    <h2>Opções</h2>
+    <div id="opcoes"></div>
+    <div class="versao" id="versao"></div>
+  </section>
 </main>
 
 <div id="toast" role="status" aria-live="polite"></div>
