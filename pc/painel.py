@@ -244,7 +244,7 @@ def abrir_url(u):
     edge = _edge()
     if edge:
         try:
-            subprocess.Popen([edge, f"--app={u}", "--window-size=980,760"],
+            subprocess.Popen([edge, f"--app={u}", "--window-size=896,640"],
                              creationflags=getattr(subprocess, "DETACHED_PROCESS", 0))
             return
         except OSError:

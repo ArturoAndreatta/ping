@@ -396,6 +396,31 @@ $("#reiniciar").onclick = async () => {
   try { await api("/api/reiniciar", {}); } catch (e) { toast(e.message); $("#reiniciar").classList.remove("girando"); }
 };
 
+// ---------- tamanho da janela ----------
+// a janela do Edge em modo app abre do tamanho do conteudo (largura fixa, altura dos cards), no meio da tela.
+// O --window-size do painel.py nao vale com o Edge ja aberto, por isso o ajuste e feito daqui.
+// Depois que a pessoa redimensiona na mao, nao mexe mais.
+const LARGURA = 880;
+let ajustando = false;
+const sess = (k, v) => { try { if (v === undefined) return sessionStorage.getItem(k); sessionStorage.setItem(k, v); } catch (e) {} };
+function ajustarJanela() {
+  if (sess("janela_mexeu") || !outerWidth) return;
+  const conteudo = $("header").offsetHeight + $("main").offsetHeight;
+  const w = Math.min(LARGURA + outerWidth - innerWidth, screen.availWidth);
+  const h = Math.min(conteudo + outerHeight - innerHeight, screen.availHeight);
+  if (Math.abs(outerWidth - w) < 2 && Math.abs(outerHeight - h) < 2) return;
+  ajustando = true;
+  window.resizeTo(w, h);
+  if (!sess("janela_centro")) {
+    sess("janela_centro", "1");  // so na primeira vez: recarregar depois de atualizar nao tira a janela do lugar
+    window.moveTo((screen.availLeft || 0) + (screen.availWidth - w) / 2, (screen.availTop || 0) + (screen.availHeight - h) / 2);
+  }
+  setTimeout(() => (ajustando = false), 400);
+}
+addEventListener("resize", () => { if (!ajustando) sess("janela_mexeu", "1"); });
+let ajusteAgendado = 0;
+new ResizeObserver(() => { clearTimeout(ajusteAgendado); ajusteAgendado = setTimeout(ajustarJanela, 60); }).observe($("main"));
+
 carregarConta().catch((e) => toast(e.message));
 api("/api/opcoes").then(desenharOpcoes).catch(() => {});
 carregarHoje();
