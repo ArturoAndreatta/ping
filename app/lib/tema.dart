@@ -321,7 +321,8 @@ void _pintarPagina() {
     web.document
         .querySelector('meta[name="theme-color"]')
         ?.setAttribute('content', hex);
-    web.document.documentElement?.setAttribute('style', 'background: $hex');
+    // só o fundo: o `style` do <html> também guarda a altura que o index.html acerta pro iPhone
+    (web.document.documentElement as web.HTMLElement?)?.style.background = hex;
     web.document.body?.style.background = hex;
   } catch (_) {}
 }
