@@ -47,13 +47,19 @@ E mais:
 - **Se atualiza sozinho** quando sai versão nova
 
 <p align="center">
-  <img src="docs/sala-celular.webp" width="380" alt="Sala com os jogadores, as posições e o chat, com o celular em pé e deitado">
-  <img src="docs/carregamento-celular.webp" width="380" alt="Tela de carregamento com os dez jogadores, skins e elos, com o celular em pé e deitado">
+  <img src="docs/sala-celular.webp" width="760" alt="Sala com os jogadores, as posições e o chat, com o celular em pé e deitado">
 </p>
 
 <p align="center">
-  <img src="docs/jogo-celular.webp" width="380" alt="Partida em andamento com o tempo, o placar e os objetivos, com o celular em pé e deitado">
-  <img src="docs/vitoria-celular.webp" width="380" alt="Tela de vitória com KDA, CS e tempo, com o celular em pé e deitado">
+  <img src="docs/carregamento-celular.webp" width="760" alt="Tela de carregamento com os dez jogadores, skins e elos, com o celular em pé e deitado">
+</p>
+
+<p align="center">
+  <img src="docs/jogo-celular.webp" width="760" alt="Partida em andamento com o tempo, o placar e os objetivos, com o celular em pé e deitado">
+</p>
+
+<p align="center">
+  <img src="docs/vitoria-celular.webp" width="760" alt="Tela de vitória com KDA, CS e tempo, com o celular em pé e deitado">
 </p>
 
 ## Instalar
