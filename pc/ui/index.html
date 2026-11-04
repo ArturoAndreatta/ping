@@ -166,7 +166,8 @@ ol.passos b { color: var(--text); font-weight: 600; }
 .chave input:checked + i { border-color: var(--gold); background: color-mix(in srgb, var(--gold) 18%, var(--input)); }
 .chave input:checked + i::after { transform: translateX(18px) rotate(45deg); background: var(--gold); }
 .chave input:focus-visible + i { box-shadow: 0 0 0 3px color-mix(in srgb, var(--gold) 30%, transparent); }
-.versao { margin-top: 12px; font-size: 13px; color: var(--faint); }
+/* versao: fora dos cards, no canto de baixo a direita */
+.versao { max-width: 980px; margin: -10px auto 0; padding: 0 24px 12px; text-align: right; font-size: 12px; color: var(--faint); }
 
 /* toast */
 #toast {
@@ -182,6 +183,7 @@ ol.passos b { color: var(--text); font-weight: 600; }
 
 @media (max-width: 760px) {
   main { grid-template-columns: 1fr; padding: 16px; }
+  .versao { padding: 0 16px 12px; }
   #cardCelular { order: 1; grid-column: auto; }
   #cardOpcoes { order: 2; }
   header { padding: 12px 16px; }
@@ -222,7 +224,6 @@ ol.passos b { color: var(--text); font-weight: 600; }
   <section class="card" id="cardOpcoes">
     <h2>Opções</h2>
     <div id="opcoes"></div>
-    <div class="versao" id="versao"></div>
   </section>
   <section class="card" id="cardCelular">
     <h2>No celular</h2>
@@ -236,6 +237,7 @@ ol.passos b { color: var(--text); font-weight: 600; }
     </div>
   </section>
 </main>
+<footer class="versao" id="versao"></footer>
 
 <div id="toast" role="status" aria-live="polite"></div>
 <div id="offline"><div><b>Sem conexão com o Ping</b><br>Ele foi fechado? Abra de novo pelo atalho.</div></div>
@@ -369,7 +371,7 @@ let ajustando = false;
 const sess = (k, v) => { try { if (v === undefined) return sessionStorage.getItem(k); sessionStorage.setItem(k, v); } catch (e) {} };
 function ajustarJanela() {
   if (sess("janela_mexeu") || !outerWidth) return;
-  const conteudo = $("header").offsetHeight + $("main").offsetHeight;
+  const conteudo = $("header").offsetHeight + $("main").offsetHeight + $("#versao").offsetHeight - 10;  // -10: margem negativa da versao
   const w = Math.min(LARGURA + outerWidth - innerWidth, screen.availWidth);
   const h = Math.min(conteudo + outerHeight - innerHeight, screen.availHeight);
   if (Math.abs(outerWidth - w) < 2 && Math.abs(outerHeight - h) < 2) return;
