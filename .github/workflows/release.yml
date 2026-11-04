@@ -78,8 +78,10 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         shell: pwsh
         run: |
-          gh release create $env:GITHUB_REF_NAME --title "Ping $env:GITHUB_REF_NAME" --generate-notes `
-            (Get-Item "pc\dist\Ping-*.exe").FullName (Get-Item "pc\dist\ping-*.zip").FullName "pc\dist\versao.json"
+          # PingSetup.exe: nome fixo, o link releases/latest/download/PingSetup.exe do README nunca quebra
+          Copy-Item (Get-Item "pc\dist\Ping-*.exe").FullName "pc\dist\PingSetup.exe"
+          gh release create $env:GITHUB_REF_NAME --title "Ping $($env:GITHUB_REF_NAME.TrimStart('v'))" --generate-notes `
+            "pc\dist\PingSetup.exe" (Get-Item "pc\dist\ping-*.zip").FullName "pc\dist\versao.json"
 
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         if: ${{ !startsWith(github.ref, 'refs/tags/v') }}
