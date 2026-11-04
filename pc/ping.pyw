@@ -372,9 +372,7 @@ def _iniciar_ponte():
 
 def _iniciar_hoje():
     import hoje
-    import lcu
-    hoje.rodar(notificar=lambda titulo, texto: icon.notify(texto, titulo)
-               if lcu.config().get("resumo_dia", True) else None)
+    hoje.rodar()  # so o cache da aba Hoje do celular (e o aviso de resumo no celular); sem aviso do Windows
 
 
 def _iniciar_com_windows():

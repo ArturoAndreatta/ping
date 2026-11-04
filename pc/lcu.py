@@ -65,7 +65,7 @@ def runas_validas(r):
 
 # ---------------- config ----------------
 
-OPCOES = ("abrir_com_windows", "atualizar_sozinho", "resumo_dia")  # todas ligadas por padrao
+OPCOES = ("abrir_com_windows", "atualizar_sozinho")  # todas ligadas por padrao
 
 
 def config():

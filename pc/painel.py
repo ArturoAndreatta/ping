@@ -128,9 +128,6 @@ class Handler(BaseHTTPRequestHandler):
                 return self._enviar(200, conta())
             if u.path == "/api/opcoes":
                 return self._enviar(200, opcoes())
-            if u.path == "/api/hoje":
-                import hoje
-                return self._enviar(200, hoje.painel())
             if u.path == "/logo.ico":
                 return self._enviar(200, (BASE / "ping.ico").read_bytes(), "image/x-icon", cache=True)
             return self._enviar(404, {"erro": "nao encontrado"})

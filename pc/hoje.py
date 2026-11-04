@@ -94,15 +94,6 @@ def texto_resumo(r):
             f" · KDA {r['kda']:.2f} · MVP: {r['mvp']['nome']}")
 
 
-def painel():
-    """Resumo do dia pro painel: do historico do client se estiver aberto, senao do cache."""
-    h = lcu.historico()
-    jogos = atualizar_hoje(h["jogos"]) if h.get("jogos") is not None else jogos_de_hoje_cache()
-    return {"resumo": resumo(jogos, nomes_campeoes()), "jogos": len(jogos)}
-
-
-# ---------------- loop ----------------
-
 def rodar(notificar=None):
     """Roda numa thread da bandeja. notificar(titulo, texto) mostra aviso do Windows."""
     conectado_antes, ultima_fase = False, None

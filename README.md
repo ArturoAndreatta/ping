@@ -64,7 +64,7 @@ E mais:
 
 <picture>
   <source media="(prefers-color-scheme: light)" srcset="docs/painel-claro.jpg">
-  <img src="docs/painel.jpg" width="620" alt="Janela do Ping no PC com a conta, o QR code do celular, o resumo de hoje e as opções">
+  <img src="docs/painel.jpg" width="620" alt="Janela do Ping no PC com a conta, as opções e o QR code do celular">
 </picture>
 
 ## No celular
