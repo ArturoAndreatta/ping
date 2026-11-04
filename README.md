@@ -47,27 +47,13 @@ E mais:
 - **Se atualiza sozinho** quando sai versão nova
 
 <p align="center">
-  <img src="docs/sala.jpg" width="139" alt="Sala com os jogadores, as posições e o chat, com o celular em pé">
-  &nbsp;
-  <img src="docs/sala-deitado.jpg" width="649" alt="Sala com os jogadores, as posições e o chat, com o celular deitado">
+  <img src="docs/sala-celular.webp" width="380" alt="Sala com os jogadores, as posições e o chat, com o celular em pé e deitado">
+  <img src="docs/carregamento-celular.webp" width="380" alt="Tela de carregamento com os dez jogadores, skins e elos, com o celular em pé e deitado">
 </p>
 
 <p align="center">
-  <img src="docs/carregamento.jpg" width="139" alt="Tela de carregamento com os dez jogadores, skins e elos, com o celular em pé">
-  &nbsp;
-  <img src="docs/carregamento-deitado.jpg" width="649" alt="Tela de carregamento com os dez jogadores, skins e elos, com o celular deitado">
-</p>
-
-<p align="center">
-  <img src="docs/jogo.jpg" width="139" alt="Partida em andamento com o tempo, o placar e os objetivos, com o celular em pé">
-  &nbsp;
-  <img src="docs/jogo-deitado.jpg" width="649" alt="Partida em andamento com o tempo, o placar e os objetivos, com o celular deitado">
-</p>
-
-<p align="center">
-  <img src="docs/vitoria.jpg" width="139" alt="Tela de vitória com KDA, CS e tempo, com o celular em pé">
-  &nbsp;
-  <img src="docs/vitoria-deitado.jpg" width="649" alt="Tela de vitória com KDA, CS e tempo, com o celular deitado">
+  <img src="docs/jogo-celular.webp" width="380" alt="Partida em andamento com o tempo, o placar e os objetivos, com o celular em pé e deitado">
+  <img src="docs/vitoria-celular.webp" width="380" alt="Tela de vitória com KDA, CS e tempo, com o celular em pé e deitado">
 </p>
 
 ## Instalar
