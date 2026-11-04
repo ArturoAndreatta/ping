@@ -74,39 +74,6 @@ class Som {
     if (!mudo.value) tocar('clique');
   }
 
-  /// Tocar com o iPhone no silencioso (a chave do lado), no volume dos botões. Ligado por padrão; quem ouve
-  /// música desliga, porque assim o som do app pode pausar a música. Quem aplica é o `web/index.html`.
-  final silencioso = ValueNotifier<bool>(_lerSilencioso());
-
-  /// Só o Safari 17+ deixa escolher (`navigator.audioSession`): nos outros a opção nem aparece.
-  static final temSilencioso = () {
-    try {
-      return web.window.navigator.has('audioSession');
-    } catch (_) {
-      return false;
-    }
-  }();
-
-  static bool _lerSilencioso() {
-    try {
-      return web.window.localStorage.getItem('ping-silencioso') != '0';
-    } catch (_) {
-      return true;
-    }
-  }
-
-  void alternarSilencioso() {
-    silencioso.value = !silencioso.value;
-    try {
-      web.window.localStorage.setItem(
-        'ping-silencioso',
-        silencioso.value ? '1' : '0',
-      );
-      web.window.callMethod('pingSilencioso'.toJS, silencioso.value.toJS);
-    } catch (_) {}
-    tocar('clique');
-  }
-
   web.AudioContext? get contexto => _ctx;
 
   /// O AudioContext que o `web/index.html` cria ao abrir a página (é lá que o toque do iPhone destrava o

@@ -43,7 +43,7 @@ E mais:
 - **Avisos no celular** com o app fechado: partida encontrada, sua vez, pedido de troca, convite, mensagem
 - **Hoje** com o resumo das suas partidas do dia
 - **Abrir e fechar o LoL** de longe
-- **Temas** das regiões de Runeterra
+- **Temas** das regiões de Runeterra, no escuro ou no claro, no celular e no PC
 - **Se atualiza sozinho** quando sai versão nova
 
 <p align="center">

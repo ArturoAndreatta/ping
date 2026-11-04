@@ -1,7 +1,7 @@
 part of 'main.dart';
 
-/// Página Tema (abre por cima da lista da aba Mais, como Avisos): escuro do client e as regiões de Runeterra,
-/// cada cartão já nas cores do tema que ele escolhe.
+/// Página Tema (abre por cima da lista da aba Mais, como Avisos): o modo (escuro ou claro) e a região (a do
+/// client ou uma de Runeterra), cada cartão já nas cores do tema que ele escolhe, no modo em uso.
 class _PaginaTemas extends StatelessWidget {
   const _PaginaTemas({super.key, required this.aoVoltar, this.base = 0});
   final VoidCallback aoVoltar;
@@ -21,9 +21,9 @@ class _PaginaTemas extends StatelessWidget {
           _Entrada(
             chave: 'tema-grade',
             // o cartão da página se refaz com o tema (as cores do Cartao e do título mudam junto)
-            child: ValueListenableBuilder<String>(
-              valueListenable: Temas.id,
-              builder: (_, atual, _) => Cartao(
+            child: ListenableBuilder(
+              listenable: Temas.mudou,
+              builder: (_, _) => Cartao(
                 padding: const EdgeInsets.fromLTRB(18, 18, 18, 18),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -35,7 +35,13 @@ class _PaginaTemas extends StatelessWidget {
                       style: TextStyle(color: Cor.apagado, fontSize: 13.5),
                     ),
                     const SizedBox(height: 14),
-                    _GradeTemas(atual: atual, colunas: deitado ? 4 : 2),
+                    _SeletorModo(claro: Temas.claro.value),
+                    const SizedBox(height: 14),
+                    _GradeTemas(
+                      atual: Temas.id.value,
+                      claro: Temas.claro.value,
+                      colunas: deitado ? 4 : 2,
+                    ),
                   ],
                 ),
               ),
@@ -47,9 +53,105 @@ class _PaginaTemas extends StatelessWidget {
   }
 }
 
+/// Escuro ou claro: vale pra região escolhida. O realce desliza pro lado tocado.
+class _SeletorModo extends StatelessWidget {
+  const _SeletorModo({required this.claro});
+  final bool claro;
+
+  @override
+  Widget build(BuildContext context) {
+    Widget opcao(bool deste, IconData icone, String nome) {
+      final ligado = deste == claro;
+      final cor = ligado ? Cor.ouroClaro : Cor.apagado;
+      return Expanded(
+        child: Semantics(
+          button: true,
+          selected: ligado,
+          label: 'Modo $nome',
+          child: GestureDetector(
+            behavior: HitTestBehavior.opaque,
+            onTap: () {
+              if (ligado) return;
+              som.tocar('clique');
+              Temas.escolherModo(deste);
+            },
+            child: SizedBox(
+              height: 44,
+              child: ExcludeSemantics(
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    AnimatedRotation(
+                      turns: ligado ? 0 : -0.06,
+                      duration: _dur(context, 400),
+                      curve: curvaSaida,
+                      child: Icon(icone, size: 17, color: cor),
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      nome.toUpperCase(),
+                      style: TextStyle(
+                        color: cor,
+                        fontSize: 12.5,
+                        fontWeight: FontWeight.w600,
+                        letterSpacing: 0.9,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+      );
+    }
+
+    return Container(
+      padding: const EdgeInsets.all(3),
+      decoration: BoxDecoration(
+        border: Border.all(color: Cor.linha2),
+        borderRadius: Raio.r2,
+      ),
+      child: Stack(
+        children: [
+          Positioned.fill(
+            child: AnimatedAlign(
+              alignment: claro ? Alignment.centerRight : Alignment.centerLeft,
+              duration: _dur(context, 280),
+              curve: curvaSaida,
+              child: FractionallySizedBox(
+                widthFactor: 0.5,
+                heightFactor: 1,
+                child: DecoratedBox(
+                  decoration: BoxDecoration(
+                    color: Cor.ouro.withValues(alpha: 0.12),
+                    borderRadius: Raio.r1,
+                    border: Border.all(color: Cor.ouroEscuro),
+                  ),
+                ),
+              ),
+            ),
+          ),
+          Row(
+            children: [
+              opcao(false, Icons.dark_mode_outlined, 'Escuro'),
+              opcao(true, Icons.light_mode_outlined, 'Claro'),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
 class _GradeTemas extends StatelessWidget {
-  const _GradeTemas({required this.atual, required this.colunas});
+  const _GradeTemas({
+    required this.atual,
+    required this.claro,
+    required this.colunas,
+  });
   final String atual;
+  final bool claro;
   final int colunas;
 
   @override
@@ -65,7 +167,11 @@ class _GradeTemas extends StatelessWidget {
             SizedBox(
               key: ValueKey('tema-${t.id}'),
               width: largura,
-              child: _CartaoTema(tema: t, escolhido: t.id == atual),
+              child: _CartaoTema(
+                tema: t,
+                paleta: t.paleta(claro),
+                escolhido: t.id == atual,
+              ),
             ),
         ],
       );
@@ -76,8 +182,13 @@ class _GradeTemas extends StatelessWidget {
 /// Um tema: fundo e fio no próprio tema, quatro losangos (destaque, segundo destaque, superfície, texto)
 /// e o nome. O escolhido ganha borda e brilho na cor do tema.
 class _CartaoTema extends StatefulWidget {
-  const _CartaoTema({required this.tema, required this.escolhido});
+  const _CartaoTema({
+    required this.tema,
+    required this.paleta,
+    required this.escolhido,
+  });
   final TemaApp tema;
+  final Paleta paleta;
   final bool escolhido;
 
   @override
@@ -94,7 +205,7 @@ class _CartaoTemaState extends State<_CartaoTema> {
   @override
   Widget build(BuildContext context) {
     final t = widget.tema;
-    final p = t.paleta;
+    final p = widget.paleta;
     final ligado = widget.escolhido;
     Widget losango(Color cor, {bool contorno = false}) => Transform.rotate(
       angle: 0.7853981634,

@@ -70,9 +70,9 @@ class PingApp extends StatelessWidget {
   const PingApp({super.key});
 
   @override
-  Widget build(BuildContext context) => ValueListenableBuilder<String>(
-    valueListenable: Temas.id,
-    builder: (_, _, _) => MaterialApp(
+  Widget build(BuildContext context) => ListenableBuilder(
+    listenable: Temas.mudou,
+    builder: (_, _) => MaterialApp(
       title: 'Ping',
       debugShowCheckedModeBanner: false,
       theme: tema(),
@@ -475,11 +475,14 @@ class _InicioState extends State<Inicio> {
             Aba.aoVivo => const SizedBox.shrink(),
           },
           child: DecoratedBox(
-            decoration: const BoxDecoration(
+            decoration: BoxDecoration(
               gradient: RadialGradient(
                 center: Alignment(0, -1.1),
                 radius: 1.3,
-                colors: [Color(0x1FC8AA6E), Color(0x00010A13)],
+                colors: [
+                  Cor.ouro.withValues(alpha: 0.12),
+                  Cor.fundo.withValues(alpha: 0.0),
+                ],
               ),
             ),
             child: Padding(
@@ -728,18 +731,6 @@ class _Topo extends StatelessWidget {
                   : const SizedBox.shrink(),
             ),
           ),
-          // o sino abre os avisos deste celular
-          AnimatedSwitcher(
-            duration: _dur(context, 200),
-            transitionBuilder: (c, a) => FadeTransition(
-              opacity: a,
-              child: ScaleTransition(
-                scale: Tween(begin: 0.7, end: 1.0).animate(a),
-                child: c,
-              ),
-            ),
-            child: ok ? _BotaoAvisos(con: con) : const SizedBox.shrink(),
-          ),
           const _BotaoMudo(),
           const SizedBox(width: 6),
           AnimatedOpacity(
@@ -899,12 +890,8 @@ class _Balao extends StatelessWidget {
           color: Cor.painel2,
           borderRadius: Raio.r1,
           border: Border.all(color: cor.withValues(alpha: 0.55)),
-          boxShadow: const [
-            BoxShadow(
-              color: Color(0x99000000),
-              blurRadius: 12,
-              offset: Offset(0, 4),
-            ),
+          boxShadow: [
+            BoxShadow(color: Cor.sombra, blurRadius: 12, offset: Offset(0, 4)),
           ],
         ),
         child: Row(
@@ -1090,7 +1077,7 @@ class _JoiaState extends State<_Joia> with SingleTickerProviderStateMixin {
                 width: 22,
                 height: 22,
                 decoration: BoxDecoration(
-                  color: const Color(0x33C8AA6E),
+                  color: Cor.ouro.withValues(alpha: 0.2),
                   border: Border.all(color: Cor.ouro, width: 1.5),
                 ),
               ),
@@ -1523,12 +1510,8 @@ class Cartao extends StatelessWidget {
       color: Cor.painel,
       borderRadius: Raio.r2,
       border: Border.all(color: Cor.linha2),
-      boxShadow: const [
-        BoxShadow(
-          color: Color(0x8C000000),
-          blurRadius: 40,
-          offset: Offset(0, 14),
-        ),
+      boxShadow: [
+        BoxShadow(color: Cor.sombra, blurRadius: 40, offset: Offset(0, 14)),
       ],
     ),
     child: child,
@@ -1714,10 +1697,10 @@ class _BotaoState extends State<Botao> {
                 borderRadius: Raio.r1,
                 border: Border.all(color: p ? Cor.ouro : Cor.linha2),
                 gradient: p
-                    ? const LinearGradient(
+                    ? LinearGradient(
                         begin: Alignment.topCenter,
                         end: Alignment.bottomCenter,
-                        colors: [Color(0xFF3A3220), Color(0xFF1A1A16)],
+                        colors: [Cor.marcadoForte, Cor.marcadoFundo],
                       )
                     : null,
                 color: p ? null : Cor.painel2,
@@ -2129,7 +2112,7 @@ Future<bool> confirmar(
     context: context,
     barrierDismissible: true,
     barrierLabel: 'Fechar',
-    barrierColor: const Color(0xB3000000),
+    barrierColor: Cor.veu,
     transitionDuration: _dur(context, 220),
     transitionBuilder: (_, a, _, c) => FadeTransition(
       opacity: a,

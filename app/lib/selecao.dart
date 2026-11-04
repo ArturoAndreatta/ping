@@ -80,7 +80,7 @@ class _SelecaoState extends State<_Selecao> {
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      barrierColor: const Color(0xB3000000),
+      barrierColor: Cor.veu,
       constraints: const BoxConstraints(maxWidth: 560),
       sheetAnimationStyle: MediaQuery.disableAnimationsOf(context)
           ? AnimationStyle.noAnimation
@@ -700,13 +700,16 @@ class _SkinsState extends State<_Skins> {
                       errorBuilder: (_, _, _) => ColoredBox(color: Cor.painel2),
                     ),
                   ),
-                  const DecoratedBox(
+                  DecoratedBox(
                     decoration: BoxDecoration(
                       gradient: LinearGradient(
                         begin: Alignment.topCenter,
                         end: Alignment.bottomCenter,
                         stops: [0.55, 1],
-                        colors: [Color(0x00010A13), Color(0xE6010A13)],
+                        colors: [
+                          Cor.fundo.withValues(alpha: 0.0),
+                          Cor.fundo.withValues(alpha: 0.9),
+                        ],
                       ),
                     ),
                   ),
@@ -738,8 +741,8 @@ class _SkinsState extends State<_Skins> {
                                 fontStyle: FontStyle.italic,
                                 fontWeight: FontWeight.w600,
                                 color: temVendo ? Cor.ouroClaro : Cor.apagado,
-                                shadows: const [
-                                  Shadow(color: Colors.black, blurRadius: 6),
+                                shadows: [
+                                  Shadow(color: Cor.fundo, blurRadius: 6),
                                 ],
                               ),
                             ),
@@ -946,7 +949,7 @@ class _Chroma extends StatelessWidget {
                 Icons.lock_outline,
                 size: 12,
                 color: Cor.ouroClaro,
-                shadows: [Shadow(color: Colors.black, blurRadius: 4)],
+                shadows: [Shadow(color: Cor.fundo, blurRadius: 4)],
               ),
           ],
         ),
@@ -1183,9 +1186,12 @@ class _CabecalhoSelecaoState extends State<_CabecalhoSelecao> {
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
           colors: banindo
-              ? const [Color(0xFF3D0F18), Color(0xFF16090D)]
+              ? [
+                  Color.lerp(Cor.painel, Cor.vermelho, .2)!,
+                  Color.lerp(Cor.fundo, Cor.vermelho, .06)!,
+                ]
               : suaVez
-              ? const [Color(0xFF15140F), Color(0xFF15140F)]
+              ? [Cor.marcadoFundo, Cor.marcadoFundo]
               : [Cor.painel, Cor.painel],
         ),
         borderRadius: Raio.r2,

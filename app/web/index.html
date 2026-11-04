@@ -26,6 +26,15 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Ping">
+  <script>
+    // modo claro guardado (o app guarda em flutter.modo): barra de cima do iPhone com texto escuro. O iPhone
+    // le essa meta ao abrir o app, entao a troca de modo vale na proxima abertura; a cor do navegador o app troca na hora.
+    try {
+      if (localStorage.getItem('flutter.modo') === '"claro"') {
+        document.querySelector('meta[name="apple-mobile-web-app-status-bar-style"]').content = 'default';
+      }
+    } catch (e) {}
+  </script>
   <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
   <link rel="icon" type="image/png" href="favicon.png">
 
@@ -268,19 +277,9 @@
     // Som no iPhone: o Safari so libera audio num toque que TERMINA (touchend/click), nao no pointerdown que o
     // Flutter usa. O AudioContext nasce aqui (o app baixa e decodifica os sons nele mesmo antes do toque) e cada
     // toque tenta destravar: o iPhone tambem suspende o audio quando o app vai pro fundo.
-    // Tocar no silencioso (Mais > Sons, ligado por padrao): com a sessao de audio em "playback" o iPhone toca
-    // mesmo com a chave do silencioso, no volume dos botoes. "ambient" respeita a chave e nao corta a musica de
-    // fundo. Precisa ser antes de criar o AudioContext (Safari 17+; sem a API nada muda).
-    (function () {
-      window.pingSilencioso = function (tocar) {
-        try {
-          if (navigator.audioSession) navigator.audioSession.type = tocar ? "playback" : "ambient";
-        } catch (e) {}
-      };
-      var v = null;
-      try { v = localStorage.getItem("ping-silencioso"); } catch (e) {}
-      window.pingSilencioso(v !== "0");
-    })();
+    // Toca mesmo com o iPhone no silencioso (a chave do lado), no volume dos botoes: sessao de audio em
+    // "playback". Precisa ser antes de criar o AudioContext (Safari 17+; sem a API nada muda).
+    try { if (navigator.audioSession) navigator.audioSession.type = "playback"; } catch (e) {}
     (function () {
       var C = window.AudioContext || window.webkitAudioContext;
       if (!C) return;

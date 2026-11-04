@@ -138,8 +138,11 @@ class _Janela extends StatelessWidget {
   Widget build(BuildContext context) => Stack(
     fit: StackFit.expand,
     children: [
-      const BlockSemantics(
-        child: ModalBarrier(color: Color(0xCC010A13), dismissible: false),
+      BlockSemantics(
+        child: ModalBarrier(
+          color: Cor.fundo.withValues(alpha: 0.8),
+          dismissible: false,
+        ),
       ),
       SafeArea(
         child: Center(
@@ -160,7 +163,7 @@ class _Janela extends StatelessWidget {
                     side: BorderSide(color: Cor.ouroEscuro),
                   ),
                   elevation: 12,
-                  shadowColor: Colors.black,
+                  shadowColor: Cor.sombra,
                   child: Padding(
                     padding: const EdgeInsets.fromLTRB(24, 28, 24, 24),
                     child: Column(
@@ -177,7 +180,7 @@ class _Janela extends StatelessWidget {
                                 color: Cor.ouro,
                                 boxShadow: [
                                   BoxShadow(
-                                    color: Color(0x99C8AA6E),
+                                    color: Cor.ouro.withValues(alpha: 0.6),
                                     blurRadius: 12,
                                   ),
                                 ],
@@ -215,12 +218,12 @@ class _Janela extends StatelessWidget {
                                 decoration: BoxDecoration(
                                   borderRadius: Raio.r1,
                                   border: Border.all(color: Cor.ouro),
-                                  gradient: const LinearGradient(
+                                  gradient: LinearGradient(
                                     begin: Alignment.topCenter,
                                     end: Alignment.bottomCenter,
                                     colors: [
-                                      Color(0xFF3A3220),
-                                      Color(0xFF1A1A16),
+                                      Cor.marcadoForte,
+                                      Cor.marcadoFundo,
                                     ],
                                   ),
                                 ),

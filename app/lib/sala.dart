@@ -1089,7 +1089,7 @@ class _Mensagem2 extends StatelessWidget {
         padding: const EdgeInsets.fromLTRB(11, 7, 11, 8),
         decoration: BoxDecoration(
           borderRadius: Raio.r2,
-          color: eu ? const Color(0xFF2A2518) : Cor.painel2,
+          color: eu ? Cor.marcado : Cor.painel2,
           border: Border.all(color: eu ? Cor.ouroEscuro : Cor.linha2),
         ),
         child: Column(

@@ -28,7 +28,7 @@ class _CampoMensagem extends StatelessWidget {
             hintStyle: TextStyle(color: Cor.apagado),
             isDense: true,
             filled: true,
-            fillColor: const Color(0xFF050D15),
+            fillColor: Cor.campo,
             contentPadding: const EdgeInsets.symmetric(
               horizontal: 12,
               vertical: 13,
@@ -58,7 +58,7 @@ class _CampoMensagem extends StatelessWidget {
                 borderRadius: Raio.r1,
                 side: BorderSide(color: Cor.ouro),
               ),
-              backgroundColor: const Color(0xFF2A2518),
+              backgroundColor: Cor.marcado,
             ),
             icon: Icon(Icons.send_rounded, color: Cor.ouroClaro, size: 20),
           ),
@@ -258,7 +258,7 @@ Future<void> _abrirMensagens(BuildContext context, Conexao con) {
     isScrollControlled: true,
     useSafeArea: true,
     backgroundColor: Colors.transparent,
-    barrierColor: const Color(0xB3000000),
+    barrierColor: Cor.veu,
     sheetAnimationStyle: MediaQuery.disableAnimationsOf(context)
         ? AnimationStyle.noAnimation
         : AnimationStyle(
@@ -590,7 +590,7 @@ class _LinhaConversa extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
             decoration: BoxDecoration(
               borderRadius: Raio.r1,
-              color: tem ? const Color(0xFF1E1C15) : Cor.painel2,
+              color: tem ? Cor.marcado : Cor.painel2,
               border: Border.all(color: tem ? Cor.ouroEscuro : Cor.linha),
             ),
             child: Row(

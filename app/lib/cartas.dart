@@ -245,7 +245,7 @@ class _Carta extends StatelessWidget {
               ),
               boxShadow: [
                 BoxShadow(
-                  color: (escolhida || sorte ? Cor.ouro : Colors.black)
+                  color: (escolhida || sorte ? Cor.ouro : Cor.sombra)
                       .withValues(alpha: escolhida ? 0.45 : 0.25),
                   blurRadius: escolhida ? 22 : 12,
                 ),
@@ -264,13 +264,16 @@ class _Carta extends StatelessWidget {
                     child: _IconeCamp(id: id, tamanho: largura * 0.5),
                   ),
                 ),
-                const DecoratedBox(
+                DecoratedBox(
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
                       begin: Alignment.topCenter,
                       end: Alignment.bottomCenter,
                       stops: [0.5, 1],
-                      colors: [Color(0x00010A13), Color(0xF2010A13)],
+                      colors: [
+                        Cor.fundo.withValues(alpha: 0.0),
+                        Cor.fundo.withValues(alpha: 0.95),
+                      ],
                     ),
                   ),
                 ),
@@ -286,7 +289,7 @@ class _Carta extends StatelessWidget {
                           vertical: 3,
                         ),
                         decoration: BoxDecoration(
-                          color: const Color(0xE6010A13),
+                          color: Cor.fundo.withValues(alpha: 0.9),
                           borderRadius: Raio.r1,
                           border: Border.all(color: Cor.ouro),
                         ),
@@ -315,7 +318,7 @@ class _Carta extends StatelessWidget {
                       child: esperando
                           ? ColoredBox(
                               key: ValueKey('esperando'),
-                              color: Color(0x66010A13),
+                              color: Cor.fundo.withValues(alpha: 0.4),
                               child: Center(
                                 child: Losango(
                                   cor: Cor.ouro,

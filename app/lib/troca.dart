@@ -88,7 +88,7 @@ Future<void> _abrirEscolhaTroca(
     context: context,
     isScrollControlled: true,
     backgroundColor: Colors.transparent,
-    barrierColor: const Color(0xB3000000),
+    barrierColor: Cor.veu,
     constraints: const BoxConstraints(maxWidth: 560),
     sheetAnimationStyle: MediaQuery.disableAnimationsOf(context)
         ? AnimationStyle.noAnimation
@@ -549,7 +549,7 @@ class _SeloTroca extends StatelessWidget {
         decoration: BoxDecoration(
           borderRadius: Raio.r1,
           // fundo cheio: em cima do retrato não pode deixar a arte vazar
-          color: aceso ? const Color(0xFF2A2518) : Cor.painel2,
+          color: aceso ? Cor.marcado : Cor.painel2,
           border: Border.all(color: aceso ? Cor.ouro : Cor.ouroEscuro),
         ),
         child: Icon(
@@ -755,7 +755,7 @@ class _IconeBanco extends StatelessWidget {
                   child: pegando
                       ? ColoredBox(
                           key: ValueKey('pegando'),
-                          color: Color(0x99010A13),
+                          color: Cor.fundo.withValues(alpha: 0.6),
                           child: Center(
                             child: Losango(
                               cor: Cor.ouro,

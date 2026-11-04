@@ -626,7 +626,7 @@ class _Carta2 extends StatelessWidget {
             url: _arte(j['tela'], cid),
             alinhamento: const Alignment(0, -0.55),
           ),
-          const DecoratedBox(
+          DecoratedBox(
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 begin: Alignment.topCenter,
@@ -634,9 +634,9 @@ class _Carta2 extends StatelessWidget {
                 // escurece cedo: nome dourado em cima de arte clara sumia
                 stops: [0.3, 0.68, 1],
                 colors: [
-                  Color(0x00010A13),
-                  Color(0xD9010A13),
-                  Color(0xFA010A13),
+                  Cor.fundo.withValues(alpha: 0.0),
+                  Cor.fundo.withValues(alpha: 0.85),
+                  Cor.fundo.withValues(alpha: 0.98),
                 ],
               ),
             ),
@@ -777,7 +777,7 @@ class _Faixa extends StatelessWidget {
                 begin: Alignment.centerLeft,
                 end: Alignment.centerRight,
                 stops: [0.3, 0.75],
-                colors: [Cor.painel, Color(0x000A1219)],
+                colors: [Cor.painel, Cor.painel.withValues(alpha: 0.0)],
               ),
             ),
           ),

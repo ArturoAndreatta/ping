@@ -10,7 +10,7 @@ InputDecoration _decoConta(String dica) => InputDecoration(
   hintStyle: TextStyle(color: Cor.apagado),
   isDense: true,
   filled: true,
-  fillColor: const Color(0xFF050D15),
+  fillColor: Cor.campo,
   contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
   enabledBorder: OutlineInputBorder(
     borderRadius: Raio.r1,
@@ -28,7 +28,7 @@ Future<T?> _janela<T>(BuildContext context, WidgetBuilder corpo) =>
       context: context,
       barrierDismissible: true,
       barrierLabel: 'Fechar',
-      barrierColor: const Color(0xB3000000),
+      barrierColor: Cor.veu,
       transitionDuration: _dur(context, 220),
       transitionBuilder: (_, a, _, c) => FadeTransition(
         opacity: a,

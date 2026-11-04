@@ -160,11 +160,9 @@ class _BarraAbasState extends State<_BarraAbas>
                   gradient: LinearGradient(
                     begin: Alignment.topCenter,
                     end: Alignment.bottomCenter,
-                    colors: [Color(0xF00A1219), Cor.fundo],
+                    colors: [Cor.painel.withValues(alpha: 0.94), Cor.fundo],
                   ),
-                  boxShadow: [
-                    BoxShadow(color: Color(0x99000000), blurRadius: 24),
-                  ],
+                  boxShadow: [BoxShadow(color: Cor.sombra, blurRadius: 24)],
                 ),
                 child: pintura,
               ),
@@ -196,11 +194,11 @@ class _FioPintor extends CustomPainter {
         Paint()
           ..shader = LinearGradient(
             colors: [
-              Color(0x002E3A44),
+              Cor.linha2.withValues(alpha: 0.0),
               Cor.linha2,
-              Color(0x66785A28),
+              Cor.ouroEscuro.withValues(alpha: 0.4),
               Cor.linha2,
-              Color(0x002E3A44),
+              Cor.linha2.withValues(alpha: 0.0),
             ],
           ).createShader(borda),
       );
@@ -218,7 +216,10 @@ class _FioPintor extends CustomPainter {
       Rect.fromLTWH(-largo, 0, largo * 2, largo),
       Paint()
         ..shader = RadialGradient(
-          colors: const [Color(0x2EC8AA6E), Color(0x00C8AA6E)],
+          colors: [
+            Cor.ouro.withValues(alpha: 0.18),
+            Cor.ouro.withValues(alpha: 0.0),
+          ],
         ).createShader(Rect.fromCircle(center: Offset.zero, radius: largo)),
     );
     canvas.restore();
@@ -233,7 +234,7 @@ class _FioPintor extends CustomPainter {
     canvas.drawRect(
       fio.inflate(1.5),
       Paint()
-        ..color = const Color(0x8CC8AA6E)
+        ..color = Cor.ouro.withValues(alpha: 0.55)
         ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 4),
     );
     canvas.drawRect(
@@ -928,7 +929,7 @@ class _LinhaPartida extends StatelessWidget {
                     _iconeCampeao(id),
                     webHtmlElementStrategy: WebHtmlElementStrategy.fallback,
                     // remake fica cinza pela própria imagem, sem camada de filtro
-                    color: remake ? const Color(0x99010A13) : null,
+                    color: remake ? Cor.fundo.withValues(alpha: 0.6) : null,
                     colorBlendMode: remake ? BlendMode.srcATop : null,
                     errorBuilder: (_, _, _) => ColoredBox(color: Cor.painel2),
                   )
@@ -1091,12 +1092,13 @@ class _AbaMaisState extends State<_AbaMais> {
               );
             },
           ),
-          ValueListenableBuilder<String>(
-            valueListenable: Temas.id,
-            builder: (_, id, _) => _LinhaMais(
+          ListenableBuilder(
+            listenable: Temas.mudou,
+            builder: (_, _) => _LinhaMais(
               icone: Icons.palette_outlined,
               titulo: 'Tema',
-              texto: temasApp.firstWhere((t) => t.id == id).nome,
+              texto:
+                  '${Temas.atual.nome}, ${Temas.claro.value ? 'claro' : 'escuro'}',
               final_: seta(),
               aoTocar: () => _abrirTemas(true),
             ),
@@ -1113,22 +1115,6 @@ class _AbaMaisState extends State<_AbaMais> {
               ),
             ),
           ),
-          if (Som.temSilencioso)
-            ListenableBuilder(
-              listenable: Listenable.merge([som.mudo, som.silencioso]),
-              builder: (_, _) => _LinhaMais(
-                icone: Icons.notifications_off_outlined,
-                titulo: 'Tocar no silencioso',
-                texto: som.silencioso.value
-                    ? 'Toca com a chave do silencioso, no volume.'
-                    : 'Com a chave do silencioso, fica quieto.',
-                final_: _Alavanca(
-                  ligado: som.silencioso.value,
-                  ativo: !som.mudo.value,
-                  aoMudar: (_) => som.alternarSilencioso(),
-                ),
-              ),
-            ),
         ],
       ),
     );
@@ -1347,8 +1333,8 @@ class _Alavanca extends StatelessWidget {
                     begin: Alignment.topCenter,
                     end: Alignment.bottomCenter,
                     colors: [
-                      Color.lerp(Cor.painel2, const Color(0xFF3A3220), t)!,
-                      Color.lerp(Cor.fundo, const Color(0xFF1A1A16), t)!,
+                      Color.lerp(Cor.painel2, Cor.marcadoForte, t)!,
+                      Color.lerp(Cor.fundo, Cor.marcadoFundo, t)!,
                     ],
                   ),
                   boxShadow: t > 0

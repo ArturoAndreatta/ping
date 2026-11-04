@@ -325,7 +325,7 @@ Future<void> _abrirRunas(BuildContext context, Conexao con) async {
     isScrollControlled: true,
     useSafeArea: true,
     backgroundColor: Colors.transparent,
-    barrierColor: const Color(0xB3000000),
+    barrierColor: Cor.veu,
     constraints: const BoxConstraints(maxWidth: 760),
     sheetAnimationStyle: MediaQuery.disableAnimationsOf(context)
         ? AnimationStyle.noAnimation

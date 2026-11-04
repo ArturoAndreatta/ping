@@ -166,7 +166,7 @@ class _EscolhaState extends State<_Escolha> {
                         ),
                   isDense: true,
                   filled: true,
-                  fillColor: const Color(0xFF050D15),
+                  fillColor: Cor.campo,
                   contentPadding: const EdgeInsets.symmetric(vertical: 12),
                   enabledBorder: OutlineInputBorder(
                     borderRadius: Raio.r1,
@@ -252,7 +252,7 @@ class _EscolhaState extends State<_Escolha> {
                                             color: Cor.ouro,
                                             shadows: [
                                               Shadow(
-                                                color: Colors.black,
+                                                color: Cor.fundo,
                                                 blurRadius: 4,
                                               ),
                                             ],

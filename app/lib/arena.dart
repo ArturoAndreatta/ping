@@ -674,16 +674,16 @@ class _CartaArena extends StatelessWidget {
             url: _arte(j['tela'], cid),
             alinhamento: const Alignment(0, -0.5),
           ),
-          const DecoratedBox(
+          DecoratedBox(
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
                 stops: [0.4, 0.78, 1],
                 colors: [
-                  Color(0x00010A13),
-                  Color(0xD9010A13),
-                  Color(0xFA010A13),
+                  Cor.fundo.withValues(alpha: 0.0),
+                  Cor.fundo.withValues(alpha: 0.85),
+                  Cor.fundo.withValues(alpha: 0.98),
                 ],
               ),
             ),

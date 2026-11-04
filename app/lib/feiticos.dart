@@ -113,7 +113,7 @@ Future<void> _abrirFeiticos(
     context: context,
     isScrollControlled: true,
     backgroundColor: Colors.transparent,
-    barrierColor: const Color(0xB3000000),
+    barrierColor: Cor.veu,
     constraints: const BoxConstraints(maxWidth: 560),
     sheetAnimationStyle: MediaQuery.disableAnimationsOf(context)
         ? AnimationStyle.noAnimation

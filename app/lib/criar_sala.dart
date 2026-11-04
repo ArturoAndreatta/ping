@@ -14,7 +14,7 @@ Future<void> _abrirSala(
     isScrollControlled: true,
     useSafeArea: true,
     backgroundColor: Colors.transparent,
-    barrierColor: const Color(0xB3000000),
+    barrierColor: Cor.veu,
     sheetAnimationStyle: MediaQuery.disableAnimationsOf(context)
         ? AnimationStyle.noAnimation
         : AnimationStyle(
@@ -518,7 +518,7 @@ class _Aba extends StatelessWidget {
         alignment: Alignment.center,
         decoration: BoxDecoration(
           borderRadius: Raio.r1,
-          color: ativo ? const Color(0xFF2A2518) : Cor.painel2,
+          color: ativo ? Cor.marcado : Cor.painel2,
           border: Border.all(color: ativo ? Cor.ouro : Cor.linha2),
         ),
         child: Text(
@@ -561,7 +561,7 @@ class _Modo extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
         decoration: BoxDecoration(
           borderRadius: Raio.r1,
-          color: escolhido ? const Color(0xFF1E1C15) : Cor.painel2,
+          color: escolhido ? Cor.marcado : Cor.painel2,
           border: Border.all(color: escolhido ? Cor.ouro : Cor.linha2),
           boxShadow: escolhido
               ? [
@@ -755,7 +755,7 @@ class _Amigo extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
               decoration: BoxDecoration(
                 borderRadius: Raio.r1,
-                color: marcado ? const Color(0xFF1E1C15) : Colors.transparent,
+                color: marcado ? Cor.marcado : Colors.transparent,
                 border: Border.all(
                   color: marcado ? Cor.ouroEscuro : Colors.transparent,
                 ),
@@ -850,7 +850,7 @@ class _Marca extends StatelessWidget {
     height: 24,
     decoration: BoxDecoration(
       borderRadius: Raio.r1,
-      color: marcado ? const Color(0xFF3A3220) : Colors.transparent,
+      color: marcado ? Cor.marcadoForte : Colors.transparent,
       border: Border.all(color: marcado ? Cor.ouro : Cor.linha2, width: 1.5),
     ),
     child: AnimatedScale(
