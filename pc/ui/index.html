@@ -210,8 +210,19 @@ input:focus { border-color: var(--gold); box-shadow: 0 0 0 3px color-mix(in srgb
 
 /* QR */
 .qr { display: flex; gap: 18px; align-items: center; }
-.qr .codigo { width: 150px; height: 150px; flex: none; background: var(--qr-fundo); padding: 6px; border-radius: var(--r1); }
+.qr .codigo {
+  width: 176px; height: 176px; flex: none; background: var(--qr-fundo); padding: 8px; border-radius: var(--r2);
+  box-shadow: 0 0 0 1px var(--line-2), 0 12px 28px -16px var(--sombra);
+  /* tinta do QR: quase preta (leitura); olhos e logo puxam a cor do tema, escurecida pra contrastar no branco */
+  --qr-tinta: #15121C;
+  --qr-olho: color-mix(in srgb, var(--gold) 62%, #000);
+  --qr-marca: color-mix(in srgb, var(--gold) 82%, #000);
+  --qr-marca2: color-mix(in srgb, var(--teal) 78%, #000);
+  transition: transform .25s var(--ease-out), box-shadow .25s;
+}
+.qr .codigo:hover { transform: scale(1.03); }
 .qr .codigo svg { width: 100%; height: 100%; display: block; }
+.qr .codigo svg path, .qr .codigo svg rect, .qr .codigo svg circle { transition: fill .3s, stroke .3s; }
 ol.passos { margin: 0; padding-left: 20px; color: var(--muted); }
 ol.passos li { margin-bottom: 6px; }
 ol.passos b { color: var(--text); font-weight: 600; }

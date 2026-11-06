@@ -226,12 +226,42 @@ def _db(metodo, caminho, params=None, **kw):
 # ---------------- QR do app (painel) ----------------
 
 def _svg(texto):
-    qr = qrcodegen.QrCode.encode_text(texto, qrcodegen.QrCode.Ecc.MEDIUM)
-    n, borda = qr.get_size(), 4
-    caminho = "".join(f"M{x + borda},{y + borda}h1v1h-1z" for y in range(n) for x in range(n) if qr.get_module(x, y))
-    t = n + borda * 2
-    return (f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {t} {t}" shape-rendering="crispEdges">'
-            f'<rect width="{t}" height="{t}" fill="#fff"/><path d="{caminho}" fill="#000"/></svg>')
+    """QR do app: pontos redondos, olhos quadrados (arredondar atrapalhou a leitura) e o logo do Ping no meio.
+
+    Correcao HIGH (aguenta ate 30% do codigo coberto): o logo tapa uns 6%. Borda de 2 modulos: o quadrado
+    branco do painel completa a margem. Cores pelas variaveis do tema (--qr-tinta, --gold, --teal).
+    """
+    qr = qrcodegen.QrCode.encode_text(texto, qrcodegen.QrCode.Ecc.HIGH)
+    n, b = qr.get_size(), 2
+    t = n + b * 2
+    olhos = ((0, 0), (n - 7, 0), (0, n - 7))
+    # meio livre pro logo: quadrado impar centrado, ~22% do lado
+    lado = max(5, round(n * 0.22)) | 1
+    ini = (n - lado) // 2
+
+    def livre(x, y):
+        if any(ox <= x < ox + 7 and oy <= y < oy + 7 for ox, oy in olhos):
+            return False
+        return not (ini - 1 <= x <= ini + lado and ini - 1 <= y <= ini + lado)  # 1 modulo de folga
+
+    pontos = "".join(f'M{x + b + .5},{y + b + .08}a.42,.42 0 1 0 .001 0z'
+                     for y in range(n) for x in range(n) if qr.get_module(x, y) and livre(x, y))
+    eyes = ""
+    for ox, oy in olhos:
+        x, y = ox + b, oy + b
+        eyes += (f'<rect x="{x + .5}" y="{y + .5}" width="6" height="6" fill="none" '
+                 f'stroke="var(--qr-tinta, #111)" stroke-width="1"/>'
+                 f'<rect x="{x + 2}" y="{y + 2}" width="3" height="3" fill="var(--qr-olho, #111)"/>')
+    c, r = t / 2, lado / 2  # logo do Ping (o mesmo do topo do painel), no viewBox 64 escalado
+    k = lado / 64
+    logo = (f'<circle cx="{c}" cy="{c}" r="{r + .3}" fill="#fff"/>'
+            f'<g transform="translate({c - 32 * k},{c - 32 * k}) scale({k})">'
+            '<circle cx="32" cy="32" r="28.5" fill="none" stroke="var(--qr-marca, #8A6A2E)" stroke-width="5"/>'
+            '<circle cx="32" cy="32" r="20" fill="none" stroke="var(--qr-marca2, #087F86)" stroke-width="5"/>'
+            '<path d="M32 18.5 L45.5 32 L32 45.5 L18.5 32 Z" fill="var(--qr-marca, #8A6A2E)"/></g>')
+    return (f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {t} {t}" role="img" aria-label="QR code do app">'
+            f'<rect width="{t}" height="{t}" fill="#fff"/><path d="{pontos}" fill="var(--qr-tinta, #111)"/>'
+            f'{eyes}{logo}</svg>')
 
 
 # ---------------- conta (painel) ----------------
