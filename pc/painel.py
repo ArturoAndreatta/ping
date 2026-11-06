@@ -29,6 +29,8 @@ _ultimo_ping = 0.0
 _srv = None
 ao_reiniciar = None  # a bandeja registra
 ao_sair = None
+SEM_JANELA = getattr(subprocess, "CREATE_NO_WINDOW", 0)
+FORA_DO_JOB = 0x01000000  # CREATE_BREAKAWAY_FROM_JOB: a tarefa do logon nao derruba o desinstalador junto
 
 
 def _persistente(nome, gerar):
@@ -72,12 +74,42 @@ def painel_aberto():
 def opcoes():
     cfg = lcu.config()
     import atualizar
-    return {"opcoes": {k: cfg.get(k, True) is not False for k in lcu.OPCOES}, "versao": atualizar.versao_local()}
+    return {"opcoes": {k: cfg.get(k, True) is not False for k in lcu.OPCOES}, "versao": atualizar.versao_local(),
+            "desinstalar": desinstalador() is not None}
 
 
 def conta():
     import ponte
     return {"conta": ponte._conta_painel(), "qr": ponte.qr_app()}
+
+
+def desinstalador():
+    """desinstalar.ps1 da pasta instalada. Na copia de desenvolvimento ele fica em portatil/: None."""
+    ps1 = BASE / "desinstalar.ps1"
+    return ps1 if ps1.is_file() else None
+
+
+def desinstalar():
+    """Tira o PC da conta (o celular para de ver), chama o desinstalar.ps1 escondido e fecha o Ping.
+
+    O script espera o Ping fechar, tira atalhos, tarefa do logon e registro de Apps e apaga a pasta.
+    """
+    import ponte
+    try:
+        if ponte.conta():
+            ponte.sair_conta()
+    except Exception as e:  # sem internet: desinstala mesmo assim
+        lcu.log(f"desinstalar: nao deu pra tirar o PC da conta ({type(e).__name__})")
+    lcu.log("desinstalando pela janela do Ping")
+    cmd = ["powershell", "-NoProfile", "-ExecutionPolicy", "Bypass", "-File", str(desinstalador()),
+           "-ApagarPasta", "-Silencioso", "-Pasta", str(BASE)]
+    temp = os.environ.get("TEMP") or None
+    try:
+        subprocess.Popen(cmd, cwd=temp, creationflags=SEM_JANELA | FORA_DO_JOB)
+    except OSError:
+        subprocess.Popen(cmd, cwd=temp, creationflags=SEM_JANELA)  # job sem permissao de sair: vai junto mesmo
+    if ao_sair:
+        ao_sair()
 
 
 class Handler(BaseHTTPRequestHandler):
@@ -169,6 +201,12 @@ class Handler(BaseHTTPRequestHandler):
                     return self._enviar(501, {"erro": "so da pra reiniciar rodando pela bandeja"})
                 self._enviar(200, {"ok": True})
                 threading.Timer(0.3, ao_reiniciar).start()  # responde antes de derrubar o processo
+                return
+            if u.path == "/api/desinstalar":
+                if not desinstalador() or not ao_sair:
+                    return self._enviar(501, {"erro": "Só dá pra desinstalar o Ping instalado."})
+                self._enviar(200, {"ok": True})
+                threading.Timer(0.3, desinstalar).start()
                 return
             return self._enviar(404, {"erro": "nao encontrado"})
         except ValueError as e:

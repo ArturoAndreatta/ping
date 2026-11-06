@@ -1,8 +1,10 @@
 # Desinstala o Ping: fecha ele, tira atalhos, a tarefa do logon e o registro em Configuracoes > Apps.
 #   -ApagarPasta  apaga tambem a pasta do Ping (o Windows chama assim pelo "Desinstalar" da lista de apps)
-param([switch]$ApagarPasta, [string]$Pasta = '')
+#   -Silencioso   sem janela nem "Enter pra sair" (o botao Desinstalar da janela do Ping chama assim)
+param([switch]$ApagarPasta, [switch]$Silencioso, [string]$Pasta = '')
 if (-not $Pasta) { $Pasta = Split-Path -Parent $MyInvocation.MyCommand.Path }
 Set-Location $env:TEMP  # pasta atual dentro da do Ping nao deixaria apagar
+if ($Silencioso) { Start-Sleep -Seconds 2 }  # o Ping que chamou fecha sozinho (tira o icone da bandeja)
 
 Get-CimInstance Win32_Process -Filter "Name='pythonw.exe' OR Name='python.exe'" -ErrorAction SilentlyContinue |
     Where-Object { $_.CommandLine -like '*ping.pyw*' } |
@@ -28,6 +30,7 @@ if ($ApagarPasta -and $ehPing -and -not $git) {
     $apagou = -not (Test-Path $Pasta)
 }
 
+if ($Silencioso) { exit 0 }
 Write-Host ''
 Write-Host '  Ping desinstalado.' -ForegroundColor Green
 if ($apagou) { Write-Host '  A pasta do Ping foi apagada.' }

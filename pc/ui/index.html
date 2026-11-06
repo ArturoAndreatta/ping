@@ -229,22 +229,41 @@ ol.passos b { color: var(--text); font-weight: 600; }
 .chave input:checked + i::after { transform: translateX(18px) rotate(45deg); background: var(--gold); }
 .chave input:focus-visible + i { box-shadow: 0 0 0 3px color-mix(in srgb, var(--gold) 30%, transparent); }
 /* versao: fora dos cards, no canto de baixo a direita */
-.versao { max-width: 980px; margin: -10px auto 0; padding: 0 24px 12px; text-align: right; font-size: 12px; color: var(--faint); }
+.versao { max-width: 980px; margin: -10px auto 0; padding: 0 24px 12px; display: flex; justify-content: flex-end; align-items: center; gap: 14px; font-size: 12px; color: var(--faint); }
+.link-sutil { padding: 2px 0; border: 0; background: none; color: var(--faint); font-size: 12px; cursor: pointer;
+  text-decoration: underline transparent; text-underline-offset: 3px; transition: color .2s, text-decoration-color .2s; }
+.link-sutil:hover, .link-sutil:focus-visible { color: var(--red); text-decoration-color: currentColor; }
+.link-sutil[hidden] { display: none; }
 
 /* janela do tema: modo (escuro ou claro) e regiao, cada cartao ja no proprio tema */
-#janelaTema {
+dialog.janela {
   width: min(720px, calc(100vw - 32px)); max-height: calc(100vh - 32px); padding: 0; overflow: auto;
   background: var(--panel); color: var(--text); border: 1px solid var(--line-2); border-radius: var(--r2);
   box-shadow: 0 24px 60px -20px var(--sombra);
   opacity: 0; transform: translateY(10px) scale(.98);
   transition: opacity .22s var(--ease-out), transform .26s var(--ease-out), overlay .26s allow-discrete, display .26s allow-discrete;
 }
-#janelaTema[open] { opacity: 1; transform: none; }
-@starting-style { #janelaTema[open] { opacity: 0; transform: translateY(10px) scale(.98); } }
-#janelaTema::backdrop { background: color-mix(in srgb, var(--bg) 70%, transparent); opacity: 0;
+dialog.janela[open] { opacity: 1; transform: none; }
+@starting-style { dialog.janela[open] { opacity: 0; transform: translateY(10px) scale(.98); } }
+dialog.janela::backdrop { background: color-mix(in srgb, var(--bg) 70%, transparent); opacity: 0;
   transition: opacity .22s, overlay .26s allow-discrete, display .26s allow-discrete; }
-#janelaTema[open]::backdrop { opacity: 1; }
-@starting-style { #janelaTema[open]::backdrop { opacity: 0; } }
+dialog.janela[open]::backdrop { opacity: 1; }
+@starting-style { dialog.janela[open]::backdrop { opacity: 0; } }
+#janelaDesinstalar { width: min(460px, calc(100vw - 32px)); }
+.btn.perigo { border-color: var(--red); color: var(--red); }
+.btn.perigo:hover { background: color-mix(in srgb, var(--red) 14%, transparent); }
+.btn.perigo.cheio { background: var(--red); color: var(--bg); }
+.btn.perigo.cheio:hover { background: color-mix(in srgb, var(--red) 85%, var(--text)); border-color: transparent; }
+.jd-lista { margin: 0 0 18px; padding-left: 20px; color: var(--muted); font-size: 14px; }
+.jd-lista li { margin-bottom: 6px; }
+.jd-fim { display: none; text-align: center; padding: 8px 0 4px; }
+.jd-fim svg { width: 44px; height: 44px; color: var(--teal); }
+.jd-fim b { display: block; margin: 10px 0 4px; font: 700 15px var(--titulo); letter-spacing: .08em; color: var(--text); }
+.jd-fim p { margin: 0; color: var(--muted); font-size: 14px; }
+#janelaDesinstalar.feito .jd-pergunta, #janelaDesinstalar.feito #jdFechar { display: none; }
+#janelaDesinstalar.feito .jd-fim { display: block; animation: entra .4s var(--ease-out) forwards; opacity: 0; transform: translateY(6px); }
+#janelaDesinstalar.feito .jd-fim path { stroke-dasharray: 30; stroke-dashoffset: 30; animation: risca .5s .15s var(--ease-out) forwards; }
+@keyframes risca { to { stroke-dashoffset: 0; } }
 .jt-topo { display: flex; align-items: center; gap: 12px; padding: 16px 16px 0 20px; }
 .jt-topo h2 { flex: 1; margin: 0; font: 700 13px/1 var(--titulo); letter-spacing: .14em; text-transform: uppercase; color: var(--gold); }
 .jt-corpo { padding: 14px 20px 20px; }
@@ -349,9 +368,9 @@ ol.passos b { color: var(--text); font-weight: 600; }
     </div>
   </section>
 </main>
-<footer class="versao" id="versao"></footer>
+<footer class="versao"><span id="versao"></span><button type="button" class="link-sutil" id="desinstalar" hidden aria-haspopup="dialog">Desinstalar</button></footer>
 
-<dialog id="janelaTema" aria-labelledby="jtTitulo">
+<dialog class="janela" id="janelaTema" aria-labelledby="jtTitulo">
   <div class="jt-topo">
     <h2 id="jtTitulo">Tema</h2>
     <button class="icone-btn" id="jtFechar" title="Fechar" aria-label="Fechar">
@@ -369,6 +388,36 @@ ol.passos b { color: var(--text); font-weight: 600; }
       </button>
     </div>
     <div class="temas" id="temas" role="radiogroup" aria-label="Região"></div>
+  </div>
+</dialog>
+
+<dialog class="janela" id="janelaDesinstalar" aria-labelledby="jdTitulo">
+  <div class="jt-topo">
+    <h2 id="jdTitulo">Desinstalar o Ping</h2>
+    <button class="icone-btn" id="jdFechar" title="Fechar" aria-label="Fechar">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
+    </button>
+  </div>
+  <div class="jt-corpo">
+    <div class="jd-pergunta">
+      <p>O Ping sai deste PC:</p>
+      <ul class="jd-lista">
+        <li>fecha e para de abrir com o Windows;</li>
+        <li>some da Área de Trabalho e de Configurações &gt; Apps;</li>
+        <li>a pasta dele é apagada;</li>
+        <li id="jdConta">este PC sai da sua conta e o celular para de ver ele (a conta continua existindo).</li>
+      </ul>
+      <div class="botoes" style="justify-content: flex-end">
+        <button class="btn" type="button" id="jdCancelar">Cancelar</button>
+        <button class="btn perigo cheio" type="button" id="jdConfirmar">Desinstalar</button>
+      </div>
+      <p class="erro" id="jdErro"></p>
+    </div>
+    <div class="jd-fim" role="status">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>
+      <b>Ping desinstalado</b>
+      <p>Pode fechar esta janela. Pra voltar, é só baixar e abrir o Ping de novo.</p>
+    </div>
   </div>
 </dialog>
 
@@ -455,6 +504,7 @@ function desenharOpcoes(o) {
       <label class="chave"><input type="checkbox" data-k="${k}" ${o.opcoes[k] ? "checked" : ""} aria-label="${nome}"><i></i></label>
     </div>`).join("");
   $("#versao").textContent = o.versao ? `Versão ${o.versao}` : "Versão de desenvolvimento";
+  $("#desinstalar").hidden = !o.desinstalar;
 }
 $("#opcoes").addEventListener("change", async (ev) => {
   const k = ev.target.dataset.k;
@@ -524,6 +574,35 @@ $("#tema").onclick = () => { desenharTemas(); janelaTema.showModal(); };
 $("#jtFechar").onclick = () => janelaTema.close();
 janelaTema.addEventListener("click", (ev) => { if (ev.target === janelaTema) janelaTema.close(); });  // clique fora fecha
 
+// ---------- desinstalar ----------
+let desinstalado = false, tPulso = 0;
+const janelaDesinstalar = $("#janelaDesinstalar");
+$("#desinstalar").onclick = () => {
+  $("#jdConta").hidden = !$("#sair");  // so com conta conectada
+  $("#jdErro").textContent = "";
+  janelaDesinstalar.showModal();
+  $("#jdCancelar").focus();  // foco no botao seguro
+};
+$("#jdFechar").onclick = $("#jdCancelar").onclick = () => janelaDesinstalar.close();
+janelaDesinstalar.addEventListener("click", (ev) => { if (ev.target === janelaDesinstalar && !desinstalado) janelaDesinstalar.close(); });
+janelaDesinstalar.addEventListener("cancel", (ev) => { if (desinstalado) ev.preventDefault(); });
+$("#jdConfirmar").onclick = async () => {
+  const botoes = janelaDesinstalar.querySelectorAll(".jd-pergunta button");
+  botoes.forEach((b) => (b.disabled = true));
+  $("#jdConfirmar").textContent = "Desinstalando...";
+  try {
+    await api("/api/desinstalar", {});
+    desinstalado = true;
+    clearInterval(tPulso);  // o Ping vai fechar: sem o aviso de "sem conexao"
+    janelaDesinstalar.classList.add("feito");
+    setTimeout(() => window.close(), 6000);
+  } catch (e) {
+    $("#jdErro").textContent = e.message;
+    $("#jdConfirmar").textContent = "Desinstalar";
+    botoes.forEach((b) => (b.disabled = false));
+  }
+};
+
 // ---------- topo ----------
 $("#reiniciar").onclick = async () => {
   $("#reiniciar").classList.add("girando");
@@ -539,7 +618,7 @@ let ajustando = false;
 const sess = (k, v) => { try { if (v === undefined) return sessionStorage.getItem(k); sessionStorage.setItem(k, v); } catch (e) {} };
 function ajustarJanela() {
   if (sess("janela_mexeu") || !outerWidth) return;
-  const conteudo = $("header").offsetHeight + $("main").offsetHeight + $("#versao").offsetHeight - 10;  // -10: margem negativa da versao
+  const conteudo = $("header").offsetHeight + $("main").offsetHeight + $(".versao").offsetHeight - 10;  // -10: margem negativa da versao
   const w = Math.min(LARGURA + outerWidth - innerWidth, screen.availWidth);
   const h = Math.min(conteudo + outerHeight - innerHeight, screen.availHeight);
   if (Math.abs(outerWidth - w) < 2 && Math.abs(outerHeight - h) < 2) return;
@@ -558,7 +637,7 @@ new ResizeObserver(() => { clearTimeout(ajusteAgendado); ajusteAgendado = setTim
 carregarConta().catch((e) => toast(e.message));
 api("/api/opcoes").then(desenharOpcoes).catch(() => {});
 pulso();
-setInterval(pulso, 3000);
+tPulso = setInterval(pulso, 3000);
 </script>
 </body>
 </html>
