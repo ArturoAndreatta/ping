@@ -119,6 +119,25 @@ def atualizar(info, log=print):
     log(f"Atualizar: v{info['versao']} baixada")
 
 
+def ja(log=print):
+    """Reiniciar pedido por voce (bandeja ou janela): se tem versao nova, baixa antes, pra ela subir ja nesse
+    reinicio (sem esperar a conferida dos 10 min). Respeita a opcao Atualizar sozinho. True se atualizou."""
+    if desenvolvimento():
+        return False
+    try:
+        import lcu
+        if lcu.config().get("atualizar_sozinho", True) is False:
+            return False
+        info = remoto()
+        if not (info and num(info["versao"]) and num(info["versao"]) > (num(versao_local()) or (0,))):
+            return False
+        atualizar(info, log=log)
+        return True
+    except Exception as erro:
+        log(f"Atualizacao: pulada no reinicio ({erro})")
+        return False
+
+
 def _parado(fase, livre):
     """Fase livre em 3 leituras seguidas: uma falha solta da LCU (devolve None) nao vira 'client fechado'."""
     for i in range(3):

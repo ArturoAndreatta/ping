@@ -57,7 +57,7 @@ def _mostrar_painel_aberto():
         if not porta or not _servidor_responde():  # so abre a URL com o token se quem responde e o Ping
             return False
         import painel
-        painel.abrir_url(f"http://127.0.0.1:{porta}/?t={token}")
+        painel.abrir_url(f"http://127.0.0.1:{porta}{painel.CAMINHO}?t={token}")
         return True
     except Exception:
         return False
@@ -312,6 +312,13 @@ def _fechar():
 def reiniciar(_icon, _item, *, sozinho=False):  # so por nome: o pystray recusa acao com mais de 2 argumentos
     """sozinho (atualizacao): a versao nova nao abre janela nenhuma; o painel aberto se recarrega sozinho."""
     print(time.strftime("%H:%M:%S"), "Reiniciando", flush=True)
+    if not sozinho:
+        try:
+            import atualizar
+            import lcu
+            atualizar.ja(log=lcu.log)  # versao nova publicada: ja sobe com ela
+        except Exception:
+            pass
     for m in _mutexes:  # solta a trava de instancia unica antes de subir a nova
         _k32.CloseHandle(m)
     args = [sys.executable, str(BASE / "ping.pyw"), "--reinicio"]

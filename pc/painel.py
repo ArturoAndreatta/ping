@@ -24,6 +24,9 @@ import lcu
 BASE = Path(__file__).resolve().parent
 UI = BASE / "ui" / "index.html"
 CACHE = lcu.CACHE
+# O Edge em modo --app agrupa as janelas na barra de tarefas por host + caminho, sem a porta: com "/" o Ping
+# ficava no mesmo icone de outro programa que abre em 127.0.0.1/ (o Kairos). Caminho proprio = icone proprio.
+CAMINHO = "/ping"
 BOOT = secrets.token_hex(6)  # muda a cada inicio: o painel aberto usa pra saber que reiniciou
 _ultimo_ping = 0.0
 _srv = None
@@ -151,7 +154,7 @@ class Handler(BaseHTTPRequestHandler):
         if not self._ok_origem() or not self._token(q):
             return self._enviar(403, {"erro": "proibido"})
         try:
-            if u.path == "/":
+            if u.path in (CAMINHO, "/"):  # "/": janela aberta antes da troca pra /ping
                 html = UI.read_text(encoding="utf-8").replace("__TOKEN__", TOKEN)
                 return self._enviar(200, html, "text/html; charset=utf-8")
             if u.path == "/api/atividade":
@@ -259,7 +262,7 @@ def iniciar():
 
 
 def url():
-    return f"http://127.0.0.1:{_srv.server_address[1]}/?t={TOKEN}"
+    return f"http://127.0.0.1:{_srv.server_address[1]}{CAMINHO}?t={TOKEN}"
 
 
 def _edge():
