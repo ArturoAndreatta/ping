@@ -42,3 +42,4 @@ Projeto Firebase: `ping-celular` (Hosting na raiz, `--base-href /`). Segredos fo
 - Regras: emuladores do Firebase (database 9411, auth 9412) ou um projeto de teste.
 - Disparador: `npm run teste`.
 - Release: workflow `release.yml` à mão (`workflow_dispatch` com uma versão) testa o .exe num Windows limpo.
+- Mudança em `pc/` só chega no Ping instalado com uma tag nova (`vX.Y.Z`): o push da tag publica o release em uns 2 min. Com o release no ar, Reiniciar (bandeja ou janela) já sobe com a versão nova.
