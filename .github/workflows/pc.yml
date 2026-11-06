@@ -27,12 +27,12 @@ jobs:
           python -m pyflakes ponte.py lcu.py painel.py avisos.py hoje.py atualizar.py assinatura.py inicio_windows.py empacotar.py servidor.py ping.pyw
           python -m py_compile ping.pyw
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: "22"
 
       - name: Testes do disparador
         working-directory: disparador
         run: |
-          npm install --no-audit --no-fund
+          npm ci --no-audit --no-fund
           npm run teste

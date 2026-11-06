@@ -27,6 +27,9 @@ Projeto Firebase: `ping-celular` (Hosting na raiz, `--base-href /`). Segredos fo
 - Estado: chaves em `ponte.CHAVES_ESTADO`. Chave nova vai lá e no app.
 - Comandos: tipos em `ponte.executar` e na regex do `database.rules.json` (os dois juntos).
 - Avisos: tipos em `disparador/src/ping.js` e `app/lib/avisos.dart`.
+- Campo novo num comando: também na lista `$campo` (e nos limites) de `comandos` no `database.rules.json`, senão o banco recusa.
+- Serviços de push aceitos (Chrome, Firefox, Safari, Edge): regex em `database.rules.json` (`push`) e `SERVICOS` em `disparador/src/webpush.js`, os dois juntos.
+- O PC só executa comando com `de` igual ao uid da conta dele (`cache/conta.json`), além das regras.
 
 ## Convenções
 

@@ -1792,6 +1792,11 @@ def executar(cid, cmd):
     """Roda um comando do celular. Devolve (ok, mensagem pro celular)."""
     if not isinstance(cmd, dict):
         return False, "comando invalido"
+    # as regras do banco ja so deixam a conta deste PC gravar comando; conferir de novo aqui cobre o comando que
+    # ficou na fila de uma conta que saiu (trocou de conta no painel) e regra mexida por engano
+    dono = (conta() or {}).get("uid")
+    if not dono or cmd.get("de") != dono:
+        return False, "Comando de outra conta"
     em = cmd.get("em")
     if not isinstance(em, (int, float)) or abs(agora_ms() - em) > VALIDADE_CMD * 1000:
         return False, "Comando chegou atrasado"
@@ -2609,7 +2614,8 @@ def _tratar(dados, prefixo=""):
         if cmd.get("tipo") == "olhando":
             # pulso do app aberto: so memoria, sem resposta e fora do limite (nao gasta os comandos de verdade)
             em = cmd.get("em")
-            if isinstance(em, (int, float)) and abs(agora_ms() - em) <= VALIDADE_CMD * 1000:
+            dono = (conta() or {}).get("uid")
+            if dono and cmd.get("de") == dono and isinstance(em, (int, float)) and abs(agora_ms() - em) <= VALIDADE_CMD * 1000:
                 celular_olhando(cmd.get("valor"))
             try:
                 _db("DELETE", f"comandos/{uid()}/{cid}")

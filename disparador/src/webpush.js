@@ -3,6 +3,15 @@
 
 const te = new TextEncoder();
 
+// Serviços de push dos navegadores (Chrome/Android, Firefox, Safari/iPhone, Edge). Inscrição com outro endereço
+// não recebe nada: o Worker nunca faz POST pra um endereço qualquer gravado no banco. As regras do banco
+// (database.rules.json) aceitam a mesma lista.
+const SERVICOS = /^https:\/\/(fcm\.googleapis\.com|updates\.push\.services\.mozilla\.com|[a-z0-9-]+\.push\.apple\.com|[a-z0-9-]+\.notify\.windows\.com)\//;
+
+export function servicoConhecido(endpoint) {
+  return typeof endpoint === "string" && endpoint.length <= 600 && SERVICOS.test(endpoint);
+}
+
 export function b64url(bytes) {
   let s = "";
   for (const b of new Uint8Array(bytes)) s += String.fromCharCode(b);

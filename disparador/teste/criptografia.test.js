@@ -46,7 +46,8 @@ const { contexto } = await import("../src/index.js");
 const enviados = [];
 globalThis.fetch = async (url, op) => {
   if (String(url).includes("firebaseio") || String(url).includes(":9")) {
-    return new Response(JSON.stringify({ ap: inscricao }), { status: 200 });
+    // "fora": endereço que não é de serviço de push nenhum, nunca recebe POST do Worker
+    return new Response(JSON.stringify({ ap: { ...inscricao, endpoint: "https://fcm.googleapis.com/fcm/send/x" }, fora: inscricao }), { status: 200 });
   }
   enviados.push(op.body);
   return new Response("", { status: 201 });
@@ -54,6 +55,7 @@ globalThis.fetch = async (url, op) => {
 const env = { FIREBASE_PROJETO: "ping-celular", VAPID_PUBLICA: vapid.publica, VAPID_PRIVADA: JSON.stringify(vapid.privada), VAPID_ASSUNTO: "https://x.test", EMULADOR_RTDB: "http://127.0.0.1:9" };
 const ctx = contexto(env, () => {});
 assert.equal(await ctx.enviarPara("u", { titulo: "T", texto: "x", link: undefined }), 1);
+assert.equal(enviados.length, 1);
 const aberto2 = ece.decrypt(Buffer.from(enviados[0]), { version: "aes128gcm", privateKey: navegador, authSecret: auth });
 assert.equal(JSON.parse(aberto2.toString()).notification.navigate, "https://ping-celular.web.app/");
 console.log("ok: aviso sem link sai com o link do app");

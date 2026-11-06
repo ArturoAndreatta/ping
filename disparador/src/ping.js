@@ -102,6 +102,11 @@ export default {
     if (!def) return { status: 400, erro: "tipo desconhecido" };
     const msg = montar(tipo, dados && typeof dados === "object" ? dados : {});
     if (!msg) return { status: 400, erro: "dados inválidos" };
+    // destinatário: a conta do PC, só se a conta confirmou o PC (o PC sozinho não consegue gravar isso). PC sem
+    // conta confirmada para aqui, sem gravar nada: login anônimo de qualquer um não enche o banco
+    const conta = await db.ler(`pcs/${pc}/conta`);
+    if (typeof conta !== "string" || !/^[A-Za-z0-9_-]{1,128}$/.test(conta)) return { ok: true, entregues: 0 };
+    if (!(await db.chaves(`contas/${conta}/pcs/${pc}`)).length) return { ok: true, entregues: 0 };
     const estado = await db.ler(`push_estado/limite/${pc}`);
     // contra enxurrada: intervalo por tipo (e por amigo/convite) e teto por hora
     const agora = Date.now();
@@ -109,16 +114,8 @@ export default {
     const ultimo = estado?.[chaveLimite] || 0;
     const hora = estado?.hora && agora - estado.hora.inicio < 3_600_000 ? estado.hora : { inicio: agora, n: 0 };
     if (agora - ultimo < def.gap || hora.n >= POR_HORA) return { status: 429, erro: "muitos avisos seguidos" };
-    // destinatário: a conta do PC, só se a conta confirmou o PC (o PC sozinho não consegue gravar isso)
-    const conta = await db.ler(`pcs/${pc}/conta`);
-    let entregues = 0;
-    if (typeof conta === "string" && /^[A-Za-z0-9_-]{1,128}$/.test(conta)) {
-      const confirmou = await db.chaves(`contas/${conta}/pcs/${pc}`);
-      if (confirmou.length) {
-        const aviso = { titulo: msg.titulo, texto: msg.texto, topico: msg.topico, ttl: def.ttl };
-        entregues = await enviarPara(conta, aviso, (insc) => aparelhoQuer(insc, tipo, pc, perto === true));
-      }
-    }
+    const aviso = { titulo: msg.titulo, texto: msg.texto, topico: msg.topico, ttl: def.ttl };
+    const entregues = await enviarPara(conta, aviso, (insc) => aparelhoQuer(insc, tipo, pc, perto === true));
     // o intervalo só começa a contar quando chegou em alguém (você no PC não gasta o próximo aviso);
     // o teto por hora conta todo pedido. Guarda só o que ainda conta (as chaves por amigo cresceriam)
     const novo = { hora: { inicio: hora.inicio, n: hora.n + 1 } };

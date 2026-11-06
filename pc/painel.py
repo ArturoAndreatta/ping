@@ -140,6 +140,12 @@ class Handler(BaseHTTPRequestHandler):
         self.send_header("Content-Type", tipo)
         self.send_header("Content-Length", str(len(corpo)))
         self.send_header("Cache-Control", "max-age=86400" if cache else "no-store")
+        # o token vai no endereco da janela: nada de mandar ele de Referer pras fontes do Google, nem deixar outra
+        # pagina pôr o painel num iframe
+        self.send_header("Referrer-Policy", "no-referrer")
+        self.send_header("X-Content-Type-Options", "nosniff")
+        self.send_header("X-Frame-Options", "DENY")
+        self.send_header("Content-Security-Policy", "frame-ancestors 'none'")
         self.end_headers()
         self.wfile.write(corpo)
 

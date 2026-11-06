@@ -7,7 +7,7 @@
 // Inscrições ficam no Firebase em push/<uid>/<aparelho> (o app grava, ninguém lê; o Worker lê como
 // administrador pela conta de serviço, segredo FIREBASE_CONTA).
 
-import { enviar, mensagem } from "./webpush.js";
+import { enviar, mensagem, servicoConhecido } from "./webpush.js";
 import { rtdb } from "./firebase.js";
 import { verificarIdToken } from "./idtoken.js";
 import ping from "./ping.js";
@@ -33,7 +33,7 @@ export function contexto(env, log = console.log) {
     const conteudo = mensagem({ ...aviso, link: aviso.link || cfg.link });
     let entregues = 0;
     for (const [id, insc] of Object.entries(aparelhos)) {
-      if (!insc?.endpoint || !insc?.keys || !filtro(insc)) continue;
+      if (!servicoConhecido(insc?.endpoint) || !insc?.keys || !filtro(insc)) continue;
       try {
         const r = await enviar(insc, conteudo, vapid, { topico: aviso.topico, ttl: aviso.ttl });
         if (r.ok) entregues++;
@@ -48,6 +48,8 @@ export function contexto(env, log = console.log) {
   return { db, env, log, enviarPara, projeto: cfg.projeto };
 }
 
+const CORPO_MAX = 4096; // o PC manda só tipo e uns poucos textos curtos
+
 function json(corpo, status = 200) {
   return new Response(JSON.stringify(corpo), { status, headers: { "Content-Type": "application/json" } });
 }
@@ -61,7 +63,9 @@ export default {
     if (req.method === "POST" && url.pathname === "/aviso") {
       let corpo;
       try {
-        corpo = await req.json();
+        const texto = await req.text();
+        if (texto.length > CORPO_MAX) return json({ erro: "corpo grande demais" }, 413);
+        corpo = JSON.parse(texto);
       } catch {
         return json({ erro: "corpo inválido" }, 400);
       }
