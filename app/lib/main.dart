@@ -18,6 +18,7 @@ import 'navegador.dart';
 import 'push.dart';
 import 'som.dart';
 import 'tema.dart';
+import 'textura.dart';
 
 part 'sala.dart';
 part 'criar_sala.dart';
@@ -485,15 +486,20 @@ class _InicioState extends State<Inicio> {
                 ],
               ),
             ),
-            child: Padding(
-              // a barra vai até a borda e cuida da área segura dela (barrinha do iPhone)
-              padding: EdgeInsets.only(
-                top: seg.topo,
-                bottom: telaCheia || comBarra ? 0 : seg.base,
-                left: lado(seg.esq),
-                right: lado(seg.dir),
-              ),
-              child: coluna,
+            child: Stack(
+              children: [
+                const Positioned.fill(child: TexturaFundo()),
+                Padding(
+                  // a barra vai até a borda e cuida da área segura dela (barrinha do iPhone)
+                  padding: EdgeInsets.only(
+                    top: seg.topo,
+                    bottom: telaCheia || comBarra ? 0 : seg.base,
+                    left: lado(seg.esq),
+                    right: lado(seg.dir),
+                  ),
+                  child: coluna,
+                ),
+              ],
             ),
           ),
         ),
