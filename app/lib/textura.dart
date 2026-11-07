@@ -39,7 +39,12 @@ class _Pintor extends CustomPainter {
     canvas.saveLayer(
       area,
       Paint()
-        ..color = Color.fromRGBO(0, 0, 0, claro ? .1 : .07 * (_forca[id] ?? 1)),
+        ..color = Color.fromRGBO(
+          0,
+          0,
+          0,
+          claro ? .1 * (_forcaClaro[id] ?? 1) : .07 * (_forca[id] ?? 1),
+        ),
     );
     for (var y = 0.0; y < size.height + l.h; y += l.h) {
       for (var x = 0.0; x < size.width + l.w; x += l.w) {
@@ -161,6 +166,21 @@ const Map<String, double> _forca = {
   'targon': 1.8,
   'bandopolis': 1.4,
   'vazio': 2,
+};
+
+/// O mesmo no claro (`--tex-kc` da janela do PC).
+const Map<String, double> _forcaClaro = {
+  'escuro': 1.35,
+  'demacia': 1.1,
+  'noxus': .9,
+  'zaun': 1.25,
+  'freljord': 1.35,
+  'ionia': 1.2,
+  'shurima': 1.2,
+  'sombras': 1.2,
+  'targon': 1.2,
+  'ixtal': 1.2,
+  'vazio': .95,
 };
 
 final Map<String, (double, double, void Function(_Pena))> _desenhos = {
