@@ -38,7 +38,8 @@ class _Pintor extends CustomPainter {
     final area = Offset.zero & size;
     canvas.saveLayer(
       area,
-      Paint()..color = Color.fromRGBO(0, 0, 0, claro ? .1 : .07),
+      Paint()
+        ..color = Color.fromRGBO(0, 0, 0, claro ? .1 : .07 * (_forca[id] ?? 1)),
     );
     for (var y = 0.0; y < size.height + l.h; y += l.h) {
       for (var x = 0.0; x < size.width + l.w; x += l.w) {
@@ -147,6 +148,21 @@ class _Pena {
 }
 
 /// Largura, altura e desenho de cada região. Mexeu na janela do PC (`--tex`), mexe aqui.
+/// Intensidade de cada região no escuro (`--tex-k` da janela do PC): destaque escuro ou desenho fino
+/// some no fundo, então essas sobem até ficarem tão visíveis quanto as outras. Mexeu lá, mexe aqui.
+const Map<String, double> _forca = {
+  'escuro': 1.43,
+  'noxus': 1.75,
+  'piltover': 1.3,
+  'freljord': .9,
+  'ionia': .95,
+  'bilgewater': 1.5,
+  'sombras': 1.1,
+  'targon': 1.8,
+  'bandopolis': 1.4,
+  'vazio': 2,
+};
+
 final Map<String, (double, double, void Function(_Pena))> _desenhos = {
   // hextech: losangos do client
   'escuro': (
