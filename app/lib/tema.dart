@@ -17,6 +17,8 @@ class Paleta {
     required this.teal,
     required this.texto,
     required this.apagado,
+    required this.vitoria,
+    required this.derrota,
     this.claro = false,
   });
 
@@ -42,6 +44,10 @@ class Paleta {
       teal: acc2,
       texto: text,
       apagado: mix(text, .72, bg),
+      // vitória e derrota sempre verde e vermelho (o 2º destaque pode ser rosa, como no Vazio),
+      // puxados pro tom da região
+      vitoria: mix(const Color(0xFF3CD67E), .86, acc),
+      derrota: mix(const Color(0xFFF0465A), .88, acc),
     );
   }
 
@@ -70,6 +76,8 @@ class Paleta {
       teal: mix(acc2, .48, preto),
       texto: texto,
       apagado: mix(texto, .66, branco),
+      vitoria: mix(const Color(0xFF16803C), .86, ouro),
+      derrota: mix(const Color(0xFFC2304A), .88, ouro),
     );
   }
 
@@ -83,7 +91,9 @@ class Paleta {
       ouroEscuro,
       teal,
       texto,
-      apagado;
+      apagado,
+      vitoria,
+      derrota;
 
   /// Fundo claro (papel e tinta): o Material vira claro junto.
   final bool claro;
@@ -122,6 +132,8 @@ class Paleta {
     teal: Color(0xFF0AC8B9),
     texto: Color(0xFFDCD3BF),
     apagado: Color(0xFFA09B8C),
+    vitoria: Color(0xFF0AC8B9),
+    derrota: Color(0xFFE84057),
   );
 
   /// Claro do client: pergaminho e tinta, o mesmo ouro escurecido pra ler no papel.
@@ -138,6 +150,8 @@ class Paleta {
     teal: Color(0xFF087F86),
     texto: Color(0xFF2A2822),
     apagado: Color(0xFF6C6553),
+    vitoria: Color(0xFF087F86),
+    derrota: Color(0xFFC2304A),
   );
 }
 
@@ -340,6 +354,8 @@ abstract final class Cor {
   static Color get teal => Temas._atual.teal;
   static Color get texto => Temas._atual.texto;
   static Color get apagado => Temas._atual.apagado;
+  static Color get vitoria => Temas._atual.vitoria;
+  static Color get derrota => Temas._atual.derrota;
   static Color get campo => Temas._atual.campo;
   static Color get marcado => Temas._atual.marcado;
   static Color get marcadoForte => Temas._atual.marcadoForte;

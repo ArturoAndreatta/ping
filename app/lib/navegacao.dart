@@ -679,12 +679,12 @@ class _ResumoHoje extends StatelessWidget {
                       children: [
                         TextSpan(
                           text: '${v}V',
-                          style: TextStyle(color: Cor.teal),
+                          style: TextStyle(color: Cor.vitoria),
                         ),
                         const TextSpan(text: '  '),
                         TextSpan(
                           text: '${d}D',
-                          style: const TextStyle(color: Cor.vermelho),
+                          style: TextStyle(color: Cor.derrota),
                         ),
                       ],
                     ),
@@ -750,7 +750,10 @@ class _BarraVD extends StatelessWidget {
                   child: DecoratedBox(
                     decoration: BoxDecoration(
                       gradient: LinearGradient(
-                        colors: [Color(0xFF0A7D74), Cor.teal],
+                        colors: [
+                          Color.lerp(Cor.vitoria, Colors.black, .38)!,
+                          Cor.vitoria,
+                        ],
                       ),
                     ),
                   ),
@@ -759,10 +762,13 @@ class _BarraVD extends StatelessWidget {
               if (d > 0)
                 Expanded(
                   flex: d * 1000 ~/ total,
-                  child: const DecoratedBox(
+                  child: DecoratedBox(
                     decoration: BoxDecoration(
                       gradient: LinearGradient(
-                        colors: [Cor.vermelho, Color(0xFF8A2232)],
+                        colors: [
+                          Cor.derrota,
+                          Color.lerp(Cor.derrota, Colors.black, .4)!,
+                        ],
                       ),
                     ),
                   ),
@@ -908,7 +914,7 @@ class _LinhaPartida extends StatelessWidget {
     final id = (j['campeao'] as num?)?.toInt() ?? 0;
     final remake = j['remake'] == true;
     final venceu = j['vitoria'] == true;
-    final cor = remake ? Cor.apagado : (venceu ? Cor.teal : Cor.vermelho);
+    final cor = remake ? Cor.apagado : (venceu ? Cor.vitoria : Cor.derrota);
     final quando = DateTime.fromMillisecondsSinceEpoch(
       (j['quando'] as num?)?.toInt() ?? 0,
     );
