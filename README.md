@@ -168,6 +168,8 @@ flutter run -d chrome
 
 O app tem um modo demonstração, sem PC nem Firebase: abra com `?vitrine=<tela>` (ex.: [`?vitrine=pick`](https://ping-celular.web.app/?vitrine=pick)). A lista das telas fica em `app/lib/vitrine.dart`.
 
+Os prints deste README saem de `python tool/prints.py` (detalhes em [`tool/README.md`](tool/README.md)).
+
 | Pasta | O que tem |
 |---|---|
 | `pc` | Programa do Windows: `ponte.py` espelha o client e executa os comandos, `lcu.py` fala com o client, `painel.py` e `ui/` são a janela, `empacotar.py` gera o instalador |

@@ -18,6 +18,7 @@ O Ping só faz o que você pede pelo celular. Nada de ação sozinha no client: 
 | `pc/` | Programa do Windows (Python). `ping.pyw` bandeja e threads; `ponte.py` estado do client em `ao_vivo/<pc>` e comandos de `comandos/<pc>`; `lcu.py` API local do client e dados do jogo; `painel.py` + `ui/index.html` janela de conta, QR, Hoje e opções; `avisos.py` pede push; `hoje.py` resumo do dia; `atualizar.py` atualiza pelo GitHub Releases (versao.json assinado, `assinatura.py`); `empacotar.py` gera o .exe (IExpress + Python do NuGet); `servidor.py` endereços do Firebase e do disparador |
 | `app/` | PWA em Flutter web. `?vitrine=<tela>` = demonstração sem Firebase |
 | `disparador/` | Cloudflare Worker `ping-avisos`: POST /aviso do PC com o ID token; tipos em `src/ping.js` (os mesmos de `app/lib/avisos.dart`) |
+| `tool/` | Scripts de apoio rodados da raiz: `prints.py` refaz os prints do README |
 | `database.rules.json` | Regras do RTDB: `pcs`, `contas`, `ao_vivo`, `comandos`, `push` |
 
 Projeto Firebase: `ping-celular` (Hosting na raiz, `--base-href /`). Segredos fora do repo: `~/.ping/` (assinatura.key, vapid.json, conta-servico.json) e secrets do GitHub (`PING_ASSINATURA`, `FIREBASE_SERVICE_ACCOUNT_PING`).
@@ -44,5 +45,6 @@ Projeto Firebase: `ping-celular` (Hosting na raiz, `--base-href /`). Segredos fo
 - App: `flutter analyze`, `flutter build web --release --base-href /`, vitrine.
 - Regras: emuladores do Firebase (database 9411, auth 9412) ou um projeto de teste.
 - Disparador: `npm run teste`.
+- Prints do README (`docs/`): `python tool/prints.py` (compila o app e tira cada tela pela vitrine). Refazer quando a tela mostrada mudar.
 - Release: workflow `release.yml` à mão (`workflow_dispatch` com uma versão) testa o .exe num Windows limpo.
 - Mudança em `pc/` só chega no Ping instalado com uma tag nova (`vX.Y.Z`): o push da tag publica o release em uns 2 min. Com o release no ar, Reiniciar (bandeja ou janela) já sobe com a versão nova.
