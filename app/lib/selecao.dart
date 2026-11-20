@@ -221,7 +221,7 @@ class _SelecaoState extends State<_Selecao> {
                 width: 370,
                 child: Row(
                   children: [
-                    ?feiticos,
+                    if (feiticos case final v?) v,
                     if (feiticos != null && podeSair) const SizedBox(width: 8),
                     if (podeSair)
                       Expanded(
@@ -243,7 +243,7 @@ class _SelecaoState extends State<_Selecao> {
       padding: const EdgeInsets.only(top: 10),
       child: Row(
         children: [
-          ?feiticos,
+          if (feiticos case final v?) v,
           const Spacer(),
           if (!chatNaTela) _BotaoChat(naoLidas: naoLidas, aoTocar: _abrirChat),
         ],
@@ -360,8 +360,10 @@ class _SelecaoState extends State<_Selecao> {
           child: c,
         ),
       ),
-      layoutBuilder: (atual, antigos) =>
-          Stack(alignment: Alignment.topCenter, children: [...antigos, ?atual]),
+      layoutBuilder: (atual, antigos) => Stack(
+        alignment: Alignment.topCenter,
+        children: [...antigos, if (atual case final v?) v],
+      ),
       child: filho,
     );
 
@@ -690,7 +692,7 @@ class _SkinsState extends State<_Skins> {
                     // a imagem ocupa o quadro todo: em pé corta as laterais, deitado corta em cima e embaixo
                     layoutBuilder: (atual, antigos) => Stack(
                       fit: StackFit.expand,
-                      children: [...antigos, ?atual],
+                      children: [...antigos, if (atual case final v?) v],
                     ),
                     child: Image.network(
                       _arte(vendo['arte'], cid),

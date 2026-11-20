@@ -99,7 +99,7 @@ class _CartaoSala extends StatelessWidget {
                 duration: _dur(context, 220),
                 layoutBuilder: (atual, antigos) => Stack(
                   alignment: Alignment.centerLeft,
-                  children: [...antigos, ?atual],
+                  children: [...antigos, if (atual case final v?) v],
                 ),
                 child: Text(
                   modo,
@@ -219,7 +219,7 @@ class _CartaoSala extends StatelessWidget {
                       duration: _dur(context, 220),
                       layoutBuilder: (atual, antigos) => Stack(
                         alignment: Alignment.centerLeft,
-                        children: [...antigos, ?atual],
+                        children: [...antigos, if (atual case final v?) v],
                       ),
                       child: Text(
                         modo,

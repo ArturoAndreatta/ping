@@ -195,7 +195,7 @@ class _FolhaSalaState extends State<_FolhaSala> {
                     switchOutCurve: Curves.easeIn,
                     layoutBuilder: (atual, antigos) => Stack(
                       alignment: Alignment.topCenter,
-                      children: [...antigos, ?atual],
+                      children: [...antigos, if (atual case final v?) v],
                     ),
                     transitionBuilder: (c, a) {
                       final indo = c.key == const ValueKey(_Passo.convidar);
@@ -485,7 +485,7 @@ class _Modos extends StatelessWidget {
             switchInCurve: curvaSaida,
             layoutBuilder: (atual, antigos) => Stack(
               alignment: Alignment.topCenter,
-              children: [...antigos, ?atual],
+              children: [...antigos, if (atual case final v?) v],
             ),
             transitionBuilder: (c, a) => FadeTransition(opacity: a, child: c),
             child: ListView.builder(

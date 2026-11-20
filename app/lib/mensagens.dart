@@ -163,7 +163,10 @@ List<({String puuid, Map c, List<Map> msgs})> _conversas(Conexao con) {
 /// Lista gravada no Firebase volta como lista ou como mapa {0: .., 1: ..}.
 List<Map> _lista(Object? v) {
   final l = v is List ? v : (v is Map ? v.values.toList() : const []);
-  return [for (final x in l) ?x is Map ? x : null];
+  return [
+    for (final x in l)
+      if (x is Map) x,
+  ];
 }
 
 int _totalNaoLidas(Conexao con) {
@@ -370,7 +373,7 @@ class _FolhaMensagensState extends State<_FolhaMensagens> {
                       switchOutCurve: Curves.easeIn,
                       layoutBuilder: (atual, antigos) => Stack(
                         alignment: Alignment.topCenter,
-                        children: [...antigos, ?atual],
+                        children: [...antigos, if (atual case final v?) v],
                       ),
                       transitionBuilder: (c, a) {
                         final indo = c.key != const ValueKey('lista');

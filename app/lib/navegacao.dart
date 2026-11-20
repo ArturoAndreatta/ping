@@ -416,7 +416,7 @@ class _BarraAnimada extends StatelessWidget {
       children: [
         for (final b in antes)
           Positioned(left: 0, right: 0, bottom: 0, child: b),
-        ?atual,
+        if (atual case final v?) v,
       ],
     ),
     child:
@@ -1266,7 +1266,7 @@ class _LinhaMaisState extends State<_LinhaMais> {
                   duration: _dur(context, 200),
                   layoutBuilder: (atual, antes) => Stack(
                     alignment: Alignment.centerLeft,
-                    children: [...antes, ?atual],
+                    children: [...antes, if (atual case final v?) v],
                   ),
                   child: Text(
                     widget.texto,

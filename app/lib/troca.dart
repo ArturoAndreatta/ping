@@ -368,8 +368,10 @@ class _AvisoTroca extends StatelessWidget {
           ),
         ),
       ),
-      layoutBuilder: (atual, antigos) =>
-          Stack(alignment: Alignment.topCenter, children: [...antigos, ?atual]),
+      layoutBuilder: (atual, antigos) => Stack(
+        alignment: Alignment.topCenter,
+        children: [...antigos, if (atual case final v?) v],
+      ),
       child: filho,
     );
   }

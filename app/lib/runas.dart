@@ -501,7 +501,7 @@ class _FolhaRunasState extends State<_FolhaRunas> {
                     switchOutCurve: Curves.easeIn,
                     layoutBuilder: (a, antigos) => Stack(
                       alignment: Alignment.topCenter,
-                      children: [...antigos, ?a],
+                      children: [...antigos, if (a case final v?) v],
                     ),
                     transitionBuilder: (c, a) {
                       final indo = c.key == const ValueKey('editor');
@@ -1063,7 +1063,7 @@ class _EditorState extends State<_Editor> {
                   for (final (i, l) in arv.linhas(prim).take(4).indexed)
                     _Linha(
                       ids: l,
-                      escolhidas: {?d.p[i]},
+                      escolhidas: {if (d.p[i] case final v?) v},
                       tamanho: i == 0 ? 60 : 50,
                       pedra: i == 0,
                       aoTocar: (id) => _runaPrim(i, id),
@@ -1078,7 +1078,7 @@ class _EditorState extends State<_Editor> {
       for (final (i, l) in arv.frags.indexed)
         _Linha(
           ids: l,
-          escolhidas: {?d.f[i]},
+          escolhidas: {if (d.f[i] case final v?) v},
           tamanho: 28,
           cor: cor,
           aoTocar: (id) => _frag(i, id),
@@ -1926,8 +1926,10 @@ class _InfoRuna extends StatelessWidget {
         padding: EdgeInsets.only(bottom: curto ? 0 : 10),
         child: AnimatedSwitcher(
           duration: _dur(context, 200),
-          layoutBuilder: (a, antigos) =>
-              Stack(alignment: Alignment.topLeft, children: [...antigos, ?a]),
+          layoutBuilder: (a, antigos) => Stack(
+            alignment: Alignment.topLeft,
+            children: [...antigos, if (a case final v?) v],
+          ),
           child: p == null
               ? Text(
                   context.txt.runasToque,
