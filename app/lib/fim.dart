@@ -18,31 +18,22 @@ Map? _fimDe(Conexao con) {
 }
 
 /// Cores e textos de cada resultado.
-typedef _Tom = ({
-  String titulo,
-  Color cor,
-  Color claro,
-  Color brilho,
-  String som,
-});
+typedef _Tom = ({Color cor, Color claro, Color brilho, String som});
 
 _Tom _tomDe(String resultado) => switch (resultado) {
   'vitoria' => (
-    titulo: 'VITÓRIA',
     cor: Cor.ouro,
     claro: Cor.ouroClaro,
     brilho: const Color(0xFFFFE9B0),
     som: 'vitoria',
   ),
   'derrota' => (
-    titulo: 'DERROTA',
     cor: Cor.vermelho,
     claro: const Color(0xFFF4C6CC),
     brilho: const Color(0xFFFF8A9A),
     som: 'derrota',
   ),
   _ => (
-    titulo: 'REMAKE',
     cor: Cor.teal,
     claro: const Color(0xFFCDF7F2),
     brilho: const Color(0xFF8FF3EA),
@@ -296,7 +287,11 @@ class _FimState extends State<_Fim> with TickerProviderStateMixin {
   Widget _emblema(double lado, String resultado) {
     final derrota = resultado == 'derrota';
     final titulo = Text(
-      _tom.titulo,
+      switch ('${widget.fim['resultado']}') {
+        'vitoria' => context.txt.resVitoria,
+        'derrota' => context.txt.resDerrota,
+        _ => context.txt.hojeRemake,
+      }.toUpperCase(),
       maxLines: 1,
       softWrap: false,
       style: fonteTitulo(lado * 0.17, cor: _tom.claro).copyWith(
@@ -503,8 +498,8 @@ class _Numeros extends StatelessWidget {
                   children: [
                     Text(
                       remake
-                          ? 'Partida encerrada cedo'
-                          : (nome.isNotEmpty ? nome : 'Fim de partida'),
+                          ? context.txt.fimCedo
+                          : (nome.isNotEmpty ? nome : context.txt.fimTitulo),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(
@@ -545,9 +540,15 @@ class _Numeros extends StatelessWidget {
                   ),
                 if (f['cs'] is int) _Dado(rotulo: 'CS', valor: '${f['cs']}'),
                 if (arena && colocacao > 0)
-                  _Dado(rotulo: 'COLOCAÇÃO', valor: '$colocacaoº'),
+                  _Dado(
+                    rotulo: context.txt.fimColocacao.toUpperCase(),
+                    valor: _ordinal(context.txt, colocacao),
+                  ),
                 if (f['duracao'] is int)
-                  _Dado(rotulo: 'TEMPO', valor: _mmss(f['duracao'] as int)),
+                  _Dado(
+                    rotulo: context.txt.fimTempo.toUpperCase(),
+                    valor: _mmss(f['duracao'] as int),
+                  ),
               ],
             ),
           ),
@@ -559,13 +560,17 @@ class _Numeros extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                _Lado(texto: 'SEU TIME', valor: '${placar[0]}', cor: Cor.teal),
+                _Lado(
+                  texto: context.txt.partidaSeuTime.toUpperCase(),
+                  valor: '${placar[0]}',
+                  cor: Cor.teal,
+                ),
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 18),
                   child: Text('x', style: fonteTitulo(16, cor: Cor.apagado)),
                 ),
                 _Lado(
-                  texto: 'INIMIGO',
+                  texto: context.txt.partidaInimigo.toUpperCase(),
                   valor: '${placar[1]}',
                   cor: Cor.vermelho,
                 ),

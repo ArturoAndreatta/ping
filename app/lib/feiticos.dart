@@ -58,7 +58,7 @@ class _BotaoFeiticos extends StatelessWidget {
     final par = _meusFeiticos(sel);
     Widget quad(int slot) => Semantics(
       button: true,
-      label: slot == 0 ? 'Feitiço D' : 'Feitiço F',
+      label: slot == 0 ? context.txt.feiticoD : context.txt.feiticoF,
       child: GestureDetector(
         behavior: HitTestBehavior.opaque,
         onTap: () => _abrirFeiticos(context, con, slot: slot),
@@ -189,7 +189,7 @@ class _FolhaFeiticosState extends State<_FolhaFeiticos> {
           '${lista.where((f) => f['id'] == par[i]).firstOrNull?['nome'] ?? ''}';
       return Expanded(
         child: _Tocavel(
-          rotulo: 'Feitiço ${i == 0 ? 'D' : 'F'}',
+          rotulo: i == 0 ? context.txt.feiticoD : context.txt.feiticoF,
           aoTocar: () {
             som.tocar('clique');
             setState(() => _slot = i);
@@ -235,7 +235,7 @@ class _FolhaFeiticosState extends State<_FolhaFeiticos> {
                         ),
                       ),
                       Text(
-                        nome.isEmpty ? 'Escolher' : nome,
+                        nome.isEmpty ? context.txt.escolher : nome,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: TextStyle(
@@ -267,7 +267,10 @@ class _FolhaFeiticosState extends State<_FolhaFeiticos> {
         children: [
           Row(
             children: [
-              Text('FEITIÇOS', style: fonteTitulo(14)),
+              Text(
+                context.txt.feiticosTitulo.toUpperCase(),
+                style: fonteTitulo(14),
+              ),
               const Spacer(),
               AnimatedOpacity(
                 opacity: enviando ? 1 : 0,

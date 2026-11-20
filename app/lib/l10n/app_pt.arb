@@ -1,0 +1,824 @@
+{
+  "@@locale": "pt",
+  "pagTema": "Tema",
+  "temaAparencia": "Aparência",
+  "temaTexto": "As cores do app. O painel do PC tem os mesmos temas.",
+  "modoEscuro": "Escuro",
+  "modoClaro": "Claro",
+  "modoSemantica": "Modo {nome}",
+  "@modoSemantica": {
+    "placeholders": {
+      "nome": {
+        "type": "String"
+      }
+    }
+  },
+  "temaSemantica": "Tema {nome}",
+  "@temaSemantica": {
+    "placeholders": {
+      "nome": {
+        "type": "String"
+      }
+    }
+  },
+  "temaClient": "Client",
+  "temaBilgewater": "Águas de Sentina",
+  "temaSombras": "Ilha das Sombras",
+  "temaBandopolis": "Bandópolis",
+  "temaVazio": "Vazio",
+  "idiomaTitulo": "Idioma",
+  "idiomaCabecalho": "Idioma",
+  "idiomaTexto": "Automático segue o idioma do aparelho.",
+  "idiomaAutomatico": "Automático",
+  "temaResumo": "{regiao}, {modo}",
+  "@temaResumo": {
+    "placeholders": {
+      "regiao": {
+        "type": "String"
+      },
+      "modo": {
+        "type": "String"
+      }
+    }
+  },
+  "abaAoVivo": "Ao vivo",
+  "abaHoje": "Hoje",
+  "abaMais": "Mais",
+  "abasSemantica": "Abas",
+  "hojeMinutos": "Minutos",
+  "hojeHoras": "Horas",
+  "hojeVazioTitulo": "Nenhuma partida hoje",
+  "hojeVazioTexto": "Jogue uma partida e o resumo do dia aparece aqui.",
+  "hojeSoRemakes": "Só remakes até agora.",
+  "hojeTitulo": "Hoje",
+  "hojeWinrate": "Winrate",
+  "hojeSiglaV": "{n}V",
+  "@hojeSiglaV": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "hojeSiglaD": "{n}D",
+  "@hojeSiglaD": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "hojePartidas": "Partidas",
+  "hojeMvp": "MVP do dia",
+  "hojeMvpVitorias": "{v, plural, =1{1 vitória} other{{v} vitórias}} em {n}",
+  "@hojeMvpVitorias": {
+    "placeholders": {
+      "v": {
+        "type": "int"
+      },
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "hojePartidasTitulo": "Partidas",
+  "hojeRemake": "Remake",
+  "resVitoria": "Vitória",
+  "resDerrota": "Derrota",
+  "maisCelular": "Este celular",
+  "maisAvisos": "Avisos",
+  "maisAvisosAtivo": "Chegam mesmo com o app fechado.",
+  "maisAvisosInativo": "Partida encontrada, sua vez e mais, no celular.",
+  "maisTema": "Tema",
+  "maisSons": "Sons",
+  "maisSonsTexto": "Os sons do client quando algo acontece.",
+  "voltar": "Voltar",
+  "versaoNova": "Versão nova!",
+  "versaoNovaTexto": "Atualize antes de qualquer ação.",
+  "versaoBaixando": "Baixando a versão nova",
+  "versaoAtualizar": "Atualizar agora",
+  "x": "Atualizar agora",
+  "aberturaRiot": "Abrindo o Riot Client",
+  "aberturaLeague": "Iniciando o LoL",
+  "aberturaUx": "Carregando o client",
+  "aberturaPronto": "Quase pronto",
+  "aberturaTitulo": "Abrindo o LoL",
+  "aberturaLogin": "Entre na sua conta no PC, se ele pedir.",
+  "aberturaPronto2": "Pronto",
+  "aberturaEsperandoLogin": "Esperando o login",
+  "aberturaAberto": "LoL aberto",
+  "aberturaQuaseLa": "Quase lá",
+  "aberturaFaltam": "Faltam ~{s}s",
+  "@aberturaFaltam": {
+    "placeholders": {
+      "s": {
+        "type": "int"
+      }
+    }
+  },
+  "aberturaEstimado": "Tempo estimado: ainda aprendendo este PC.",
+  "posTop": "Topo",
+  "posJungle": "Selva",
+  "posMiddle": "Meio",
+  "posBottom": "Atirador",
+  "posUtility": "Suporte",
+  "posFill": "Qualquer",
+  "escolher": "Escolher",
+  "posPrimeiraSem": "Primeira posição",
+  "posSegundaSem": "Segunda posição",
+  "posPrimeira": "Primeira",
+  "posSegunda": "Segunda",
+  "posSua": "Sua posição",
+  "cartasTitulo": "Escolha seu campeão",
+  "cartasTexto": "Toque numa carta",
+  "cartasEscolher": "Escolher carta",
+  "cartasEscolherNome": "Escolher {nome}",
+  "@cartasEscolherNome": {
+    "placeholders": {
+      "nome": {
+        "type": "String"
+      }
+    }
+  },
+  "cartasSorte": "Sorte",
+  "feiticoD": "Feitiço D",
+  "feiticoF": "Feitiço F",
+  "feiticosTitulo": "Feitiços",
+  "banir": "Banir",
+  "travar": "Travar",
+  "escolhaBuscar": "Buscar campeão",
+  "limpar": "Limpar",
+  "escolhaNenhum": "Nenhum campeão com esse nome.",
+  "ordemFavorito": "Favorito",
+  "ordemNome": "Nome",
+  "ordemMaestria": "Maestria",
+  "ordenarPor": "Ordenar por",
+  "salaTitulo": "Na sala",
+  "salaConvidar": "Convidar amigos",
+  "salaTrocar": "Trocar",
+  "salaBuscar": "Buscar partida",
+  "salaSair": "Sair da sala",
+  "salaLiderInicia": "O líder da sala inicia a fila.",
+  "salaEscolherPosicao": "Escolher posição",
+  "salaEscolherSua": "Escolher sua posição",
+  "salaConvidarCurto": "Convidar",
+  "salaLider": "Líder da sala",
+  "salaProcurando": "Procurando partida",
+  "salaSairFila": "Sair da fila",
+  "salaConvidado": "Convidado, esperando resposta",
+  "salaChatFechado": "O chat ainda não abriu.",
+  "salaChatVazio": "Nenhuma mensagem ainda.",
+  "salaVoce": "Você · {hh}",
+  "@salaVoce": {
+    "placeholders": {
+      "hh": {
+        "type": "String"
+      }
+    }
+  },
+  "salaChat": "Chat da sala",
+  "erroConectar": "Não consegui conectar. Confira a internet e abra de novo.",
+  "erroEmailEmUso": "Esse e-mail já tem conta. Toque em Entrar.",
+  "erroEmailInvalido": "Esse e-mail não parece certo.",
+  "erroSenhaFraca": "A senha precisa de pelo menos 6 letras.",
+  "erroMuitasTentativas": "Muitas tentativas. Espere um pouco.",
+  "erroSemInternet": "Sem internet.",
+  "erroLogin": "E-mail ou senha errados.",
+  "erroGenerico": "Não deu certo. Tente de novo.",
+  "erroGenericoNet": "Não deu certo. Confira a internet.",
+  "erroPreencher": "Preencha o e-mail e a senha.",
+  "erroAbrirConta": "Não consegui abrir a conta. Confira a internet.",
+  "erroMandar": "Não consegui mandar. Confira a internet.",
+  "erroPcMudo": "O PC não respondeu.",
+  "fechar": "Fechar",
+  "contaCriarTitulo": "Criar conta Ping",
+  "contaEntrarTitulo": "Entrar na conta",
+  "contaCriarTexto": "Depois entre com ela na janela do Ping no PC.",
+  "contaEntrarTexto": "Os PCs da conta aparecem neste celular.",
+  "contaEmail": "E-mail",
+  "contaSenha6": "Senha (6 letras ou mais)",
+  "contaSenha": "Senha",
+  "contaBotaoCriar": "Criar conta",
+  "contaBotaoEntrar": "Entrar",
+  "contaJaTenho": "Já tenho conta",
+  "contaCriarNova": "Criar conta nova",
+  "contaTambem": "também {contas}",
+  "@contaTambem": {
+    "placeholders": {
+      "contas": {
+        "type": "String"
+      }
+    }
+  },
+  "contaAberto": "Aberto agora.",
+  "contaAbertoResto": "Aberto · {resto}",
+  "@contaAbertoResto": {
+    "placeholders": {
+      "resto": {
+        "type": "String"
+      }
+    }
+  },
+  "contaToqueAbrir": "Toque pra abrir.",
+  "contaTirarQ": "Tirar da conta?",
+  "contaTirarTexto": "{nome} sai da lista. Pra voltar, entre na conta de novo na janela do Ping dele.",
+  "@contaTirarTexto": {
+    "placeholders": {
+      "nome": {
+        "type": "String"
+      }
+    }
+  },
+  "contaTirar": "Tirar",
+  "cancelar": "Cancelar",
+  "contaSairQ": "Sair da conta?",
+  "contaSairTexto": "Este celular para de ver os PCs. Eles continuam na conta: é só entrar de novo.",
+  "contaSair": "Sair",
+  "contaTitulo": "Conta Ping",
+  "contaCriarLinha": "O vínculo não se perde e junta seus PCs e smurfs.",
+  "contaEntrarLinha": "Entrar e ver os PCs da conta.",
+  "contaPcsN": "{n} PCs nesta conta. Toque pra trocar.",
+  "@contaPcsN": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "contaQualquerCel": "Entre com ela em qualquer celular.",
+  "contaTirarSem": "Tirar da conta",
+  "contaOutroPc": "Outro PC",
+  "contaOutroPcTexto": "Instale o Ping nele e entre com esta conta.",
+  "contaSairLinha": "Sair da conta",
+  "contaSairLinhaTexto": "Neste celular. Os PCs continuam na conta.",
+  "criarTrocarModo": "Trocar modo",
+  "criarCriarSala": "Criar sala",
+  "criarChamar": "Chamar amigos",
+  "criarCriando": "Criando sala...",
+  "criarPronto": "Pronto",
+  "criarConvidarN": "Convidar ({n})",
+  "@criarConvidarN": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "criarPassoModo": "Modo",
+  "criarPassoAmigos": "Amigos",
+  "criarModosAbrir": "Os modos aparecem quando o LoL estiver aberto.",
+  "criarAtual": "Atual",
+  "criarNenhumAmigo": "Nenhum amigo online no LoL agora.",
+  "criarOnline": "Online agora",
+  "criarDesmarcar": "Desmarcar",
+  "criarMarcarTodos": "Marcar todos",
+  "criarTudoParado": "Tudo parado",
+  "criarTudoParadoTexto": "Crie uma sala e chame os amigos daqui mesmo.",
+  "criarOnline1": "{a} está online",
+  "@criarOnline1": {
+    "placeholders": {
+      "a": {
+        "type": "String"
+      }
+    }
+  },
+  "criarOnline2": "{a} e {b} estão online",
+  "@criarOnline2": {
+    "placeholders": {
+      "a": {
+        "type": "String"
+      },
+      "b": {
+        "type": "String"
+      }
+    }
+  },
+  "criarOnlineN": "{a} e mais {n} amigos estão online",
+  "@criarOnlineN": {
+    "placeholders": {
+      "a": {
+        "type": "String"
+      },
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "trocaAliado": "o aliado",
+  "trocaCom": "Trocar com {nome}",
+  "@trocaCom": {
+    "placeholders": {
+      "nome": {
+        "type": "String"
+      }
+    }
+  },
+  "trocaAceitar": "Ele precisa aceitar.",
+  "trocaPosicao": "Posição",
+  "trocaPosicaoSem": "Vocês trocam de posição",
+  "trocaVaiPraPos": "Você vai pra {ganho}",
+  "@trocaVaiPraPos": {
+    "placeholders": {
+      "ganho": {
+        "type": "String"
+      }
+    }
+  },
+  "trocaOrdem": "Ordem de pick",
+  "trocaOrdemSem": "Vocês trocam a vez de escolher",
+  "trocaEscolheEm": "Você escolhe em {ganho}",
+  "@trocaEscolheEm": {
+    "placeholders": {
+      "ganho": {
+        "type": "String"
+      }
+    }
+  },
+  "trocaCampeao": "Campeão",
+  "trocaCampeaoSem": "Vocês trocam de campeão",
+  "trocaFicaCom": "Você fica com {ganho}",
+  "@trocaFicaCom": {
+    "placeholders": {
+      "ganho": {
+        "type": "String"
+      }
+    }
+  },
+  "trocaUmAliado": "Um aliado",
+  "trocaPosRec": "Troca de posição",
+  "trocaPosEnv": "Posição pedida",
+  "trocaOrdemRec": "Troca de ordem",
+  "trocaOrdemEnv": "Ordem pedida",
+  "trocaCampRec": "Pedido de troca",
+  "trocaCampEnv": "Troca pedida",
+  "trocaQuerPos": "quer trocar de posição com você",
+  "trocaQuerOrdem": "quer trocar a ordem de pick com você",
+  "trocaQuerCamp": "quer trocar com você",
+  "trocaRecebida": "{nome} {quer}.",
+  "@trocaRecebida": {
+    "placeholders": {
+      "nome": {
+        "type": "String"
+      },
+      "quer": {
+        "type": "String"
+      }
+    }
+  },
+  "trocaRecebidaFica": "{nome} {quer}: {fica}.",
+  "@trocaRecebidaFica": {
+    "placeholders": {
+      "nome": {
+        "type": "String"
+      },
+      "quer": {
+        "type": "String"
+      },
+      "fica": {
+        "type": "String"
+      }
+    }
+  },
+  "trocaEsperando": "Esperando {nome} aceitar.",
+  "@trocaEsperando": {
+    "placeholders": {
+      "nome": {
+        "type": "String"
+      }
+    }
+  },
+  "trocaEsperandoFica": "Esperando {nome} aceitar: {fica}.",
+  "@trocaEsperandoFica": {
+    "placeholders": {
+      "nome": {
+        "type": "String"
+      },
+      "fica": {
+        "type": "String"
+      }
+    }
+  },
+  "recusar": "Recusar",
+  "aceitar": "Aceitar",
+  "trocaCancelar": "Cancelar pedido",
+  "bancoTitulo": "Banco",
+  "bancoNo": "No banco",
+  "bancoToque": "Toque pra pegar",
+  "bancoPegar": "Pegar do banco",
+  "bancoPegarNome": "Pegar {nome} do banco",
+  "@bancoPegarNome": {
+    "placeholders": {
+      "nome": {
+        "type": "String"
+      }
+    }
+  },
+  "evRoubado": "{nome} (roubado)",
+  "@evRoubado": {
+    "placeholders": {
+      "nome": {
+        "type": "String"
+      }
+    }
+  },
+  "evPrimeiroAbate": "Primeiro abate",
+  "evDragao": "{tipo, select, fire{Dragão Infernal} earth{Dragão da Montanha} water{Dragão do Oceano} air{Dragão das Nuvens} hextech{Dragão Hextec} chemtech{Dragão Quimtec} elder{Dragão Ancião} other{Dragão}}",
+  "@evDragao": {
+    "placeholders": {
+      "tipo": {
+        "type": "String"
+      }
+    }
+  },
+  "evArauto": "Arauto",
+  "evBarao": "Barão",
+  "evVastilarvas": "Vastilarvas",
+  "evAtakhan": "Atakhan",
+  "evTorre": "Torre",
+  "evInibidor": "Inibidor",
+  "evAce": "Time inteiro abatido",
+  "partidaCarregando": "Tela de carregamento",
+  "partidaCarregandoTexto": "A partida começa assim que todo mundo carregar.",
+  "partidaTropasCampo": "Tropas em campo",
+  "partidaTropasSaem": "Tropas saem em {tempo}",
+  "@partidaTropasSaem": {
+    "placeholders": {
+      "tempo": {
+        "type": "String"
+      }
+    }
+  },
+  "partidaTropasNao": "Tropas ainda não saíram",
+  "partidaVolta": "Você volta em {tempo}",
+  "@partidaVolta": {
+    "placeholders": {
+      "tempo": {
+        "type": "String"
+      }
+    }
+  },
+  "partidaDe": "Em partida de {campeao}",
+  "@partidaDe": {
+    "placeholders": {
+      "campeao": {
+        "type": "String"
+      }
+    }
+  },
+  "partidaEm": "Em partida",
+  "partidaSeuTime": "Seu time",
+  "partidaInimigo": "Inimigo",
+  "eloIron": "Ferro",
+  "eloBronze": "Bronze",
+  "eloSilver": "Prata",
+  "eloGold": "Ouro",
+  "eloPlatinum": "Platina",
+  "eloEmerald": "Esmeralda",
+  "eloDiamond": "Diamante",
+  "eloMaster": "Mestre",
+  "eloGrandmaster": "Grão-Mestre",
+  "eloChallenger": "Desafiante",
+  "partidaCarregandoTitulo": "Carregando",
+  "voce": "Você",
+  "timeN": "Time {n}",
+  "@timeN": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "arenaBanimentos": "Banimentos",
+  "arenaJogadores": "Jogadores",
+  "arenaJaBaniram": "{feitos}/{total} já baniram",
+  "@arenaJaBaniram": {
+    "placeholders": {
+      "feitos": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "arenaJaEscolheram": "{feitos}/{total} já escolheram",
+  "@arenaJaEscolheram": {
+    "placeholders": {
+      "feitos": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "arenaJogadorN": "Jogador {n}",
+  "@arenaJogadorN": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "arenaBaniu": "Baniu {nome}",
+  "@arenaBaniu": {
+    "placeholders": {
+      "nome": {
+        "type": "String"
+      }
+    }
+  },
+  "arenaMarcou": "Marcou {nome}",
+  "@arenaMarcou": {
+    "placeholders": {
+      "nome": {
+        "type": "String"
+      }
+    }
+  },
+  "arenaBanindo": "Banindo...",
+  "arenaNaoBaniu": "Não baniu",
+  "arenaEscondido": "Escondido",
+  "arenaEscolhendo": "Escolhendo...",
+  "arenaOutros": "Outros jogadores",
+  "fimCedo": "Partida encerrada cedo",
+  "fimTitulo": "Fim de partida",
+  "fimColocacao": "Colocação",
+  "fimTempo": "Tempo",
+  "msgMandarMensagem": "Mandar mensagem",
+  "msgMandar": "Mandar",
+  "msgNovas": "Mensagens ({n} novas)",
+  "@msgNovas": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "msgTitulo": "Mensagens",
+  "msgConversas": "Conversas",
+  "msgVoceDois": "Você: {texto}",
+  "@msgVoceDois": {
+    "placeholders": {
+      "texto": {
+        "type": "String"
+      }
+    }
+  },
+  "msgLinhaSem": "{nome}, {n} mensagens novas",
+  "@msgLinhaSem": {
+    "placeholders": {
+      "nome": {
+        "type": "String"
+      },
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "msgPrimeira": "Mande a primeira mensagem pra {nome}.",
+  "@msgPrimeira": {
+    "placeholders": {
+      "nome": {
+        "type": "String"
+      }
+    }
+  },
+  "msgPara": "Mensagem pra {nome}",
+  "@msgPara": {
+    "placeholders": {
+      "nome": {
+        "type": "String"
+      }
+    }
+  },
+  "msgOffline": "Offline",
+  "avisosLigado": "Ligado: chega mesmo com o app fechado.",
+  "avisosChega": "Chega mesmo com o app fechado.",
+  "avisosNegado": "Recusado nos ajustes do celular.",
+  "avisosTelaInicio": "Adicione o app à tela de início pra ligar.",
+  "avisosConferindo": "Conferindo...",
+  "avisosSemSuporte": "Este navegador não recebe avisos.",
+  "avisosAvisar": "Avisar neste celular",
+  "avisosMesmoNoPc": "Mesmo com você no PC",
+  "avisosMesmoNoPcTexto": "Avisa enquanto você está no PC.",
+  "avisosOQue": "O que avisar",
+  "avisosErroMudar": "Não consegui mudar o aviso neste celular.",
+  "avisosErroSalvar": "Não salvou. Confira a internet.",
+  "runasFaltaPrim": "caminho principal",
+  "runasFaltaPedra": "pedra fundamental",
+  "runasFaltaRunasPrim": "runas da principal",
+  "runasFaltaSec": "caminho secundário",
+  "runasFaltaRunasSec": "2 runas da secundária",
+  "runasFaltaFrag": "fragmentos",
+  "runasSalvar": "Salvar e usar",
+  "runasFalta": "Falta: {item}",
+  "@runasFalta": {
+    "placeholders": {
+      "item": {
+        "type": "String"
+      }
+    }
+  },
+  "runasSem": "Runas: {nome}",
+  "@runasSem": {
+    "placeholders": {
+      "nome": {
+        "type": "String"
+      }
+    }
+  },
+  "runasPaginaNovaNome": "Página nova",
+  "runasTitulo": "Runas",
+  "runasNovaPagina": "Nova página",
+  "runasEditarPagina": "Editar página",
+  "runasVoltar": "Voltar pras páginas",
+  "runasSemPagina": "Você ainda não tem página de runas.",
+  "runasSemEspaco": "Sem espaço pra página nova: edite uma das suas.",
+  "runasIncompleta": "Incompleta",
+  "runasPaginaSem": "{nome}, em uso",
+  "@runasPaginaSem": {
+    "placeholders": {
+      "nome": {
+        "type": "String"
+      }
+    }
+  },
+  "runasEmUso": "Em uso",
+  "runasPrincipal": "Principal",
+  "runasEscolhaCaminho": "Escolha um caminho pra começar.",
+  "runasSecundaria": "Secundária",
+  "runasEscolhaPrincipal": "Escolha o principal primeiro.",
+  "runasEscolhaSecundario": "Escolha o caminho secundário.",
+  "runasFragmentos": "Fragmentos",
+  "runasNomePagina": "Nome da página",
+  "runasToque": "Toque numa runa pra ver o que ela faz.",
+  "selChat": "Chat da seleção",
+  "selSairQ": "Sair da seleção?",
+  "selSairTexto": "Você sai da partida, como no SAIR do LoL.",
+  "selSair": "Sair",
+  "selFicar": "Ficar",
+  "selSemChroma": "Você não tem chroma desta skin",
+  "selChroma": "Chroma",
+  "selChromaSem": "Chroma que você não tem",
+  "selAramCaos": "ARAM: Desordem",
+  "selBanimentos": "Banimentos",
+  "selEscolhas": "Escolhas",
+  "selPlanejamento": "Planejamento",
+  "selFinalizacao": "Finalização",
+  "selComecando": "Começando",
+  "selTitulo": "Seleção",
+  "selBoaPartida": "Boa partida!",
+  "selEscolhaCarta": "Escolha uma carta",
+  "selEscolhaPreparacao": "Escolha sua preparação",
+  "selSorteando": "Sorteando campeões",
+  "selSuaVezBanir": "Sua vez de banir",
+  "selSuaVezEscolher": "Sua vez de escolher",
+  "selPrepareSe": "Prepare-se, os bans já vão abrir",
+  "selEsperandoBanirem": "Esperando os outros banirem",
+  "selEscolhaSkin": "Escolha sua skin",
+  "selEsperandoEscolherem": "Esperando os outros escolherem",
+  "selDeclare": "Declare seu campeão",
+  "selEsperandoBans": "Esperando os bans",
+  "selTodosEscolheram": "Todos escolheram",
+  "selVezTime": "Vez do seu time",
+  "selVezInimigo": "Vez do time inimigo",
+  "selEsperando": "Esperando",
+  "selBanaCampeao": "Bana um campeão!",
+  "selEscolhaCampeao": "Escolha seu campeão!",
+  "selEscolhaPreparacaoEx": "Escolha sua preparação!",
+  "selChatSem": "Chat, {n} novas",
+  "@selChatSem": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "selChatCurto": "Chat",
+  "selTimeInimigos": "Seu time",
+  "selInimigos": "Inimigos",
+  "selBans": "Bans",
+  "selNenhum": "Nenhum",
+  "selBanPulado": "Ban pulado",
+  "selAliado": "Aliado",
+  "selInimigoN": "Inimigo {n}",
+  "@selInimigoN": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "selQuer": "Quer {nome}",
+  "@selQuer": {
+    "placeholders": {
+      "nome": {
+        "type": "String"
+      }
+    }
+  },
+  "selPedirTroca": "Pedir troca com {nome}",
+  "@selPedirTroca": {
+    "placeholders": {
+      "nome": {
+        "type": "String"
+      }
+    }
+  },
+  "selBanindo": "Banindo",
+  "selEscolhendo": "Escolhendo",
+  "selSairSem": "Sair da seleção",
+  "selSairBotao": "Sair",
+  "dicaTelaInicio": "Dica: adicione à Tela de Início (Compartilhar > Adicionar). Pelo ícone, entre de novo com a sua conta.",
+  "mainConectando": "Conectando",
+  "mainUmInstante": "Só um instante.",
+  "mainFaltaPc": "Falta o PC",
+  "mainFaltaPcTexto": "No painel do Ping no PC, abra Conta e entre com {conta}. Ele aparece aqui na hora.",
+  "@mainFaltaPcTexto": {
+    "placeholders": {
+      "conta": {
+        "type": "String"
+      }
+    }
+  },
+  "mainEstaConta": "esta conta",
+  "mainPcConectado": "PC conectado",
+  "mainPcSemSinal": "PC sem sinal",
+  "mainPingCelular": "Ping no celular",
+  "mainEntreTexto": "Entre com a mesma conta Ping do painel do PC. Não tem? Crie aqui e entre com ela no PC, em Conta.",
+  "mainOutraConta": "Entrar com outra conta",
+  "mainEsperandoPc": "Esperando o PC",
+  "mainEsperandoPcTexto": "O Ping manda o primeiro sinal em alguns segundos.",
+  "mainPcSemSinalTexto": "O PC está desligado, sem internet ou com o Ping fechado.",
+  "mainFechandoLolTexto": "O LoL e o Riot Client estão fechando no PC.",
+  "mainLolFechado": "LoL fechado",
+  "mainLolFechadoTexto": "Abra o LoL no PC pra acompanhar por aqui.",
+  "mainAbrirLol": "Abrir o LoL",
+  "mainEntreFila": "Entre na fila no PC e acompanhe por aqui.",
+  "mainSelecao": "Seleção de campeões",
+  "mainSelecaoTexto": "Logo dá pra escolher o campeão por aqui.",
+  "mainPartidaAcabou": "A partida acabou.",
+  "mainEstimado": "Estimado {tempo}",
+  "@mainEstimado": {
+    "placeholders": {
+      "tempo": {
+        "type": "String"
+      }
+    }
+  },
+  "mainAceita": "Partida aceita",
+  "mainAceitaTexto": "Esperando os outros jogadores.",
+  "mainRecusada": "Partida recusada",
+  "mainRecusadaTexto": "Você recusou esta partida.",
+  "maisPartida": "Partida encontrada",
+  "mainEncontrada": "Partida encontrada",
+  "mainAceitarQ": "Aceitar?",
+  "mainFecharRiotQ": "Fechar o Riot Client?",
+  "mainFecharLolQ": "Fechar o LoL?",
+  "mainFecharRiotTexto": "O Riot Client fecha no PC.",
+  "mainFecharFilaTexto": "Você sai da fila e o LoL fecha no PC, junto com o Riot Client.",
+  "mainFecharLolTexto": "O LoL fecha no PC, junto com o Riot Client.",
+  "mainFechar": "Fechar",
+  "mainFecharRiot": "Fechar o Riot Client",
+  "mainFecharLol": "Fechar o LoL",
+  "mainLigarSons": "Ligar sons",
+  "mainDesligarSons": "Desligar sons",
+  "mainFechandoLol": "Fechando o LoL",
+  "criarConvidado": "Convidado",
+  "runasEditarNome": "Editar {nome}",
+  "@runasEditarNome": {
+    "placeholders": {
+      "nome": {
+        "type": "String"
+      }
+    }
+  },
+  "selSkinSem": "{nome}, você não tem",
+  "@selSkinSem": {
+    "placeholders": {
+      "nome": {
+        "type": "String"
+      }
+    }
+  },
+  "runaUma": "Runa",
+  "avisoFilaN": "Entrou na fila",
+  "avisoFilaT": "Quando você ou o líder da sala entra na fila.",
+  "avisoPartidaN": "Partida encontrada",
+  "avisoPartidaT": "Quando a fila acha partida.",
+  "avisoVezN": "Sua vez",
+  "avisoVezT": "Quando chega sua vez de escolher ou banir.",
+  "avisoTrocaN": "Pedido de troca",
+  "avisoTrocaT": "Quando um aliado pede troca na seleção.",
+  "avisoConviteN": "Convite pra sala",
+  "avisoConviteT": "Quando alguém chama você pra sala.",
+  "avisoMensagemN": "Mensagens",
+  "avisoMensagemT": "Mensagem de amigo no chat privado ou da sala.",
+  "avisoLolProntoN": "LoL aberto",
+  "avisoLolProntoT": "Quando o LoL que você abriu pelo celular fica pronto.",
+  "avisoFimN": "Fim da partida",
+  "avisoFimT": "Vitória ou derrota, com o seu placar.",
+  "avisoResumoN": "Resumo do dia",
+  "avisoResumoT": "Quando você fecha o LoL."
+}

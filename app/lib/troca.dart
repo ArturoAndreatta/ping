@@ -43,12 +43,26 @@ Map? _euNaSelecao(Map sel) => ((sel['meu'] as List?) ?? const [])
     .where((m) => m['eu'] == true)
     .firstOrNull;
 
-String _ordinal(Object? n) => n is num && n > 0 ? '${n.toInt()}º' : '';
+String _ordinal(Txt t, Object? n) {
+  if (n is! num || n <= 0) return '';
+  final i = n.toInt();
+  return switch (t.localeName) {
+    'en' =>
+      '$i${i % 100 >= 11 && i % 100 <= 13 ? 'th' : switch (i % 10) {
+              1 => 'st',
+              2 => 'nd',
+              3 => 'rd',
+              _ => 'th',
+            }}',
+    'es' => '$i.º',
+    _ => '$iº',
+  };
+}
 
 /// O que muda pra você em cada tipo de troca com esse aliado (vazio quando não dá pra saber).
-String _ganhoTroca(String tipo, Map sel, Map aliado) => switch (tipo) {
-  'pos' => _posSelecao['${aliado['pos'] ?? ''}'] ?? '',
-  'ordem' => _ordinal(aliado['ordem']),
+String _ganhoTroca(Txt t, String tipo, Map sel, Map aliado) => switch (tipo) {
+  'pos' => _nomePosicao(t, _posSelecao['${aliado['pos'] ?? ''}']),
+  'ordem' => _ordinal(t, aliado['ordem']),
   _ => _nomeCampeao(sel['nomes'], (aliado['campeao'] as num?)?.toInt() ?? 0),
 };
 
@@ -139,7 +153,7 @@ class _FolhaEscolhaTroca extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final nome = '${aliado['nome'] ?? ''}'.isEmpty
-        ? 'o aliado'
+        ? context.txt.trocaAliado
         : '${aliado['nome']}';
     final tipos = _trocasDisponiveis(aliado);
     return Container(
@@ -154,14 +168,14 @@ class _FolhaEscolhaTroca extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Text(
-            'TROCAR COM ${nome.toUpperCase()}',
+            context.txt.trocaCom(nome).toUpperCase(),
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
             style: fonteTitulo(14),
           ),
           const SizedBox(height: 4),
           Text(
-            'Ele precisa aceitar.',
+            context.txt.trocaAceitar,
             style: TextStyle(color: Cor.apagado, fontSize: 13),
           ),
           const SizedBox(height: 14),
@@ -193,21 +207,20 @@ class _OpcaoTroca extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final ganho = _ganhoTroca(tipo, sel, aliado);
+    final t = context.txt;
+    final ganho = _ganhoTroca(t, tipo, sel, aliado);
     final (titulo, detalhe) = switch (tipo) {
       'pos' => (
-        'Posição',
-        ganho.isEmpty ? 'Vocês trocam de posição' : 'Você vai pra $ganho',
+        t.trocaPosicao,
+        ganho.isEmpty ? t.trocaPosicaoSem : t.trocaVaiPraPos(ganho),
       ),
       'ordem' => (
-        'Ordem de pick',
-        ganho.isEmpty
-            ? 'Vocês trocam a vez de escolher'
-            : 'Você escolhe em $ganho',
+        t.trocaOrdem,
+        ganho.isEmpty ? t.trocaOrdemSem : t.trocaEscolheEm(ganho),
       ),
       _ => (
-        'Campeão',
-        ganho.isEmpty ? 'Vocês trocam de campeão' : 'Você fica com $ganho',
+        t.trocaCampeao,
+        ganho.isEmpty ? t.trocaCampeaoSem : t.trocaFicaCom(ganho),
       ),
     };
     return _Tocavel(
@@ -282,7 +295,7 @@ class _SimboloTroca extends StatelessWidget {
             opacity: AlwaysStoppedAnimation(fraco ? 0.55 : 1),
           )
         : Text(
-            tipo == 'ordem' ? _ordinal(m?['ordem']) : '?',
+            tipo == 'ordem' ? _ordinal(context.txt, m?['ordem']) : '?',
             style: fonteTitulo(
               tamanho * 0.36,
               cor: fraco ? Cor.apagado : Cor.ouroClaro,
@@ -382,29 +395,34 @@ class _CartaoTroca extends StatelessWidget {
     final id = (troca['id'] as num).toInt();
     final cell = (troca['cell'] as num).toInt();
     final nome = '${aliado['nome'] ?? ''}'.isEmpty
-        ? 'Um aliado'
+        ? context.txt.trocaUmAliado
         : '${aliado['nome']}';
-    final ganho = _ganhoTroca(tipo, sel, aliado);
+    final t = context.txt;
+    final ganho = _ganhoTroca(t, tipo, sel, aliado);
     final (titulo, quer, fica) = switch (tipo) {
       'pos' => (
-        recebida ? 'TROCA DE POSIÇÃO' : 'POSIÇÃO PEDIDA',
-        'quer trocar de posição com você',
-        ganho.isEmpty ? '' : 'você vai pra $ganho',
+        (recebida ? t.trocaPosRec : t.trocaPosEnv).toUpperCase(),
+        t.trocaQuerPos,
+        ganho.isEmpty ? '' : t.trocaVaiPraPos(ganho).toLowerCase(),
       ),
       'ordem' => (
-        recebida ? 'TROCA DE ORDEM' : 'ORDEM PEDIDA',
-        'quer trocar a ordem de pick com você',
-        ganho.isEmpty ? '' : 'você escolhe em $ganho',
+        (recebida ? t.trocaOrdemRec : t.trocaOrdemEnv).toUpperCase(),
+        t.trocaQuerOrdem,
+        ganho.isEmpty ? '' : t.trocaEscolheEm(ganho).toLowerCase(),
       ),
       _ => (
-        recebida ? 'PEDIDO DE TROCA' : 'TROCA PEDIDA',
-        'quer trocar com você',
-        ganho.isEmpty ? '' : 'você fica com $ganho',
+        (recebida ? t.trocaCampRec : t.trocaCampEnv).toUpperCase(),
+        t.trocaQuerCamp,
+        ganho.isEmpty ? '' : t.trocaFicaCom(ganho).toLowerCase(),
       ),
     };
     final texto = recebida
-        ? '$nome $quer${fica.isEmpty ? '' : ': $fica'}.'
-        : 'Esperando $nome aceitar${fica.isEmpty ? '' : ': $fica'}.';
+        ? (fica.isEmpty
+              ? t.trocaRecebida(nome, quer)
+              : t.trocaRecebidaFica(nome, quer, fica))
+        : (fica.isEmpty
+              ? t.trocaEsperando(nome)
+              : t.trocaEsperandoFica(nome, fica));
     final dados = {'id': id, 'cell': cell};
     return Container(
       width: double.infinity,
@@ -485,7 +503,7 @@ class _CartaoTroca extends StatelessWidget {
               children: [
                 Expanded(
                   child: Botao(
-                    texto: 'Recusar',
+                    texto: context.txt.recusar,
                     compacto: true,
                     carregando: con.esperando('${tipo}_recusar'),
                     aoTocar: () => con.enviar('${tipo}_recusar', dados),
@@ -494,7 +512,7 @@ class _CartaoTroca extends StatelessWidget {
                 const SizedBox(width: 8),
                 Expanded(
                   child: Botao(
-                    texto: 'Aceitar',
+                    texto: context.txt.aceitar,
                     principal: true,
                     compacto: true,
                     carregando: con.esperando('${tipo}_aceitar'),
@@ -505,7 +523,7 @@ class _CartaoTroca extends StatelessWidget {
             )
           else
             Botao(
-              texto: 'Cancelar pedido',
+              texto: context.txt.trocaCancelar,
               compacto: true,
               carregando: con.esperando('${tipo}_cancelar'),
               aoTocar: () => con.enviar('${tipo}_cancelar', dados),
@@ -671,7 +689,7 @@ class _Banco extends StatelessWidget {
     if (faixa) {
       return Row(
         children: [
-          Text('BANCO', style: fonteTitulo(11)),
+          Text(context.txt.bancoTitulo.toUpperCase(), style: fonteTitulo(11)),
           const SizedBox(width: 10),
           Expanded(
             child: SingleChildScrollView(
@@ -692,13 +710,13 @@ class _Banco extends StatelessWidget {
       children: [
         Row(
           children: [
-            Text('NO BANCO', style: fonteTitulo(12)),
+            Text(context.txt.bancoNo.toUpperCase(), style: fonteTitulo(12)),
             const Spacer(),
             AnimatedOpacity(
               opacity: ok ? 1 : 0,
               duration: _dur(context, 200),
               child: Text(
-                'Toque pra pegar',
+                context.txt.bancoToque,
                 style: TextStyle(color: Cor.apagado, fontSize: 12),
               ),
             ),
@@ -732,7 +750,9 @@ class _IconeBanco extends StatelessWidget {
     return Tooltip(
       message: nome,
       child: _Tocavel(
-        rotulo: nome.isEmpty ? 'Pegar do banco' : 'Pegar $nome do banco',
+        rotulo: nome.isEmpty
+            ? context.txt.bancoPegar
+            : context.txt.bancoPegarNome(nome),
         afundar: 0.9,
         aoTocar: ok && con?.ocupado == null
             ? () {

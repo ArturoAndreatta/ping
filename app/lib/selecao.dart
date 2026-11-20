@@ -22,12 +22,13 @@ NetworkImage _fontePosicao(String pos) => NetworkImage(
 /// Filas de ARAM (normal, Ponte do Açougueiro, Clash e Desordem): campeão sorteado, sem draft.
 const _filasAram = {100, 450, 720, 2400};
 
+/// Posição da seleção de campeões para o código de [_nomePosicao] (o nome vem do idioma em uso).
 const _posSelecao = {
-  'top': 'Topo',
-  'jungle': 'Selva',
-  'middle': 'Meio',
-  'bottom': 'Atirador',
-  'utility': 'Suporte',
+  'top': 'TOP',
+  'jungle': 'JUNGLE',
+  'middle': 'MIDDLE',
+  'bottom': 'BOTTOM',
+  'utility': 'UTILITY',
 };
 
 /// Celular deitado (ou tablet): sobra largura e falta altura, então a tela vira duas colunas.
@@ -117,7 +118,7 @@ class _SelecaoState extends State<_Selecao> {
             return _ChatSala(
               con: widget.con,
               sala: s,
-              titulo: 'CHAT DA SELEÇÃO',
+              titulo: context.txt.selChat.toUpperCase(),
             );
           },
         ),
@@ -135,10 +136,10 @@ class _SelecaoState extends State<_Selecao> {
   Future<void> _sair() async {
     final sim = await confirmar(
       context,
-      titulo: 'Sair da seleção?',
-      texto: 'Você sai da partida, como no SAIR do LoL.',
-      sim: 'Sair',
-      nao: 'Ficar',
+      titulo: context.txt.selSairQ,
+      texto: context.txt.selSairTexto,
+      sim: context.txt.selSair,
+      nao: context.txt.selFicar,
     );
     if (sim) widget.con.enviar('sair_selecao');
   }
@@ -195,7 +196,7 @@ class _SelecaoState extends State<_Selecao> {
                   child: _ChatSala(
                     con: widget.con,
                     sala: sel,
-                    titulo: 'CHAT DA SELEÇÃO',
+                    titulo: context.txt.selChat.toUpperCase(),
                     encher: true,
                   ),
                 ),
@@ -497,7 +498,7 @@ class _SelecaoState extends State<_Selecao> {
                             key: const ValueKey('chat'),
                             con: widget.con,
                             sala: sel,
-                            titulo: 'CHAT DA SELEÇÃO',
+                            titulo: context.txt.selChat.toUpperCase(),
                             encher: true,
                           ),
                   ),
@@ -790,7 +791,7 @@ class _SkinsState extends State<_Skins> {
                         Padding(
                           padding: EdgeInsets.only(top: 2),
                           child: Text(
-                            'Você não tem chroma desta skin',
+                            context.txt.selSemChroma,
                             style: TextStyle(fontSize: 12, color: Cor.apagado),
                           ),
                         ),
@@ -817,7 +818,9 @@ class _SkinsState extends State<_Skins> {
               return Semantics(
                 button: true,
                 selected: escolhida,
-                label: '${x['nome']}${tem ? '' : ', você não tem'}',
+                label: tem
+                    ? '${x['nome']}'
+                    : context.txt.selSkinSem('${x['nome']}'),
                 child: GestureDetector(
                   behavior: HitTestBehavior.opaque,
                   onTap: () async {
@@ -918,7 +921,7 @@ class _Chroma extends StatelessWidget {
   Widget build(BuildContext context) => Semantics(
     button: true,
     selected: escolhido,
-    label: tem ? 'Chroma' : 'Chroma que você não tem',
+    label: tem ? context.txt.selChroma : context.txt.selChromaSem,
     child: GestureDetector(
       behavior: HitTestBehavior.opaque,
       onTap: tem && !escolhido ? aoTocar : null,
@@ -1026,15 +1029,16 @@ class _CabecalhoSelecaoState extends State<_CabecalhoSelecao> {
         _filasAram.contains(fila) ||
         ((sel['banco'] as List?) ?? const []).isNotEmpty;
     final titulo = switch (fase) {
-      _ when aram && fila == 2400 => 'ARAM: Desordem',
+      _ when aram && fila == 2400 => context.txt.selAramCaos,
       _ when aram => 'ARAM',
-      _ when vez == 'ban' => 'Banimentos',
-      _ when vez == 'pick' => 'Escolhas',
-      'PLANNING' => 'Planejamento',
-      'BAN_PICK' => algumBan ? 'Banimentos' : 'Escolhas',
-      'FINALIZATION' => 'Finalização',
-      'GAME_STARTING' => 'Começando',
-      _ => 'Seleção',
+      _ when vez == 'ban' => context.txt.selBanimentos,
+      _ when vez == 'pick' => context.txt.selEscolhas,
+      'PLANNING' => context.txt.selPlanejamento,
+      'BAN_PICK' =>
+        algumBan ? context.txt.selBanimentos : context.txt.selEscolhas,
+      'FINALIZATION' => context.txt.selFinalizacao,
+      'GAME_STARTING' => context.txt.selComecando,
+      _ => context.txt.selTitulo,
     };
     // Arena: todo mundo bana e escolhe ao mesmo tempo, sem "vez do time"
     final arena = sel['arena'] == true;
@@ -1043,23 +1047,24 @@ class _CabecalhoSelecaoState extends State<_CabecalhoSelecao> {
     final suaVez = vez.isNotEmpty;
     final banindo = vez == 'ban';
     final linha = switch (fase) {
-      'GAME_STARTING' when aram => 'Boa partida!',
-      _ when aram && _temCartas(sel) => 'Escolha uma carta',
-      _ when aram && _temSkins(con, sel) => 'Escolha sua preparação',
-      _ when aram => 'Sorteando campeões',
-      _ when vez == 'ban' => 'Sua vez de banir',
-      _ when vez == 'pick' => 'Sua vez de escolher',
-      'PLANNING' when arena => 'Prepare-se, os bans já vão abrir',
-      'BAN_PICK' when arena && algumBan => 'Esperando os outros banirem',
-      'BAN_PICK' when arena && _temSkins(con, sel) => 'Escolha sua skin',
-      'BAN_PICK' when arena => 'Esperando os outros escolherem',
-      'PLANNING' when sel['pick_pendente'] == true => 'Declare seu campeão',
-      'PLANNING' => 'Esperando os bans',
-      'FINALIZATION' => 'Todos escolheram',
-      'GAME_STARTING' => 'Boa partida!',
-      _ when vezAliado => 'Vez do seu time',
-      _ when vezInimigo => 'Vez do time inimigo',
-      _ => 'Esperando',
+      'GAME_STARTING' when aram => context.txt.selBoaPartida,
+      _ when aram && _temCartas(sel) => context.txt.selEscolhaCarta,
+      _ when aram && _temSkins(con, sel) => context.txt.selEscolhaPreparacao,
+      _ when aram => context.txt.selSorteando,
+      _ when vez == 'ban' => context.txt.selSuaVezBanir,
+      _ when vez == 'pick' => context.txt.selSuaVezEscolher,
+      'PLANNING' when arena => context.txt.selPrepareSe,
+      'BAN_PICK' when arena && algumBan => context.txt.selEsperandoBanirem,
+      'BAN_PICK' when arena && _temSkins(con, sel) =>
+        context.txt.selEscolhaSkin,
+      'BAN_PICK' when arena => context.txt.selEsperandoEscolherem,
+      'PLANNING' when sel['pick_pendente'] == true => context.txt.selDeclare,
+      'PLANNING' => context.txt.selEsperandoBans,
+      'FINALIZATION' => context.txt.selTodosEscolheram,
+      'GAME_STARTING' => context.txt.selBoaPartida,
+      _ when vezAliado => context.txt.selVezTime,
+      _ when vezInimigo => context.txt.selVezInimigo,
+      _ => context.txt.selEsperando,
     };
     final prazo = (sel['prazo'] as num?)?.toInt();
     final comTempo = prazo != null && sel['infinito'] != true;
@@ -1114,12 +1119,12 @@ class _CabecalhoSelecaoState extends State<_CabecalhoSelecao> {
 
     if (widget.centro) {
       final chamada = switch (fase) {
-        _ when vez == 'ban' => 'Bana um campeão!',
-        _ when vez == 'pick' => 'Escolha seu campeão!',
+        _ when vez == 'ban' => context.txt.selBanaCampeao,
+        _ when vez == 'pick' => context.txt.selEscolhaCampeao,
         'PLANNING' when sel['pick_pendente'] == true && !arena =>
-          'Declare seu campeão',
-        _ when _temCartas(sel) => 'Escolha seu campeão!',
-        _ when _temSkins(con, sel) => 'Escolha sua preparação!',
+          context.txt.selDeclare,
+        _ when _temCartas(sel) => context.txt.selEscolhaCampeao,
+        _ when _temSkins(con, sel) => context.txt.selEscolhaPreparacaoEx,
         _ => linha,
       };
       return AnimatedContainer(
@@ -1318,7 +1323,9 @@ class _BotaoChat extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Semantics(
     button: true,
-    label: naoLidas > 0 ? 'Chat, $naoLidas novas' : 'Chat',
+    label: naoLidas > 0
+        ? context.txt.selChatSem(naoLidas)
+        : context.txt.selChatCurto,
     child: GestureDetector(
       behavior: HitTestBehavior.opaque,
       onTap: aoTocar,
@@ -1445,7 +1452,8 @@ class _Quadro extends StatelessWidget {
           : CrossAxisAlignment.end,
       children: [
         Text(
-          aliado ? 'SEU TIME' : 'INIMIGOS',
+          (aliado ? context.txt.partidaSeuTime : context.txt.selInimigos)
+              .toUpperCase(),
           style: fonteTitulo(12, cor: aliado ? Cor.ouro : Cor.vermelho),
         ),
         const SizedBox(height: 6),
@@ -1481,7 +1489,10 @@ class _Quadro extends StatelessWidget {
                 ),
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 8),
-                  child: Text('BANS', style: fonteTitulo(11, cor: Cor.apagado)),
+                  child: Text(
+                    context.txt.selBans.toUpperCase(),
+                    style: fonteTitulo(11, cor: Cor.apagado),
+                  ),
                 ),
                 Expanded(
                   child: _LinhaBans(ids: banDeles, nome: nome, fim: true),
@@ -1526,7 +1537,7 @@ class _LinhaBans extends StatelessWidget {
       ? Align(
           alignment: fim ? Alignment.centerRight : Alignment.centerLeft,
           child: Text(
-            'Nenhum',
+            context.txt.selNenhum,
             style: TextStyle(color: Cor.apagado, fontSize: 12.5),
           ),
         )
@@ -1537,7 +1548,7 @@ class _LinhaBans extends StatelessWidget {
           children: [
             for (final id in ids)
               Tooltip(
-                message: id > 0 ? nome(id.toInt()) : 'Ban pulado',
+                message: id > 0 ? nome(id.toInt()) : context.txt.selBanPulado,
                 child: _IconeCamp(id: id.toInt(), tamanho: 26, banido: true),
               ),
           ],
@@ -1573,23 +1584,23 @@ class _Slot extends StatelessWidget {
     final travado = m['travado'] == true;
     final vez = '${m['vez'] ?? ''}';
     final eu = m['eu'] == true;
-    final pos = _posSelecao['${m['pos'] ?? ''}'] ?? '';
+    final pos = _nomePosicao(context.txt, _posSelecao['${m['pos'] ?? ''}']);
     final jogador = aliado
         ? (eu
-              ? 'Você'
+              ? context.txt.voce
               : '${m['nome'] ?? ''}'.isEmpty
-              ? 'Aliado'
+              ? context.txt.selAliado
               : '${m['nome']}')
-        : (pos.isNotEmpty ? pos : 'Inimigo $n');
+        : (pos.isNotEmpty ? pos : context.txt.selInimigoN(n));
     final String campeao;
     if (cid > 0) {
       campeao = nome(cid);
     } else if (intencao > 0) {
-      campeao = 'Quer ${nome(intencao)}';
+      campeao = context.txt.selQuer(nome(intencao));
     } else if (vez == 'pick') {
-      campeao = 'Escolhendo...';
+      campeao = context.txt.arenaEscolhendo;
     } else if (vez == 'ban') {
-      campeao = 'Banindo...';
+      campeao = context.txt.arenaBanindo;
     } else {
       campeao = aliado ? pos : '';
     }
@@ -1643,7 +1654,7 @@ class _Slot extends StatelessWidget {
           : null,
     );
     return _Tocavel(
-      rotulo: 'Pedir troca com $jogador',
+      rotulo: context.txt.selPedirTroca(jogador),
       aoTocar: aoTrocar,
       child: AnimatedContainer(
         duration: _dur(context, 300),
@@ -1683,7 +1694,7 @@ class _BotaoSair extends StatelessWidget {
     final girando = con.esperando('sair_selecao');
     return Semantics(
       button: true,
-      label: 'Sair da seleção',
+      label: context.txt.selSairSem,
       child: GestureDetector(
         behavior: HitTestBehavior.opaque,
         onTap: girando ? null : aoTocar,
@@ -1711,7 +1722,7 @@ class _BotaoSair extends StatelessWidget {
                   )
                 : largo
                 ? Text(
-                    'SAIR',
+                    context.txt.selSair.toUpperCase(),
                     key: ValueKey('texto'),
                     style: TextStyle(
                       color: Cor.ouroClaro,
@@ -1764,7 +1775,8 @@ class _LadoTime extends StatelessWidget {
           : CrossAxisAlignment.end,
       children: [
         Text(
-          aliado ? 'SEU TIME' : 'INIMIGOS',
+          (aliado ? context.txt.partidaSeuTime : context.txt.selInimigos)
+              .toUpperCase(),
           style: fonteTitulo(11, cor: aliado ? Cor.ouro : Cor.vermelho),
         ),
         if (bans.isNotEmpty) ...[
@@ -1829,18 +1841,18 @@ class _SlotLado extends StatelessWidget {
     final travado = m['travado'] == true;
     final vez = '${m['vez'] ?? ''}';
     final eu = m['eu'] == true;
-    final pos = _posSelecao['${m['pos'] ?? ''}'] ?? '';
+    final pos = _nomePosicao(context.txt, _posSelecao['${m['pos'] ?? ''}']);
     final jogador = aliado
         ? (eu
-              ? 'Você'
+              ? context.txt.voce
               : '${m['nome'] ?? ''}'.isEmpty
-              ? 'Aliado'
+              ? context.txt.selAliado
               : '${m['nome']}')
-        : 'Inimigo $n';
+        : context.txt.selInimigoN(n);
     final estado = vez == 'ban'
-        ? 'Banindo'
+        ? context.txt.selBanindo
         : vez == 'pick'
-        ? 'Escolhendo'
+        ? context.txt.selEscolhendo
         : pos;
     final camp = cid > 0 ? nome(cid) : (intencao > 0 ? nome(intencao) : '');
     final alinhar = aliado ? CrossAxisAlignment.start : CrossAxisAlignment.end;
@@ -2015,7 +2027,7 @@ class _SlotLado extends StatelessWidget {
           ),
         );
         return _Tocavel(
-          rotulo: 'Pedir troca com $jogador',
+          rotulo: context.txt.selPedirTroca(jogador),
           aoTocar: aoTrocar,
           child: linha,
         );

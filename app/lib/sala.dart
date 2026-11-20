@@ -1,13 +1,20 @@
 part of 'main.dart';
 
-const _posicoes = {
-  'TOP': 'Topo',
-  'JUNGLE': 'Selva',
-  'MIDDLE': 'Meio',
-  'BOTTOM': 'Atirador',
-  'UTILITY': 'Suporte',
-  'FILL': 'Qualquer',
+/// Nome da posição no idioma em uso; vazio se não for uma posição conhecida.
+String _nomePosicao(Txt t, Object? p) => switch (p) {
+  'TOP' => t.posTop,
+  'JUNGLE' => t.posJungle,
+  'MIDDLE' => t.posMiddle,
+  'BOTTOM' => t.posBottom,
+  'UTILITY' => t.posUtility,
+  'FILL' => t.posFill,
+  _ => '',
 };
+
+String _nomePosicaoOu(Txt t, String pos) {
+  final n = _nomePosicao(t, pos);
+  return n.isEmpty ? pos : n;
+}
 
 String _icone(int id) =>
     'https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/profile-icons/$id.jpg';
@@ -50,15 +57,15 @@ class _CartaoSala extends StatelessWidget {
     final topo = <Widget>[
       Row(
         children: [
-          Text('NA SALA', style: fonteTitulo(14)),
+          Text(context.txt.salaTitulo.toUpperCase(), style: fonteTitulo(14)),
           const Spacer(),
           // deitado, convidar vira um ícone aqui: o botão largo embaixo desalinhava com as ações do lado
           if (deitado && sala['pode_convidar'] == true && cabe) ...[
             Tooltip(
-              message: 'Convidar amigos',
+              message: context.txt.salaConvidar,
               child: Semantics(
                 button: true,
-                label: 'Convidar amigos',
+                label: context.txt.salaConvidar,
                 child: GestureDetector(
                   behavior: HitTestBehavior.opaque,
                   onTap: () => _abrirSala(context, con, passo: _Passo.convidar),
@@ -113,8 +120,8 @@ class _CartaoSala extends StatelessWidget {
                   padding: const EdgeInsets.symmetric(horizontal: 8),
                 ),
                 icon: const Icon(Icons.swap_horiz, size: 18),
-                label: const Text(
-                  'Trocar',
+                label: Text(
+                  context.txt.salaTrocar,
                   style: TextStyle(fontSize: 13.5, fontWeight: FontWeight.w600),
                 ),
               ),
@@ -147,7 +154,7 @@ class _CartaoSala extends StatelessWidget {
             width: double.infinity,
             child: _Acao(
               icone: Icons.person_add_alt_1_outlined,
-              texto: 'Convidar amigos',
+              texto: context.txt.salaConvidar,
               aoTocar: () => _abrirSala(context, con, passo: _Passo.convidar),
             ),
           )
@@ -172,6 +179,7 @@ class _CartaoSala extends StatelessWidget {
             chave: 'm-${m['nome']}',
             atraso: i * 40,
             child: _Lugar.membro(
+              context.txt,
               m as Map,
               posicoes: posicoes,
               aoTocar: () => _abrirPosicao(context, con),
@@ -187,7 +195,7 @@ class _CartaoSala extends StatelessWidget {
           _Entrada(
             key: ValueKey('v-$i'),
             chave: 'v-$i',
-            child: _Lugar.vaga(convidarAmigos),
+            child: _Lugar.vaga(context.txt, convidarAmigos),
           ),
       ];
       return Cartao(
@@ -201,7 +209,10 @@ class _CartaoSala extends StatelessWidget {
               height: 32,
               child: Row(
                 children: [
-                  Text('NA SALA', style: fonteTitulo(13)),
+                  Text(
+                    context.txt.salaTitulo.toUpperCase(),
+                    style: fonteTitulo(13),
+                  ),
                   const SizedBox(width: 10),
                   Expanded(
                     child: AnimatedSwitcher(
@@ -229,8 +240,8 @@ class _CartaoSala extends StatelessWidget {
                         tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                       ),
                       icon: const Icon(Icons.swap_horiz, size: 17),
-                      label: const Text(
-                        'Trocar',
+                      label: Text(
+                        context.txt.salaTrocar,
                         style: TextStyle(
                           fontSize: 13,
                           fontWeight: FontWeight.w600,
@@ -329,7 +340,7 @@ class _CartaoSala extends StatelessWidget {
           // so o lider da sala inicia a fila (igual no client)
           if (lider) ...[
             Botao(
-              texto: 'Buscar partida',
+              texto: context.txt.salaBuscar,
               principal: true,
               grande: true,
               carregando: con.esperando('buscar'),
@@ -365,8 +376,8 @@ class _CartaoSala extends StatelessWidget {
                         size: 17,
                       ),
               ),
-              label: const Text(
-                'SAIR DA SALA',
+              label: Text(
+                context.txt.salaSair.toUpperCase(),
                 style: TextStyle(letterSpacing: 1.2, fontSize: 13),
               ),
             ),
@@ -435,7 +446,7 @@ class _AcoesSala extends StatelessWidget {
         if (lider) ...[
           Expanded(
             child: Botao(
-              texto: 'Buscar partida',
+              texto: context.txt.salaBuscar,
               principal: true,
               carregando: con.esperando('buscar'),
               aoTocar: () => con.enviar('buscar'),
@@ -445,7 +456,7 @@ class _AcoesSala extends StatelessWidget {
         ] else ...[
           Expanded(
             child: Text(
-              'O líder da sala inicia a fila.',
+              context.txt.salaLiderInicia,
               style: TextStyle(color: Cor.apagado, fontSize: 13.5),
             ),
           ),
@@ -465,9 +476,9 @@ class _BotaoSairSala extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Semantics(
     button: true,
-    label: 'Sair da sala',
+    label: context.txt.salaSair,
     child: Tooltip(
-      message: 'Sair da sala',
+      message: context.txt.salaSair,
       child: GestureDetector(
         behavior: HitTestBehavior.opaque,
         onTap: saindo ? null : () => con.enviar('sair_sala'),
@@ -518,18 +529,19 @@ class _Lugar extends StatelessWidget {
     this.fundo,
     this.lider = false,
     this.aoTocar,
-    this.rotulo = 'Convidar amigos',
+    this.rotulo,
   });
 
   /// [aoTocar] no seu lugar, em sala com posição: abre a escolha da posição.
   factory _Lugar.membro(
+    Txt t,
     Map m, {
     required bool posicoes,
     VoidCallback? aoTocar,
   }) {
     final eu = m['eu'] == true;
     final pos = ((m['pos'] as List?) ?? const [])
-        .map((p) => _posicoes[p] ?? '')
+        .map((p) => _nomePosicao(t, p))
         .where((p) => p.isNotEmpty)
         .toList();
     final escolher = eu && posicoes && aoTocar != null;
@@ -546,13 +558,13 @@ class _Lugar extends StatelessWidget {
       linhas: !posicoes
           ? const []
           // lugar estreito: uma palavra por linha pra não cortar
-          : (escolher && pos.isEmpty ? const ['Escolher', 'posição'] : pos),
+          : (escolher && pos.isEmpty ? t.salaEscolherPosicao.split(' ') : pos),
       corNome: eu ? Cor.ouroClaro : Cor.texto,
       corLinha2: escolher ? Cor.ouro : Cor.apagado,
       borda: eu ? Cor.ouro : Cor.linha2,
       lider: m['lider'] == true,
       aoTocar: escolher ? aoTocar : null,
-      rotulo: 'Escolher sua posição',
+      rotulo: t.salaEscolherSua,
     );
   }
 
@@ -564,9 +576,9 @@ class _Lugar extends StatelessWidget {
     corLinha2: Cor.ouro,
   );
 
-  factory _Lugar.vaga(VoidCallback aoTocar) => _Lugar._(
+  factory _Lugar.vaga(Txt t, VoidCallback aoTocar) => _Lugar._(
     avatar: Icon(Icons.person_add_alt_1_outlined, size: 19, color: Cor.ouro),
-    nome: 'Convidar',
+    nome: t.salaConvidarCurto,
     linhas: const [],
     corNome: Cor.ouro,
     borda: Cor.ouroEscuro,
@@ -588,7 +600,7 @@ class _Lugar extends StatelessWidget {
   final Color? fundo;
   final bool lider;
   final VoidCallback? aoTocar;
-  final String rotulo;
+  final String? rotulo;
 
   @override
   Widget build(BuildContext context) {
@@ -622,7 +634,7 @@ class _Lugar extends StatelessWidget {
                     right: 0,
                     top: -3,
                     child: Tooltip(
-                      message: 'Líder da sala',
+                      message: context.txt.salaLider,
                       child: Container(
                         width: 20,
                         height: 20,
@@ -676,7 +688,7 @@ class _Lugar extends StatelessWidget {
     if (toque == null) return corpo;
     return Semantics(
       button: true,
-      label: rotulo,
+      label: rotulo ?? context.txt.salaConvidar,
       child: InkWell(onTap: toque, borderRadius: Raio.r1, child: corpo),
     );
   }
@@ -696,7 +708,10 @@ class _FilaDeitada extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('PROCURANDO PARTIDA', style: fonteTitulo(14)),
+          Text(
+            context.txt.salaProcurando.toUpperCase(),
+            style: fonteTitulo(14),
+          ),
           if (fila.isNotEmpty) ...[
             const SizedBox(height: 4),
             Text(
@@ -734,7 +749,7 @@ class _FilaDeitada extends StatelessWidget {
             ),
           ),
           Botao(
-            texto: 'Sair da fila',
+            texto: context.txt.salaSairFila,
             carregando: con.esperando('sair_fila'),
             aoTocar: () => con.enviar('sair_fila'),
           ),
@@ -813,7 +828,7 @@ class _Convidado extends StatelessWidget {
               ),
               SizedBox(height: compacto ? 1 : 3),
               Text(
-                'Convidado, esperando resposta',
+                context.txt.salaConvidado,
                 style: TextStyle(
                   color: Cor.ouro,
                   fontSize: compacto ? 11.5 : 12.5,
@@ -850,7 +865,7 @@ class _Membro extends StatelessWidget {
   Widget build(BuildContext context) {
     final eu = m['eu'] == true;
     final pos = ((m['pos'] as List?) ?? const [])
-        .map((p) => _posicoes[p] ?? '')
+        .map((p) => _nomePosicao(context.txt, p))
         .where((p) => p.isNotEmpty);
     final escolher = eu && posicoes && aoTocar != null;
     final linha = Padding(
@@ -909,7 +924,7 @@ class _Membro extends StatelessWidget {
                     if (m['lider'] == true) ...[
                       const SizedBox(width: 6),
                       Tooltip(
-                        message: 'Líder da sala',
+                        message: context.txt.salaLider,
                         child: Icon(
                           Icons.workspace_premium_outlined,
                           size: 16,
@@ -923,7 +938,9 @@ class _Membro extends StatelessWidget {
                   Padding(
                     padding: EdgeInsets.only(top: compacto ? 1 : 3),
                     child: Text(
-                      pos.isEmpty ? 'Escolher posição' : pos.join('  ·  '),
+                      pos.isEmpty
+                          ? context.txt.salaEscolherPosicao
+                          : pos.join('  ·  '),
                       style: TextStyle(
                         color: escolher ? Cor.ouro : Cor.apagado,
                         fontSize: compacto ? 11.5 : 12.5,
@@ -944,7 +961,7 @@ class _Membro extends StatelessWidget {
     if (!escolher) return linha;
     return Semantics(
       button: true,
-      label: 'Escolher sua posição',
+      label: context.txt.salaEscolherSua,
       child: InkWell(onTap: aoTocar, borderRadius: Raio.r1, child: linha),
     );
   }
@@ -956,12 +973,12 @@ class _ChatSala extends StatefulWidget {
     super.key,
     required this.con,
     required this.sala,
-    this.titulo = 'CHAT DA SALA',
+    this.titulo,
     this.encher = false,
   });
   final Conexao con;
   final Map sala;
-  final String titulo;
+  final String? titulo;
 
   /// Ocupa a altura que tiver (deitado): mensagens no meio, campo sempre embaixo.
   final bool encher;
@@ -1008,18 +1025,21 @@ class _ChatSalaState extends State<_ChatSala> {
         mainAxisSize: widget.encher ? MainAxisSize.max : MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(widget.titulo, style: fonteTitulo(14)),
+          Text(
+            (widget.titulo ?? context.txt.salaChat).toUpperCase(),
+            style: fonteTitulo(14),
+          ),
           const SizedBox(height: 12),
           if (!ok)
             Text(
-              'O chat ainda não abriu.',
+              context.txt.salaChatFechado,
               style: TextStyle(color: Cor.apagado, fontSize: 14),
             )
           else if (msgs.isEmpty)
             Padding(
               padding: EdgeInsets.symmetric(vertical: 8),
               child: Text(
-                'Nenhuma mensagem ainda.',
+                context.txt.salaChatVazio,
                 style: TextStyle(color: Cor.apagado, fontSize: 14),
               ),
             )
@@ -1098,7 +1118,7 @@ class _Mensagem2 extends StatelessWidget {
               : CrossAxisAlignment.start,
           children: [
             Text(
-              eu ? 'Você · $hh' : '${m['de'] ?? ''} · $hh',
+              eu ? context.txt.salaVoce(hh) : '${m['de'] ?? ''} · $hh',
               style: TextStyle(
                 fontSize: 11.5,
                 fontWeight: FontWeight.w600,

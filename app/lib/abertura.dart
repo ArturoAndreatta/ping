@@ -1,11 +1,12 @@
 part of 'main.dart';
 
 /// Nome de cada etapa da abertura do LoL que o PC acompanha (processos e a API do client respondendo).
-const _nomesEtapa = {
-  'riot': 'Abrindo o Riot Client',
-  'league': 'Iniciando o LoL',
-  'ux': 'Carregando o client',
-  'pronto': 'Quase pronto',
+String _nomeEtapa(Txt t, String? etapa) => switch (etapa) {
+  'riot' => t.aberturaRiot,
+  'league' => t.aberturaLeague,
+  'ux' => t.aberturaUx,
+  'pronto' => t.aberturaPronto,
+  _ => t.aberturaTitulo,
 };
 
 /// Onde a abertura está agora, calculado com as etapas que o PC mandou (`abertura` no estado): cada etapa tem
@@ -74,10 +75,10 @@ class _Abrindo extends StatelessWidget {
     if (ab is! Map ||
         inicio is! num ||
         con.agora.millisecondsSinceEpoch - inicio > _aberturaVence) {
-      return const _Mensagem(
+      return _Mensagem(
         icone: _Pulso(),
-        titulo: 'Abrindo o LoL',
-        texto: 'Entre na sua conta no PC, se ele pedir.',
+        titulo: context.txt.aberturaTitulo,
+        texto: context.txt.aberturaLogin,
       );
     }
     // a cada segundo: a etapa demorando muito (login no Riot Client) troca o texto sem o PC mandar nada
@@ -86,12 +87,12 @@ class _Abrindo extends StatelessWidget {
         final p = _Progresso(ab, con.agora.millisecondsSinceEpoch);
         return _Mensagem(
           icone: const _Pulso(),
-          titulo: 'Abrindo o LoL',
+          titulo: context.txt.aberturaTitulo,
           texto: abriu != null
-              ? 'Pronto'
+              ? context.txt.aberturaPronto2
               : p.login
-              ? 'Entre na sua conta no PC, se ele pedir.'
-              : _nomesEtapa[p.etapa] ?? 'Abrindo o LoL',
+              ? context.txt.aberturaLogin
+              : _nomeEtapa(context.txt, p.etapa),
           extra: _BarraAbertura(con: con, ab: ab, completo: abriu != null),
         );
       },
@@ -128,7 +129,7 @@ class _BarraAberturaState extends State<_BarraAbertura>
   int _baseEm = 0; // quando foi (hora do servidor)
   num _resta = 1; // ms esperados dali até abrir
   String _chave = '';
-  String _texto = '';
+  int _falta = 0;
   int _pct = 0;
 
   @override
@@ -150,7 +151,7 @@ class _BarraAberturaState extends State<_BarraAbertura>
     }
     _valor.value = _calcular(agora);
     _pct = (_valor.value * 100).floor();
-    _texto = _textoFalta(agora);
+    _falta = _faltaEm(agora);
     _ticker = createTicker(_quadro)..start();
   }
 
@@ -193,23 +194,34 @@ class _BarraAberturaState extends State<_BarraAbertura>
     }
     // 99,5% já conta como 100: a aproximação nunca chega exatamente lá
     final pct = math.min(100, (_valor.value * 100 + 0.5).floor());
-    final texto = widget.completo ? 'LoL aberto' : _textoFalta(agora);
-    if (pct != _pct || texto != _texto) {
+    final falta = widget.completo ? _faltaAberto : _faltaEm(agora);
+    if (pct != _pct || falta != _falta) {
       setState(() {
         _pct = pct;
-        _texto = texto;
+        _falta = falta;
       });
     }
   }
 
   /// O que falta pela conta da barra (a mesma que ela anda), arredondado pra não ficar pulando.
-  String _textoFalta(int agora) {
-    if (_p.login) return 'Esperando o login';
+  /// Em segundos; `_faltaLogin`, `0` (quase lá) e `_faltaAberto` são os casos sem número.
+  static const _faltaLogin = -1;
+  static const _faltaAberto = -2;
+
+  int _faltaEm(int agora) {
+    if (_p.login) return _faltaLogin;
     final s = ((_resta - (agora - _baseEm)) / 1000).ceil();
-    if (s <= 0) return 'Quase lá';
-    if (s <= 10) return 'Faltam ~${s}s';
-    return 'Faltam ~${(s / 5).ceil() * 5}s';
+    if (s <= 0) return 0;
+    if (s <= 10) return s;
+    return (s / 5).ceil() * 5;
   }
+
+  String _textoFalta(Txt t) => switch (_falta) {
+    _faltaLogin => t.aberturaEsperandoLogin,
+    _faltaAberto => t.aberturaAberto,
+    0 => t.aberturaQuaseLa,
+    _ => t.aberturaFaltam(_falta),
+  };
 
   @override
   void dispose() {
@@ -254,7 +266,7 @@ class _BarraAberturaState extends State<_BarraAbertura>
               ),
               const Spacer(),
               Text(
-                _texto,
+                _textoFalta(context.txt),
                 style: TextStyle(
                   color: Cor.apagado,
                   fontSize: 14,
@@ -267,7 +279,7 @@ class _BarraAberturaState extends State<_BarraAbertura>
             Align(
               alignment: Alignment.centerLeft,
               child: Text(
-                'Tempo estimado: ainda aprendendo este PC.',
+                context.txt.aberturaEstimado,
                 style: TextStyle(color: Cor.apagado, fontSize: 12),
               ),
             ),

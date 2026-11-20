@@ -11,6 +11,7 @@ import 'dart:js_interop_unsafe';
 import 'package:flutter/material.dart';
 import 'package:web/web.dart' as web;
 
+import 'idioma.dart';
 import 'tema.dart';
 
 /// Os nomes são combinados com o script do web/index.html: mudar um lado sem o outro faz o aviso sumir calado.
@@ -190,13 +191,13 @@ class _Janela extends StatelessWidget {
                         ),
                         const SizedBox(height: 22),
                         Text(
-                          'VERSÃO NOVA!',
+                          context.txt.versaoNova.toUpperCase(),
                           textAlign: TextAlign.center,
                           style: fonteTitulo(20, cor: Cor.ouroClaro),
                         ),
                         const SizedBox(height: 10),
                         Text(
-                          'Atualize antes de qualquer ação.',
+                          context.txt.versaoNovaTexto,
                           textAlign: TextAlign.center,
                           style: TextStyle(color: Cor.apagado, fontSize: 16),
                         ),
@@ -205,8 +206,8 @@ class _Janela extends StatelessWidget {
                           button: true,
                           enabled: !ocupado,
                           label: ocupado
-                              ? 'Baixando a versão nova'
-                              : 'Atualizar agora',
+                              ? context.txt.versaoBaixando
+                              : context.txt.versaoAtualizar,
                           child: GestureDetector(
                             onTap: ocupado ? null : aoTocar,
                             child: AnimatedOpacity(
@@ -237,7 +238,8 @@ class _Janela extends StatelessWidget {
                                           ),
                                         )
                                       : Text(
-                                          'ATUALIZAR AGORA',
+                                          context.txt.versaoAtualizar
+                                              .toUpperCase(),
                                           style: TextStyle(
                                             fontWeight: FontWeight.w600,
                                             letterSpacing: 1.6,

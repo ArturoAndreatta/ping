@@ -16,7 +16,7 @@ class _PaginaTemas extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          _Voltar(aoTocar: aoVoltar, titulo: 'Tema'),
+          _Voltar(aoTocar: aoVoltar, titulo: context.txt.pagTema),
           const SizedBox(height: 10),
           _Entrada(
             chave: 'tema-grade',
@@ -28,10 +28,13 @@ class _PaginaTemas extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    Text('APARÊNCIA', style: fonteTitulo(13)),
+                    Text(
+                      context.txt.temaAparencia.toUpperCase(),
+                      style: fonteTitulo(13),
+                    ),
                     const SizedBox(height: 4),
                     Text(
-                      'As cores do app. O painel do PC tem os mesmos temas.',
+                      context.txt.temaTexto,
                       style: TextStyle(color: Cor.apagado, fontSize: 13.5),
                     ),
                     const SizedBox(height: 14),
@@ -53,6 +56,16 @@ class _PaginaTemas extends StatelessWidget {
   }
 }
 
+/// Nome da região no idioma em uso (a maioria é igual em todos; o resto vem do client de cada idioma).
+String nomeTema(Txt t, TemaApp tema) => switch (tema.id) {
+  'escuro' => t.temaClient,
+  'bilgewater' => t.temaBilgewater,
+  'sombras' => t.temaSombras,
+  'bandopolis' => t.temaBandopolis,
+  'vazio' => t.temaVazio,
+  _ => tema.nome,
+};
+
 /// Escuro ou claro: vale pra região escolhida. O realce desliza pro lado tocado.
 class _SeletorModo extends StatelessWidget {
   const _SeletorModo({required this.claro});
@@ -67,7 +80,7 @@ class _SeletorModo extends StatelessWidget {
         child: Semantics(
           button: true,
           selected: ligado,
-          label: 'Modo $nome',
+          label: context.txt.modoSemantica(nome),
           child: GestureDetector(
             behavior: HitTestBehavior.opaque,
             onTap: () {
@@ -134,8 +147,8 @@ class _SeletorModo extends StatelessWidget {
           ),
           Row(
             children: [
-              opcao(false, Icons.dark_mode_outlined, 'Escuro'),
-              opcao(true, Icons.light_mode_outlined, 'Claro'),
+              opcao(false, Icons.dark_mode_outlined, context.txt.modoEscuro),
+              opcao(true, Icons.light_mode_outlined, context.txt.modoClaro),
             ],
           ),
         ],
@@ -222,7 +235,7 @@ class _CartaoTemaState extends State<_CartaoTema> {
     return Semantics(
       button: true,
       selected: ligado,
-      label: 'Tema ${t.nome}',
+      label: context.txt.temaSemantica(nomeTema(context.txt, t)),
       child: GestureDetector(
         behavior: HitTestBehavior.opaque,
         onTapDown: (_) => _apertar(true),
@@ -291,7 +304,7 @@ class _CartaoTemaState extends State<_CartaoTema> {
                         ),
                         const SizedBox(height: 12),
                         Text(
-                          t.nome.toUpperCase(),
+                          nomeTema(context.txt, t).toUpperCase(),
                           maxLines: 2,
                           style: fonteTitulo(12, cor: p.ouroClaro),
                         ),
@@ -320,6 +333,173 @@ class _CartaoTemaState extends State<_CartaoTema> {
                   ),
                 ],
               ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Página Idioma (abre por cima da lista da aba Mais, como Tema): Automático (o do aparelho) ou um dos três.
+/// A escolha vale na hora e fica guardada. Os nomes aparecem sempre na própria língua.
+class _PaginaIdioma extends StatelessWidget {
+  const _PaginaIdioma({super.key, required this.aoVoltar, this.base = 0});
+  final VoidCallback aoVoltar;
+  final double base;
+
+  @override
+  Widget build(BuildContext context) {
+    final deitado = _deitado(context);
+    return _Rolavel(
+      base: base,
+      largura: deitado ? 900 : 520,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          _Voltar(aoTocar: aoVoltar, titulo: context.txt.idiomaTitulo),
+          const SizedBox(height: 10),
+          _Entrada(
+            chave: 'idioma-lista',
+            child: ValueListenableBuilder<Locale?>(
+              valueListenable: Idioma.escolha,
+              builder: (_, escolha, _) => Cartao(
+                padding: const EdgeInsets.fromLTRB(18, 18, 18, 18),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Text(
+                      context.txt.idiomaCabecalho.toUpperCase(),
+                      style: fonteTitulo(13),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      context.txt.idiomaTexto,
+                      style: TextStyle(color: Cor.apagado, fontSize: 13.5),
+                    ),
+                    const SizedBox(height: 14),
+                    _OpcaoIdioma(
+                      codigo: null,
+                      nome: context.txt.idiomaAutomatico,
+                      ligado: escolha == null,
+                    ),
+                    for (final c in Idioma.codigos) ...[
+                      const SizedBox(height: 10),
+                      _OpcaoIdioma(
+                        codigo: c,
+                        nome: Idioma.nome(c),
+                        ligado: escolha?.languageCode == c,
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _OpcaoIdioma extends StatefulWidget {
+  const _OpcaoIdioma({
+    required this.codigo,
+    required this.nome,
+    required this.ligado,
+  });
+  final String? codigo;
+  final String nome;
+  final bool ligado;
+
+  @override
+  State<_OpcaoIdioma> createState() => _OpcaoIdiomaState();
+}
+
+class _OpcaoIdiomaState extends State<_OpcaoIdioma> {
+  bool _apertado = false;
+
+  void _apertar(bool v) {
+    if (v != _apertado) setState(() => _apertado = v);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final ligado = widget.ligado;
+    return Semantics(
+      button: true,
+      selected: ligado,
+      label: widget.nome,
+      child: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTapDown: (_) => _apertar(true),
+        onTapCancel: () => _apertar(false),
+        onTapUp: (_) => _apertar(false),
+        onTap: () {
+          if (ligado) return;
+          som.tocar('clique');
+          Idioma.escolher(
+            widget.codigo == null ? null : Locale(widget.codigo!),
+          );
+        },
+        child: AnimatedScale(
+          scale: _apertado ? 0.98 : 1,
+          duration: _dur(context, 120),
+          curve: curvaSaida,
+          child: AnimatedContainer(
+            duration: _dur(context, 220),
+            curve: curvaSaida,
+            constraints: const BoxConstraints(minHeight: 52),
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            decoration: BoxDecoration(
+              color: Cor.painel2,
+              borderRadius: Raio.r2,
+              border: Border.all(
+                color: ligado ? Cor.ouro : Cor.linha2,
+                width: ligado ? 1.5 : 1,
+              ),
+              boxShadow: [
+                if (ligado)
+                  BoxShadow(
+                    color: Cor.ouro.withValues(alpha: 0.28),
+                    blurRadius: 12,
+                    offset: const Offset(0, 4),
+                  ),
+              ],
+            ),
+            child: Row(
+              children: [
+                Expanded(
+                  child: ExcludeSemantics(
+                    child: AnimatedDefaultTextStyle(
+                      duration: _dur(context, 220),
+                      curve: curvaSaida,
+                      style: TextStyle(
+                        fontSize: 15.5,
+                        fontWeight: FontWeight.w600,
+                        color: ligado ? Cor.ouroClaro : Cor.texto,
+                      ),
+                      child: Text(widget.nome),
+                    ),
+                  ),
+                ),
+                AnimatedScale(
+                  scale: ligado ? 1 : 0,
+                  duration: _dur(context, 280),
+                  curve: curvaSaida,
+                  child: Transform.rotate(
+                    angle: 0.7853981634,
+                    child: Container(
+                      width: 9,
+                      height: 9,
+                      decoration: BoxDecoration(
+                        color: Cor.ouro,
+                        borderRadius: Raio.r1,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
             ),
           ),
         ),

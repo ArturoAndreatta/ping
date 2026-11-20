@@ -9,6 +9,7 @@ import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:web/web.dart' as web;
 
+import 'idioma.dart';
 import 'navegador.dart';
 
 part 'vitrine.dart';
@@ -126,7 +127,7 @@ class Conexao extends ChangeNotifier {
     } catch (e) {
       debugPrint("Ping: falha ao conectar: $e");
       vinculo = Vinculo.erro;
-      erro = 'Não consegui conectar. Confira a internet e abra de novo.';
+      erro = Idioma.txt.erroConectar;
       notifyListeners();
     }
   }
@@ -360,20 +361,20 @@ class Conexao extends ChangeNotifier {
   static String _erroConta(Object e) {
     if (e is FirebaseAuthException) {
       return switch (e.code) {
-        'email-already-in-use' || 'credential-already-in-use' =>
-          'Esse e-mail já tem conta. Toque em Entrar.',
-        'invalid-email' => 'Esse e-mail não parece certo.',
-        'weak-password' => 'A senha precisa de pelo menos 6 letras.',
-        'too-many-requests' => 'Muitas tentativas. Espere um pouco.',
-        'network-request-failed' => 'Sem internet.',
+        'email-already-in-use' ||
+        'credential-already-in-use' => Idioma.txt.erroEmailEmUso,
+        'invalid-email' => Idioma.txt.erroEmailInvalido,
+        'weak-password' => Idioma.txt.erroSenhaFraca,
+        'too-many-requests' => Idioma.txt.erroMuitasTentativas,
+        'network-request-failed' => Idioma.txt.erroSemInternet,
         'user-not-found' ||
         'wrong-password' ||
         'invalid-credential' ||
-        'invalid-login-credentials' => 'E-mail ou senha errados.',
-        _ => 'Não deu certo. Tente de novo.',
+        'invalid-login-credentials' => Idioma.txt.erroLogin,
+        _ => Idioma.txt.erroGenerico,
       };
     }
-    return 'Não deu certo. Confira a internet.';
+    return Idioma.txt.erroGenericoNet;
   }
 
   /// Cria a conta ou entra numa que já existe e abre os PCs dela. Devolve o erro, ou null.
@@ -383,7 +384,7 @@ class Conexao extends ChangeNotifier {
     required bool criar,
   }) async => await _naConta<String?>(() async {
     if (mail.trim().isEmpty || senha.isEmpty) {
-      return 'Preencha o e-mail e a senha.';
+      return Idioma.txt.erroPreencher;
     }
     final auth = FirebaseAuth.instance;
     try {
@@ -410,7 +411,7 @@ class Conexao extends ChangeNotifier {
     } catch (e) {
       debugPrint('Ping: abrir a conta: $e');
       vinculo = Vinculo.erro;
-      erro = 'Não consegui abrir a conta. Confira a internet.';
+      erro = Idioma.txt.erroAbrirConta;
     }
     return null;
   });
@@ -495,10 +496,7 @@ class Conexao extends ChangeNotifier {
       _esperando = null;
       _liberar();
       notifyListeners();
-      respostas.add((
-        ok: false,
-        msg: 'Não consegui mandar. Confira a internet.',
-      ));
+      respostas.add((ok: false, msg: Idioma.txt.erroMandar));
       return;
     }
     // sem resposta do PC em 8s: avisa
@@ -508,7 +506,7 @@ class Conexao extends ChangeNotifier {
         _esperando = null;
         _liberar();
         notifyListeners();
-        respostas.add((ok: false, msg: 'O PC não respondeu.'));
+        respostas.add((ok: false, msg: Idioma.txt.erroPcMudo));
       }
     });
   }

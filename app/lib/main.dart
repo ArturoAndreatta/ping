@@ -6,6 +6,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart' show DateFormat;
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter/physics.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter_web_plugins/url_strategy.dart';
@@ -14,6 +16,8 @@ import 'package:wakelock_plus/wakelock_plus.dart';
 
 import 'atualizacao.dart';
 import 'conexao.dart';
+import 'idioma.dart';
+import 'l10n/txt.dart';
 import 'navegador.dart';
 import 'push.dart';
 import 'som.dart';
@@ -57,6 +61,7 @@ Future<void> main() async {
   usePathUrlStrategy(); // sem #/ no link
   WidgetsFlutterBinding.ensureInitialized();
   await Temas.carregar();
+  await Idioma.carregar();
   // modo vitrine (`?vitrine=<tela>`): dados de mentira, nada de Firebase
   if (ConexaoVitrine.doLink != null) return runApp(const PingApp());
   await Firebase.initializeApp(options: _firebase);
@@ -72,11 +77,21 @@ class PingApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => ListenableBuilder(
-    listenable: Temas.mudou,
+    listenable: Listenable.merge([Temas.mudou, Idioma.escolha]),
     builder: (_, _) => MaterialApp(
       title: 'Ping',
       debugShowCheckedModeBanner: false,
       theme: tema(),
+      locale: Idioma.escolha.value,
+      supportedLocales: Txt.supportedLocales,
+      localizationsDelegates: const [
+        Txt.delegate,
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
+      localeResolutionCallback: (aparelho, aceitos) =>
+          Idioma.resolver(aparelho, aceitos),
       builder: (context, child) =>
           AvisoVersaoNova(child: child ?? const SizedBox.shrink()),
       home: const Inicio(),
@@ -149,7 +164,7 @@ class _InicioState extends State<Inicio> {
       _rodadaAba = c.rodada;
       final nova = switch (c.tela) {
         'hoje' => Aba.hoje,
-        'mais' || 'avisos' || 'temas' => Aba.mais,
+        'mais' || 'avisos' || 'temas' || 'idioma' => Aba.mais,
         _ => Aba.aoVivo,
       };
       if (nova != _aba) {
@@ -458,9 +473,7 @@ class _InicioState extends State<Inicio> {
           ),
         ),
         if (nav.ehIphone && !nav.instalado && !deitado)
-          const _Rodape(
-            'Dica: adicione à Tela de Início (Compartilhar > Adicionar). Pelo ícone, entre de novo com a sua conta.',
-          ),
+          _Rodape(context.txt.dicaTelaInicio),
         if (!deitado) barra,
       ],
     );
@@ -617,11 +630,11 @@ class _InicioState extends State<Inicio> {
   Widget _conteudo() {
     switch (con.vinculo) {
       case Vinculo.carregando:
-        return const _Mensagem(
+        return _Mensagem(
           key: ValueKey(Vinculo.carregando),
           icone: _Pulso(),
-          titulo: 'Conectando',
-          texto: 'Só um instante.',
+          titulo: context.txt.mainConectando,
+          texto: context.txt.mainUmInstante,
         );
       case Vinculo.sem:
       case Vinculo.erro:
@@ -634,9 +647,10 @@ class _InicioState extends State<Inicio> {
             color: Cor.ouro,
             size: 40,
           ),
-          titulo: 'Falta o PC',
-          texto:
-              'No painel do Ping no PC, abra Conta e entre com ${con.email ?? 'esta conta'}. Ele aparece aqui na hora.',
+          titulo: context.txt.mainFaltaPc,
+          texto: context.txt.mainFaltaPcTexto(
+            con.email ?? context.txt.mainEstaConta,
+          ),
           extra: _BotaoSairConta(con: con),
         );
       case Vinculo.ok:
@@ -776,7 +790,8 @@ class _StatusPcState extends State<_StatusPc>
   );
   Timer? _fechar;
 
-  String get _texto => widget.online ? 'PC conectado' : 'PC sem sinal';
+  String get _texto =>
+      widget.online ? context.txt.mainPcConectado : context.txt.mainPcSemSinal;
   Color get _cor => widget.online ? Cor.teal : Cor.vermelho;
 
   @override
@@ -957,13 +972,13 @@ class _Entrar extends StatelessWidget {
         const Center(child: _Joia()),
         const SizedBox(height: 16),
         Text(
-          'PING NO CELULAR',
+          context.txt.mainPingCelular.toUpperCase(),
           textAlign: TextAlign.center,
           style: fonteTitulo(17),
         ),
         const SizedBox(height: 8),
         Text(
-          'Entre com a mesma conta Ping do painel do PC. Não tem? Crie aqui e entre com ela no PC, em Conta.',
+          context.txt.mainEntreTexto,
           textAlign: TextAlign.center,
           style: TextStyle(color: Cor.apagado, fontSize: 15, height: 1.35),
         ),
@@ -1104,7 +1119,7 @@ class _BotaoSairConta extends StatelessWidget {
   Widget build(BuildContext context) => ListenableBuilder(
     listenable: con,
     builder: (context, _) => Botao(
-      texto: 'Entrar com outra conta',
+      texto: context.txt.mainOutraConta,
       carregando: con.contaOcupada,
       aoTocar: con.sairConta,
     ),
@@ -1196,26 +1211,26 @@ class _Estado extends StatelessWidget {
   Widget build(BuildContext context) {
     final e = con.estado;
     if (e.isEmpty) {
-      return const _Mensagem(
+      return _Mensagem(
         icone: _Pulso(),
-        titulo: 'Esperando o PC',
-        texto: 'O Ping manda o primeiro sinal em alguns segundos.',
+        titulo: context.txt.mainEsperandoPc,
+        texto: context.txt.mainEsperandoPcTexto,
       );
     }
     if (!con.pcOnline) {
-      return const _Mensagem(
+      return _Mensagem(
         icone: Icone(Icons.power_settings_new, cor: Cor.vermelho),
-        titulo: 'PC sem sinal',
-        texto: 'O PC está desligado, sem internet ou com o Ping fechado.',
+        titulo: context.txt.mainPcSemSinal,
+        texto: context.txt.mainPcSemSinalTexto,
       );
     }
     final fila = (e['fila_nome'] as String?) ?? '';
     if (con.abriu case final ab?) return _Abrindo(con: con, abriu: ab);
     if (e['fechando'] == true) {
-      return const _Mensagem(
-        icone: _Pulso(),
-        titulo: 'Fechando o LoL',
-        texto: 'O LoL e o Riot Client estão fechando no PC.',
+      return _Mensagem(
+        icone: const _Pulso(),
+        titulo: context.txt.mainFechandoLol,
+        texto: context.txt.mainFechandoLolTexto,
       );
     }
     switch (con.fase) {
@@ -1224,10 +1239,10 @@ class _Estado extends StatelessWidget {
       case 'Fechado':
         return _Mensagem(
           icone: const Icone(Icons.videogame_asset_off_outlined),
-          titulo: 'LoL fechado',
-          texto: 'Abra o LoL no PC pra acompanhar por aqui.',
+          titulo: context.txt.mainLolFechado,
+          texto: context.txt.mainLolFechadoTexto,
           extra: Botao(
-            texto: 'Abrir o LoL',
+            texto: context.txt.mainAbrirLol,
             principal: true,
             carregando: con.esperando('abrir_lol'),
             aoTocar: () => con.enviar('abrir_lol'),
@@ -1243,8 +1258,10 @@ class _Estado extends StatelessWidget {
       case 'Lobby':
         return _Mensagem(
           icone: const Icone(Icons.groups_2_outlined),
-          titulo: con.fase == 'Lobby' ? 'Na sala' : 'Tudo parado',
-          texto: 'Entre na fila no PC e acompanhe por aqui.',
+          titulo: con.fase == 'Lobby'
+              ? context.txt.salaTitulo
+              : context.txt.criarTudoParado,
+          texto: context.txt.mainEntreFila,
         );
       case 'Matchmaking':
         if (e['sala'] is! Map) {
@@ -1260,10 +1277,10 @@ class _Estado extends StatelessWidget {
       case 'ChampSelect' when e['selecao'] is Map:
         return _Selecao(con: con, sel: e['selecao'] as Map);
       case 'ChampSelect':
-        return const _Mensagem(
+        return _Mensagem(
           icone: Icone(Icons.shield_outlined),
-          titulo: 'Seleção de campeões',
-          texto: 'Logo dá pra escolher o campeão por aqui.',
+          titulo: context.txt.mainSelecao,
+          texto: context.txt.mainSelecaoTexto,
         );
       case 'GameStart':
       case 'InProgress':
@@ -1272,15 +1289,15 @@ class _Estado extends StatelessWidget {
       case 'WaitingForStats':
       case 'PreEndOfGame':
       case 'EndOfGame':
-        return const _Mensagem(
+        return _Mensagem(
           icone: Icone(Icons.flag_outlined),
-          titulo: 'Fim de partida',
-          texto: 'A partida acabou.',
+          titulo: context.txt.fimTitulo,
+          texto: context.txt.mainPartidaAcabou,
         );
       default:
         return _Mensagem(
           icone: const _Pulso(),
-          titulo: 'Carregando',
+          titulo: context.txt.partidaCarregandoTitulo,
           texto: con.fase,
         );
     }
@@ -1322,7 +1339,8 @@ class _Fila extends StatelessWidget {
       // fila e estimado em linhas separadas, com o tempo ao lado: na mesma linha cortava no celular estreito
       final sub = [
         if (fila.isNotEmpty) fila,
-        if (estimado is int && estimado > 0) 'Estimado ${_mmss(estimado)}',
+        if (estimado is int && estimado > 0)
+          context.txt.mainEstimado(_mmss(estimado)),
       ];
       return Cartao(
         padding: const EdgeInsets.fromLTRB(16, 14, 18, 16),
@@ -1338,7 +1356,7 @@ class _Fila extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'PROCURANDO PARTIDA',
+                        context.txt.salaProcurando.toUpperCase(),
                         maxLines: 1,
                         overflow: TextOverflow.fade,
                         softWrap: false,
@@ -1392,7 +1410,7 @@ class _Fila extends StatelessWidget {
             ),
             const SizedBox(height: 12),
             Botao(
-              texto: 'Sair da fila',
+              texto: context.txt.salaSairFila,
               carregando: con.esperando('sair_fila'),
               aoTocar: () => con.enviar('sair_fila'),
             ),
@@ -1402,10 +1420,11 @@ class _Fila extends StatelessWidget {
     }
     return _Mensagem(
       icone: const _Radar(),
-      titulo: 'Procurando partida',
+      titulo: context.txt.salaProcurando,
       texto: [
         if (fila.isNotEmpty) fila,
-        if (estimado is int && estimado > 0) 'estimado ${_mmss(estimado)}',
+        if (estimado is int && estimado > 0)
+          context.txt.mainEstimado(_mmss(estimado)).toLowerCase(),
       ].join('  ·  '),
       extra: Column(
         children: [
@@ -1423,7 +1442,7 @@ class _Fila extends StatelessWidget {
             ),
           const SizedBox(height: 24),
           Botao(
-            texto: 'Sair da fila',
+            texto: context.txt.salaSairFila,
             carregando: con.esperando('sair_fila'),
             aoTocar: () => con.enviar('sair_fila'),
           ),
@@ -1448,15 +1467,15 @@ class _Encontrada extends StatelessWidget {
     if (resposta == 'Accepted') {
       return _Mensagem(
         icone: Icone(Icons.check, cor: Cor.teal),
-        titulo: 'Partida aceita',
-        texto: 'Esperando os outros jogadores.',
+        titulo: context.txt.mainAceita,
+        texto: context.txt.mainAceitaTexto,
       );
     }
     if (resposta == 'Declined') {
-      return const _Mensagem(
+      return _Mensagem(
         icone: Icone(Icons.close, cor: Cor.vermelho),
-        titulo: 'Partida recusada',
-        texto: 'Você recusou esta partida.',
+        titulo: context.txt.mainRecusada,
+        texto: context.txt.mainRecusadaTexto,
       );
     }
     return _Mensagem(
@@ -1466,12 +1485,12 @@ class _Encontrada extends StatelessWidget {
             : 0.0,
         duracao: duracao.toDouble(),
       ),
-      titulo: 'Partida encontrada',
-      texto: fila.isEmpty ? 'Aceitar?' : fila,
+      titulo: context.txt.mainEncontrada,
+      texto: fila.isEmpty ? context.txt.mainAceitarQ : fila,
       extra: Column(
         children: [
           Botao(
-            texto: 'Aceitar',
+            texto: context.txt.aceitar,
             principal: true,
             grande: true,
             carregando: con.esperando('aceitar'),
@@ -1480,7 +1499,7 @@ class _Encontrada extends StatelessWidget {
           ),
           const SizedBox(height: 12),
           Botao(
-            texto: 'Recusar',
+            texto: context.txt.recusar,
             carregando: con.esperando('recusar'),
             aoTocar: () => con.enviar('recusar'),
           ),
@@ -2117,7 +2136,7 @@ Future<bool> confirmar(
   final r = await showGeneralDialog<bool>(
     context: context,
     barrierDismissible: true,
-    barrierLabel: 'Fechar',
+    barrierLabel: context.txt.fechar,
     barrierColor: Cor.veu,
     transitionDuration: _dur(context, 220),
     transitionBuilder: (_, a, _, c) => FadeTransition(
@@ -2194,14 +2213,14 @@ class _BotaoFechar extends StatelessWidget {
     final soRiot = con.fase == 'Fechado';
     final sim = await confirmar(
       context,
-      titulo: soRiot ? 'Fechar o Riot Client?' : 'Fechar o LoL?',
+      titulo: soRiot ? context.txt.mainFecharRiotQ : context.txt.mainFecharLolQ,
       texto: soRiot
-          ? 'O Riot Client fecha no PC.'
+          ? context.txt.mainFecharRiotTexto
           : con.fase == 'Matchmaking'
-          ? 'Você sai da fila e o LoL fecha no PC, junto com o Riot Client.'
-          : 'O LoL fecha no PC, junto com o Riot Client.',
-      sim: 'Fechar',
-      nao: 'Cancelar',
+          ? context.txt.mainFecharFilaTexto
+          : context.txt.mainFecharLolTexto,
+      sim: context.txt.mainFechar,
+      nao: context.txt.cancelar,
     );
     if (sim) con.enviar('fechar_lol');
   }
@@ -2214,8 +2233,8 @@ class _BotaoFechar extends StatelessWidget {
       height: 44,
       child: IconButton(
         tooltip: con.fase == 'Fechado'
-            ? 'Fechar o Riot Client'
-            : 'Fechar o LoL',
+            ? context.txt.mainFecharRiot
+            : context.txt.mainFecharLol,
         onPressed: fechando ? null : () => _tocar(context),
         icon: AnimatedSwitcher(
           duration: _dur(context, 200),
@@ -2252,7 +2271,9 @@ class _BotaoMudo extends StatelessWidget {
       width: 44,
       height: 44,
       child: IconButton(
-        tooltip: mudo ? 'Ligar sons' : 'Desligar sons',
+        tooltip: mudo
+            ? context.txt.mainLigarSons
+            : context.txt.mainDesligarSons,
         onPressed: som.alternarMudo,
         icon: AnimatedSwitcher(
           duration: _dur(context, 200),

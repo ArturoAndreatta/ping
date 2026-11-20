@@ -5,79 +5,19 @@ part of 'main.dart';
 /// inscrição, em `push/<uid>/<aparelho>`, o que quer receber: `pc` (o PC que ele ouve; o disparador só
 /// manda o aviso de um PC pro aparelho que escolheu ele), `tipos` e `sempre` (avisar mesmo com você no PC).
 
-typedef TipoAviso = ({
-  String id,
-  String nome,
-  String texto,
-  IconData icone,
-  bool padrao,
-});
+typedef TipoAviso = ({String id, IconData icone, bool padrao});
 
 /// A mesma lista (ids e padrões) do disparador (`disparador/`, projeto `ping`) e do PC.
 const tiposAviso = <TipoAviso>[
-  (
-    id: 'fila',
-    nome: 'Entrou na fila',
-    texto: 'Quando você ou o líder da sala entra na fila.',
-    icone: Icons.hourglass_top_rounded,
-    padrao: true,
-  ),
-  (
-    id: 'partida',
-    nome: 'Partida encontrada',
-    texto: 'Quando a fila acha partida.',
-    icone: Icons.sports_esports_outlined,
-    padrao: true,
-  ),
-  (
-    id: 'vez',
-    nome: 'Sua vez',
-    texto: 'Quando chega sua vez de escolher ou banir.',
-    icone: Icons.touch_app_outlined,
-    padrao: true,
-  ),
-  (
-    id: 'troca',
-    nome: 'Pedido de troca',
-    texto: 'Quando um aliado pede troca na seleção.',
-    icone: Icons.swap_horiz_rounded,
-    padrao: true,
-  ),
-  (
-    id: 'convite',
-    nome: 'Convite pra sala',
-    texto: 'Quando alguém chama você pra sala.',
-    icone: Icons.group_add_outlined,
-    padrao: true,
-  ),
-  (
-    id: 'mensagem',
-    nome: 'Mensagens',
-    texto: 'Mensagem de amigo no chat privado ou da sala.',
-    icone: Icons.chat_bubble_outline_rounded,
-    padrao: true,
-  ),
-  (
-    id: 'lol_pronto',
-    nome: 'LoL aberto',
-    texto: 'Quando o LoL que você abriu pelo celular fica pronto.',
-    icone: Icons.power_settings_new_rounded,
-    padrao: true,
-  ),
-  (
-    id: 'fim',
-    nome: 'Fim da partida',
-    texto: 'Vitória ou derrota, com o seu placar.',
-    icone: Icons.emoji_events_outlined,
-    padrao: false,
-  ),
-  (
-    id: 'resumo',
-    nome: 'Resumo do dia',
-    texto: 'Quando você fecha o LoL.',
-    icone: Icons.today_outlined,
-    padrao: false,
-  ),
+  (id: 'fila', icone: Icons.hourglass_top_rounded, padrao: true),
+  (id: 'partida', icone: Icons.sports_esports_outlined, padrao: true),
+  (id: 'vez', icone: Icons.touch_app_outlined, padrao: true),
+  (id: 'troca', icone: Icons.swap_horiz_rounded, padrao: true),
+  (id: 'convite', icone: Icons.group_add_outlined, padrao: true),
+  (id: 'mensagem', icone: Icons.chat_bubble_outline_rounded, padrao: true),
+  (id: 'lol_pronto', icone: Icons.power_settings_new_rounded, padrao: true),
+  (id: 'fim', icone: Icons.emoji_events_outlined, padrao: false),
+  (id: 'resumo', icone: Icons.today_outlined, padrao: false),
 ];
 
 class Avisos extends ChangeNotifier {
@@ -265,7 +205,7 @@ class Avisos extends ChangeNotifier {
       }
     } catch (err) {
       debugPrint('Ping avisos: $err');
-      erro = 'Não consegui mudar o aviso neste celular.';
+      erro = Idioma.txt.avisosErroMudar;
     }
     ocupado = false;
     notifyListeners();
@@ -294,7 +234,7 @@ class Avisos extends ChangeNotifier {
           .update(patch);
     } catch (e) {
       debugPrint('Ping avisos: $e');
-      erro = 'Não salvou. Confira a internet.';
+      erro = Idioma.txt.avisosErroSalvar;
       notifyListeners();
     }
   }
@@ -334,14 +274,41 @@ class _AvisosVitrine extends Avisos {
   }
 }
 
+/// Nome e explicação de cada tipo de aviso no idioma em uso.
+String nomeAviso(Txt t, String id) => switch (id) {
+  'fila' => t.avisoFilaN,
+  'partida' => t.avisoPartidaN,
+  'vez' => t.avisoVezN,
+  'troca' => t.avisoTrocaN,
+  'convite' => t.avisoConviteN,
+  'mensagem' => t.avisoMensagemN,
+  'lol_pronto' => t.avisoLolProntoN,
+  'fim' => t.avisoFimN,
+  'resumo' => t.avisoResumoN,
+  _ => id,
+};
+
+String textoAviso(Txt t, String id) => switch (id) {
+  'fila' => t.avisoFilaT,
+  'partida' => t.avisoPartidaT,
+  'vez' => t.avisoVezT,
+  'troca' => t.avisoTrocaT,
+  'convite' => t.avisoConviteT,
+  'mensagem' => t.avisoMensagemT,
+  'lol_pronto' => t.avisoLolProntoT,
+  'fim' => t.avisoFimT,
+  'resumo' => t.avisoResumoT,
+  _ => '',
+};
+
 /// Texto do "Avisar neste celular" pela situação do push.
-String textoPush(String? s, {required bool ligado}) => switch (s) {
-  'ativo' when ligado => 'Ligado: chega mesmo com o app fechado.',
-  'ativo' || 'desligado' => 'Chega mesmo com o app fechado.',
-  'negado' => 'Recusado nos ajustes do celular.',
-  'tela_inicio' => 'Adicione o app à tela de início pra ligar.',
-  null => 'Conferindo...',
-  _ => 'Este navegador não recebe avisos.',
+String textoPush(Txt t, String? s, {required bool ligado}) => switch (s) {
+  'ativo' when ligado => t.avisosLigado,
+  'ativo' || 'desligado' => t.avisosChega,
+  'negado' => t.avisosNegado,
+  'tela_inicio' => t.avisosTelaInicio,
+  null => t.avisosConferindo,
+  _ => t.avisosSemSuporte,
 };
 
 /// Os dois cartões de Avisos (este celular e o que avisar): na página da aba Mais.
@@ -353,14 +320,15 @@ String textoPush(String? s, {required bool ligado}) => switch (s) {
   final pode = av.situacao == 'ativo' || av.situacao == 'desligado';
   const lista = tiposAviso;
   final geral = _Grupo(
-    titulo: 'Este celular',
+    titulo: context.txt.maisCelular,
     children: [
       _LinhaMais(
         icone: av.ativo
             ? Icons.notifications_active_outlined
             : Icons.notifications_none_rounded,
-        titulo: 'Avisar neste celular',
-        texto: av.erro ?? textoPush(av.situacao, ligado: av.ligado),
+        titulo: context.txt.avisosAvisar,
+        texto:
+            av.erro ?? textoPush(context.txt, av.situacao, ligado: av.ligado),
         final_: AnimatedOpacity(
           opacity: pode ? 1 : 0,
           duration: _dur(context, 200),
@@ -374,8 +342,8 @@ String textoPush(String? s, {required bool ligado}) => switch (s) {
       ),
       _LinhaMais(
         icone: Icons.computer_rounded,
-        titulo: 'Mesmo com você no PC',
-        texto: 'Avisa enquanto você está no PC.',
+        titulo: context.txt.avisosMesmoNoPc,
+        texto: context.txt.avisosMesmoNoPcTexto,
         final_: _Alavanca(
           ligado: av.sempre,
           ativo: av.ativo,
@@ -385,14 +353,14 @@ String textoPush(String? s, {required bool ligado}) => switch (s) {
     ],
   );
   final tipos = _Grupo(
-    titulo: 'O que avisar',
+    titulo: context.txt.avisosOQue,
     children: [
       for (final t in lista)
         _LinhaMais(
           key: ValueKey('aviso-${t.id}'),
           icone: t.icone,
-          titulo: t.nome,
-          texto: t.texto,
+          titulo: nomeAviso(context.txt, t.id),
+          texto: textoAviso(context.txt, t.id),
           final_: _Alavanca(
             ligado: av.quer(t),
             ativo: av.ativo,
@@ -430,7 +398,7 @@ class _PaginaAvisos extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              _Voltar(aoTocar: aoVoltar, titulo: 'Avisos'),
+              _Voltar(aoTocar: aoVoltar, titulo: context.txt.maisAvisos),
               const SizedBox(height: 10),
               if (deitado)
                 Row(

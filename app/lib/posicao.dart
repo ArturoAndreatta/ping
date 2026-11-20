@@ -124,7 +124,9 @@ class _FolhaPosicaoState extends State<_FolhaPosicao> {
       final pos = atuais[i];
       return Expanded(
         child: _Tocavel(
-          rotulo: i == 0 ? 'Primeira posição' : 'Segunda posição',
+          rotulo: i == 0
+              ? context.txt.posPrimeiraSem
+              : context.txt.posSegundaSem,
           aoTocar: () {
             som.tocar('clique');
             setState(() => _papel = i);
@@ -179,14 +181,21 @@ class _FolhaPosicaoState extends State<_FolhaPosicao> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        i == 0 ? 'PRIMEIRA' : 'SEGUNDA',
+                        (i == 0
+                                ? context.txt.posPrimeira
+                                : context.txt.posSegunda)
+                            .toUpperCase(),
                         style: fonteTitulo(
                           11,
                           cor: ativo ? Cor.ouro : Cor.apagado,
                         ),
                       ),
                       Text(
-                        pos.isEmpty ? 'Escolher' : (_posicoes[pos] ?? pos),
+                        pos.isEmpty
+                            ? context.txt.escolher
+                            : (_nomePosicao(context.txt, pos).isEmpty
+                                  ? pos
+                                  : _nomePosicao(context.txt, pos)),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: TextStyle(
@@ -218,7 +227,7 @@ class _FolhaPosicaoState extends State<_FolhaPosicao> {
         children: [
           Row(
             children: [
-              Text('SUA POSIÇÃO', style: fonteTitulo(14)),
+              Text(context.txt.posSua.toUpperCase(), style: fonteTitulo(14)),
               const Spacer(),
               AnimatedOpacity(
                 opacity: enviando ? 1 : 0,
@@ -280,7 +289,7 @@ class _ItemPosicao extends StatelessWidget {
   Widget build(BuildContext context) => SizedBox(
     width: 74,
     child: _Tocavel(
-      rotulo: _posicoes[pos] ?? pos,
+      rotulo: _nomePosicaoOu(context.txt, pos),
       afundar: 0.92,
       aoTocar: aoTocar,
       child: Column(
@@ -313,7 +322,7 @@ class _ItemPosicao extends StatelessWidget {
           ),
           const SizedBox(height: 5),
           Text(
-            _posicoes[pos] ?? pos,
+            _nomePosicaoOu(context.txt, pos),
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
             textAlign: TextAlign.center,

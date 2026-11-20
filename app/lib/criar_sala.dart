@@ -100,9 +100,9 @@ class _FolhaSalaState extends State<_FolhaSala> {
   /// Quem já está na sala ou já foi convidado não aparece pra marcar de novo.
   Map<String, String> get _ocupados => {
     for (final m in ((_sala['membros'] as List?) ?? const []).cast<Map>())
-      '${m['puuid']}': 'Na sala',
+      '${m['puuid']}': context.txt.salaTitulo,
     for (final c in ((_sala['convidados'] as List?) ?? const []).cast<Map>())
-      '${c['puuid']}': 'Convidado',
+      '${c['puuid']}': context.txt.criarConvidado,
   };
 
   late final _filtro = Filtro(
@@ -256,8 +256,12 @@ class _FolhaSalaState extends State<_FolhaSala> {
 
   Widget _cabecalho(bool noModo) {
     final titulo = noModo
-        ? (widget.trocar ? 'TROCAR MODO' : 'CRIAR SALA')
-        : (_soConvidar ? 'CONVIDAR AMIGOS' : 'CHAMAR AMIGOS');
+        ? (widget.trocar
+                  ? context.txt.criarTrocarModo
+                  : context.txt.criarCriarSala)
+              .toUpperCase()
+        : (_soConvidar ? context.txt.salaConvidar : context.txt.criarChamar)
+              .toUpperCase();
     return Padding(
       padding: const EdgeInsets.fromLTRB(8, 6, 8, 10),
       child: Row(
@@ -285,7 +289,7 @@ class _FolhaSalaState extends State<_FolhaSala> {
             width: 44,
             height: 44,
             child: IconButton(
-              tooltip: 'Fechar',
+              tooltip: context.txt.fechar,
               onPressed: () => Navigator.of(context).pop(),
               icon: Icon(Icons.close, color: Cor.apagado),
             ),
@@ -300,13 +304,19 @@ class _FolhaSalaState extends State<_FolhaSala> {
     final String texto;
     final bool pode;
     if (noModo) {
-      texto = widget.trocar ? 'Trocar modo' : 'Criar sala';
+      texto = widget.trocar
+          ? context.txt.criarTrocarModo
+          : context.txt.criarCriarSala;
       pode = _fila != null && !(widget.trocar && _fila == _sala['fila']);
     } else if (_criando && !_salaAberta) {
-      texto = 'Criando sala...';
+      texto = context.txt.criarCriando;
       pode = false;
     } else {
-      texto = n == 0 ? (_soConvidar ? 'Convidar' : 'Pronto') : 'Convidar ($n)';
+      texto = n == 0
+          ? (_soConvidar
+                ? context.txt.salaConvidarCurto
+                : context.txt.criarPronto)
+          : context.txt.criarConvidarN(n);
       pode = n > 0 || !_soConvidar;
     }
     final nome = _filas.firstWhere(
@@ -381,7 +391,10 @@ class _Etapas extends StatelessWidget {
   Widget build(BuildContext context) => Row(
     mainAxisSize: MainAxisSize.min,
     children: [
-      for (final (i, t) in ['Modo', 'Amigos'].indexed) ...[
+      for (final (i, t) in [
+        context.txt.criarPassoModo,
+        context.txt.criarPassoAmigos,
+      ].indexed) ...[
         if (i > 0)
           Container(
             width: 18,
@@ -430,7 +443,7 @@ class _Modos extends StatelessWidget {
       return Padding(
         padding: EdgeInsets.all(32),
         child: Text(
-          'Os modos aparecem quando o LoL estiver aberto.',
+          context.txt.criarModosAbrir,
           textAlign: TextAlign.center,
           style: TextStyle(color: Cor.apagado, fontSize: 15),
         ),
@@ -588,7 +601,7 @@ class _Modo extends StatelessWidget {
               Padding(
                 padding: EdgeInsets.only(left: 8),
                 child: Text(
-                  'ATUAL',
+                  context.txt.criarAtual.toUpperCase(),
                   style: TextStyle(
                     fontSize: 11,
                     letterSpacing: 1,
@@ -639,7 +652,7 @@ class _Convites extends StatelessWidget {
             Icone(Icons.person_off_outlined, cor: Cor.apagado),
             SizedBox(height: 16),
             Text(
-              'Nenhum amigo online no LoL agora.',
+              context.txt.criarNenhumAmigo,
               textAlign: TextAlign.center,
               style: TextStyle(color: Cor.apagado, fontSize: 15),
             ),
@@ -666,9 +679,11 @@ class _Convites extends StatelessWidget {
       padding: const EdgeInsets.fromLTRB(16, 14, 16, 12),
       children: [
         _Secao(
-          titulo: 'Online agora',
+          titulo: context.txt.criarOnline,
           acao: livres.length > 1
-              ? (livres.every(marcados.contains) ? 'Desmarcar' : 'Marcar todos')
+              ? (livres.every(marcados.contains)
+                    ? context.txt.criarDesmarcar
+                    : context.txt.criarMarcarTodos)
               : null,
           aoAcao: () => aoMarcarTodos(livres),
         ),
@@ -875,8 +890,8 @@ class _CartaoCriar extends StatelessWidget {
     final livres = amigos.where((a) => a['pode'] == true).toList();
     return _Mensagem(
       icone: const Icone(Icons.groups_2_outlined),
-      titulo: 'Tudo parado',
-      texto: 'Crie uma sala e chame os amigos daqui mesmo.',
+      titulo: context.txt.criarTudoParado,
+      texto: context.txt.criarTudoParadoTexto,
       extra: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -891,7 +906,7 @@ class _CartaoCriar extends StatelessWidget {
                   ),
           ),
           Botao(
-            texto: 'Criar sala',
+            texto: context.txt.criarCriarSala,
             principal: true,
             grande: true,
             aoTocar: () => _abrirSala(context, con),
@@ -911,11 +926,12 @@ class _Sugeridos extends StatelessWidget {
   Widget build(BuildContext context) {
     final mostra = amigos.take(5).toList();
     final nomes = amigos.map((a) => '${a['nome']}').toList();
+    final t = context.txt;
     final texto = nomes.length == 1
-        ? '${nomes.first} está online'
+        ? t.criarOnline1(nomes.first)
         : nomes.length == 2
-        ? '${nomes[0]} e ${nomes[1]} estão online'
-        : '${nomes[0]} e mais ${nomes.length - 1} amigos estão online';
+        ? t.criarOnline2(nomes[0], nomes[1])
+        : t.criarOnlineN(nomes[0], nomes.length - 1);
     return Column(
       children: [
         SizedBox(

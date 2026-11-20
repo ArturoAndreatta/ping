@@ -170,14 +170,24 @@ class _Rascunho {
   List<int> s;
   List<int?> f;
 
+  /// O que falta pra página valer, em códigos (o texto vem de [textoFalta]).
   List<String> get falta => [
-    if (prim == 0) 'caminho principal',
-    if (prim != 0 && p[0] == null) 'pedra fundamental',
-    if (prim != 0 && p.skip(1).any((x) => x == null)) 'runas da principal',
-    if (sec == 0) 'caminho secundário',
-    if (sec != 0 && s.length < 2) '2 runas da secundária',
-    if (f.any((x) => x == null)) 'fragmentos',
+    if (prim == 0) 'prim',
+    if (prim != 0 && p[0] == null) 'pedra',
+    if (prim != 0 && p.skip(1).any((x) => x == null)) 'runasPrim',
+    if (sec == 0) 'sec',
+    if (sec != 0 && s.length < 2) 'runasSec',
+    if (f.any((x) => x == null)) 'frag',
   ];
+
+  static String textoFalta(Txt t, String codigo) => switch (codigo) {
+    'prim' => t.runasFaltaPrim,
+    'pedra' => t.runasFaltaPedra,
+    'runasPrim' => t.runasFaltaRunasPrim,
+    'sec' => t.runasFaltaSec,
+    'runasSec' => t.runasFaltaRunasSec,
+    _ => t.runasFaltaFrag,
+  };
 
   /// Como o client grava: a secundária na ordem das linhas.
   List<int> perks(_Arvore arv) {
@@ -242,7 +252,7 @@ class _BotaoRunas extends StatelessWidget {
     );
     final botao = Semantics(
       button: true,
-      label: 'Runas: $nome',
+      label: context.txt.runasSem(nome),
       child: GestureDetector(
         behavior: HitTestBehavior.opaque,
         onTap: () => _abrirRunas(context, con),
@@ -424,7 +434,9 @@ class _FolhaRunasState extends State<_FolhaRunas> {
     });
     widget.con.enviar('runa_salvar', {
       'pagina': d.pagina,
-      'nome': d.nome.trim().isEmpty ? 'Página nova' : d.nome.trim(),
+      'nome': d.nome.trim().isEmpty
+          ? context.txt.runasPaginaNovaNome
+          : d.nome.trim(),
       'primaria': d.prim,
       'secundaria': d.sec,
       'perks': d.perks(arv),
@@ -547,8 +559,11 @@ class _FolhaRunasState extends State<_FolhaRunas> {
   /// [baixo]: celular deitado, com menos respiro (cada pixel de altura conta).
   Widget _cabecalho(_Rascunho? ed, {bool baixo = false}) {
     final titulo = ed == null
-        ? 'RUNAS'
-        : (ed.pagina == 0 ? 'NOVA PÁGINA' : 'EDITAR PÁGINA');
+        ? context.txt.runasTitulo.toUpperCase()
+        : (ed.pagina == 0
+                  ? context.txt.runasNovaPagina
+                  : context.txt.runasEditarPagina)
+              .toUpperCase();
     return Padding(
       padding: EdgeInsets.fromLTRB(8, baixo ? 0 : 6, 8, baixo ? 2 : 10),
       child: Row(
@@ -562,7 +577,7 @@ class _FolhaRunasState extends State<_FolhaRunas> {
                   ? const SizedBox.shrink()
                   : IconButton(
                       key: const ValueKey('voltar'),
-                      tooltip: 'Voltar pras páginas',
+                      tooltip: context.txt.runasVoltar,
                       onPressed: _salvando ? null : _voltar,
                       icon: Icon(Icons.arrow_back_rounded, color: Cor.apagado),
                     ),
@@ -584,7 +599,7 @@ class _FolhaRunasState extends State<_FolhaRunas> {
             width: 44,
             height: 44,
             child: IconButton(
-              tooltip: 'Fechar',
+              tooltip: context.txt.fechar,
               onPressed: () => Navigator.of(context).pop(),
               icon: Icon(Icons.close, color: Cor.apagado),
             ),
@@ -657,7 +672,7 @@ class _ListaPaginas extends StatelessWidget {
                 child: Padding(
                   padding: EdgeInsets.all(24),
                   child: Text(
-                    'Você ainda não tem página de runas.',
+                    context.txt.runasSemPagina,
                     textAlign: TextAlign.center,
                     style: TextStyle(color: Cor.apagado, fontSize: 15),
                   ),
@@ -705,17 +720,20 @@ class _ListaPaginas extends StatelessWidget {
                   ? Align(
                       alignment: Alignment.centerRight,
                       child: Botao(
-                        texto: 'Nova página',
+                        texto: context.txt.runasNovaPagina,
                         compacto: true,
                         aoTocar: () => aoEditar(null),
                       ),
                     )
-                  : Botao(texto: 'Nova página', aoTocar: () => aoEditar(null))
+                  : Botao(
+                      texto: context.txt.runasNovaPagina,
+                      aoTocar: () => aoEditar(null),
+                    )
             else
               Padding(
                 padding: EdgeInsets.symmetric(vertical: 6),
                 child: Text(
-                  'Sem espaço pra página nova: edite uma das suas.',
+                  context.txt.runasSemEspaco,
                   textAlign: TextAlign.center,
                   style: TextStyle(color: Cor.apagado, fontSize: 14),
                 ),
@@ -765,11 +783,11 @@ class _LinhaPaginaState extends State<_LinhaPagina> {
       arv.nomeEstilo(prim),
       arv.nomeEstilo(sec),
     ].where((x) => x.isNotEmpty).join(' + ');
-    final sub = !valida ? 'Incompleta' : caminhos;
+    final sub = !valida ? context.txt.runasIncompleta : caminhos;
     return Semantics(
       button: true,
       selected: uso,
-      label: '${p['nome']}${uso ? ', em uso' : ''}',
+      label: uso ? context.txt.runasPaginaSem('${p['nome']}') : '${p['nome']}',
       child: GestureDetector(
         behavior: HitTestBehavior.opaque,
         onTapDown: (_) => setState(() => _apertado = true),
@@ -898,7 +916,7 @@ class _LinhaPaginaState extends State<_LinhaPagina> {
                             Losango(cor: cor, tamanho: 7),
                             const SizedBox(width: 7),
                             Text(
-                              'EM USO',
+                              context.txt.runasEmUso.toUpperCase(),
                               style: TextStyle(
                                 color: cor,
                                 fontSize: 11.5,
@@ -915,7 +933,7 @@ class _LinhaPaginaState extends State<_LinhaPagina> {
                     width: 44,
                     height: 44,
                     child: IconButton(
-                      tooltip: 'Editar ${p['nome']}',
+                      tooltip: context.txt.runasEditarNome('${p['nome']}'),
                       onPressed: widget.aoEditar,
                       icon: Icon(
                         Icons.edit_outlined,
@@ -1025,31 +1043,36 @@ class _EditorState extends State<_Editor> {
     final folga = MediaQuery.sizeOf(context).width >= 600;
     final prim = arv.estilo(d.prim);
     Widget principal(bool encher, {double fatiaMax = double.infinity}) =>
-        _secao('PRINCIPAL', d.prim, encher: encher, [
-          _Estilos(estilos: arv.estilos, atual: d.prim, aoEscolher: _prim),
-          const SizedBox(height: 10),
-          if (prim == null)
-            const _Vazio(texto: 'Escolha um caminho pra começar.')
-          else
-            _Trilha(
-              key: ValueKey('p${d.prim}-$_anim'),
-              entrar: _anim > 0,
-              encher: encher,
-              fatiaMax: fatiaMax,
-              cor: _corDe(d.prim),
-              linhas: [
-                for (final (i, l) in arv.linhas(prim).take(4).indexed)
-                  _Linha(
-                    ids: l,
-                    escolhidas: {?d.p[i]},
-                    tamanho: i == 0 ? 60 : 50,
-                    pedra: i == 0,
-                    aoTocar: (id) => _runaPrim(i, id),
-                  ),
-              ],
-              arv: arv,
-            ),
-        ]);
+        _secao(
+          context.txt.runasPrincipal.toUpperCase(),
+          d.prim,
+          encher: encher,
+          [
+            _Estilos(estilos: arv.estilos, atual: d.prim, aoEscolher: _prim),
+            const SizedBox(height: 10),
+            if (prim == null)
+              _Vazio(texto: context.txt.runasEscolhaCaminho)
+            else
+              _Trilha(
+                key: ValueKey('p${d.prim}-$_anim'),
+                entrar: _anim > 0,
+                encher: encher,
+                fatiaMax: fatiaMax,
+                cor: _corDe(d.prim),
+                linhas: [
+                  for (final (i, l) in arv.linhas(prim).take(4).indexed)
+                    _Linha(
+                      ids: l,
+                      escolhidas: {?d.p[i]},
+                      tamanho: i == 0 ? 60 : 50,
+                      pedra: i == 0,
+                      aoTocar: (id) => _runaPrim(i, id),
+                    ),
+                ],
+                arv: arv,
+              ),
+          ],
+        );
     final corFrag = d.prim == 0 ? Cor.ouroEscuro : _corDe(d.prim);
     List<_Linha> linhasFrags({Color? cor}) => [
       for (final (i, l) in arv.frags.indexed)
@@ -1064,43 +1087,49 @@ class _EditorState extends State<_Editor> {
     Widget trilhaFrags(bool encher) =>
         _Trilha(encher: encher, cor: corFrag, linhas: linhasFrags(), arv: arv);
     // [comFrags]: os fragmentos continuam a trilha da secundária, sem título próprio, como no client
-    Widget secundaria(
-      bool encher, {
-      bool comFrags = false,
-    }) => _secao('SECUNDÁRIA', d.sec, encher: encher, [
-      if (prim == null) ...[
-        const _Vazio(texto: 'Escolha o principal primeiro.'),
-        if (comFrags) ...[const SizedBox(height: 10), trilhaFrags(encher)],
-      ] else ...[
-        _Estilos(estilos: arv.subs(d.prim), atual: d.sec, aoEscolher: _sec),
-        const SizedBox(height: 10),
-        if (d.sec == 0) ...[
-          const _Vazio(texto: 'Escolha o caminho secundário.'),
+    Widget secundaria(bool encher, {bool comFrags = false}) => _secao(
+      context.txt.runasSecundaria.toUpperCase(),
+      d.sec,
+      encher: encher,
+      [
+        if (prim == null) ...[
+          _Vazio(texto: context.txt.runasEscolhaPrincipal),
           if (comFrags) ...[const SizedBox(height: 10), trilhaFrags(encher)],
-        ] else
-          _Trilha(
-            key: ValueKey('s${d.sec}-$_anim'),
-            entrar: _anim > 0,
-            encher: encher,
-            cor: _corDe(d.sec),
-            linhas: [
-              for (final l in arv.linhas(arv.estilo(d.sec)).skip(1))
-                _Linha(
-                  ids: l,
-                  escolhidas: d.s.where(l.contains).toSet(),
-                  // já tem as 2: a linha que ficou de fora apaga, como no client
-                  cheia: d.s.length >= 2,
-                  tamanho: 40,
-                  aoTocar: (id) => _runaSec(l, id),
-                ),
-              if (comFrags) ...linhasFrags(cor: corFrag),
-            ],
-            arv: arv,
-          ),
+        ] else ...[
+          _Estilos(estilos: arv.subs(d.prim), atual: d.sec, aoEscolher: _sec),
+          const SizedBox(height: 10),
+          if (d.sec == 0) ...[
+            _Vazio(texto: context.txt.runasEscolhaSecundario),
+            if (comFrags) ...[const SizedBox(height: 10), trilhaFrags(encher)],
+          ] else
+            _Trilha(
+              key: ValueKey('s${d.sec}-$_anim'),
+              entrar: _anim > 0,
+              encher: encher,
+              cor: _corDe(d.sec),
+              linhas: [
+                for (final l in arv.linhas(arv.estilo(d.sec)).skip(1))
+                  _Linha(
+                    ids: l,
+                    escolhidas: d.s.where(l.contains).toSet(),
+                    // já tem as 2: a linha que ficou de fora apaga, como no client
+                    cheia: d.s.length >= 2,
+                    tamanho: 40,
+                    aoTocar: (id) => _runaSec(l, id),
+                  ),
+                if (comFrags) ...linhasFrags(cor: corFrag),
+              ],
+              arv: arv,
+            ),
+        ],
       ],
-    ]);
-    Widget fragmentos(bool encher) =>
-        _secao('FRAGMENTOS', 0, encher: encher, [trilhaFrags(encher)]);
+    );
+    Widget fragmentos(bool encher) => _secao(
+      context.txt.runasFragmentos.toUpperCase(),
+      0,
+      encher: encher,
+      [trilhaFrags(encher)],
+    );
 
     final falta = d.falta;
     final baixo = MediaQuery.sizeOf(context).height < 520;
@@ -1110,7 +1139,11 @@ class _EditorState extends State<_Editor> {
       child: IgnorePointer(
         ignoring: falta.isNotEmpty,
         child: Botao(
-          texto: falta.isEmpty ? 'Salvar e usar' : 'Falta: ${falta.first}',
+          texto: falta.isEmpty
+              ? context.txt.runasSalvar
+              : context.txt.runasFalta(
+                  _Rascunho.textoFalta(context.txt, falta.first),
+                ),
           principal: falta.isEmpty,
           carregando: widget.salvando,
           compacto: baixo,
@@ -1137,7 +1170,7 @@ class _EditorState extends State<_Editor> {
       cursorColor: Cor.ouro,
       decoration: InputDecoration(
         counterText: '',
-        hintText: 'Nome da página',
+        hintText: context.txt.runasNomePagina,
         hintStyle: TextStyle(color: Cor.apagado),
         prefixIcon: Icon(Icons.edit_outlined, size: 18, color: Cor.apagado),
         isDense: true,
@@ -1818,7 +1851,7 @@ class _BotaoRunaState extends State<_BotaoRuna> {
     return Semantics(
       button: true,
       selected: sel,
-      label: '${widget.perk['nome'] ?? 'Runa'}',
+      label: '${widget.perk['nome'] ?? context.txt.runaUma}',
       child: GestureDetector(
         behavior: HitTestBehavior.opaque,
         onTapDown: (_) => setState(() => _apertado = true),
@@ -1897,7 +1930,7 @@ class _InfoRuna extends StatelessWidget {
               Stack(alignment: Alignment.topLeft, children: [...antigos, ?a]),
           child: p == null
               ? Text(
-                  'Toque numa runa pra ver o que ela faz.',
+                  context.txt.runasToque,
                   key: ValueKey(0),
                   style: TextStyle(color: Cor.apagado, fontSize: 13.5),
                 )

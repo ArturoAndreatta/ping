@@ -111,12 +111,12 @@ class _CartasState extends State<_Cartas> with SingleTickerProviderStateMixin {
     return Column(
       children: [
         Text(
-          'ESCOLHA SEU CAMPEÃO',
+          context.txt.cartasTitulo.toUpperCase(),
           style: fonteTitulo(deitado ? 13 : 15, cor: Cor.ouroClaro),
         ),
         const SizedBox(height: 4),
         Text(
-          'Toque numa carta',
+          context.txt.cartasTexto,
           style: TextStyle(color: Cor.apagado, fontSize: 13),
         ),
         SizedBox(height: deitado ? 10 : 18),
@@ -220,7 +220,9 @@ class _Carta extends StatelessWidget {
         ? Cor.ouroClaro
         : (sorte ? Cor.ouro : Cor.ouroEscuro);
     return _Tocavel(
-      rotulo: nome.isEmpty ? 'Escolher carta' : 'Escolher $nome',
+      rotulo: nome.isEmpty
+          ? context.txt.cartasEscolher
+          : context.txt.cartasEscolherNome(nome),
       afundar: 0.96,
       aoTocar: aoTocar,
       child: AnimatedScale(
@@ -293,7 +295,10 @@ class _Carta extends StatelessWidget {
                           borderRadius: Raio.r1,
                           border: Border.all(color: Cor.ouro),
                         ),
-                        child: Text('SORTE', style: fonteTitulo(10)),
+                        child: Text(
+                          context.txt.cartasSorte.toUpperCase(),
+                          style: fonteTitulo(10),
+                        ),
                       ),
                     ),
                   ),

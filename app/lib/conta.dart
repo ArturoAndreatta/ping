@@ -27,7 +27,7 @@ Future<T?> _janela<T>(BuildContext context, WidgetBuilder corpo) =>
     showGeneralDialog<T>(
       context: context,
       barrierDismissible: true,
-      barrierLabel: 'Fechar',
+      barrierLabel: context.txt.fechar,
       barrierColor: Cor.veu,
       transitionDuration: _dur(context, 220),
       transitionBuilder: (_, a, _, c) => FadeTransition(
@@ -123,15 +123,17 @@ class _FormContaState extends State<_FormConta> {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 Text(
-                  (_criar ? 'Criar conta Ping' : 'Entrar na conta')
+                  (_criar
+                          ? context.txt.contaCriarTitulo
+                          : context.txt.contaEntrarTitulo)
                       .toUpperCase(),
                   style: fonteTitulo(16),
                 ),
                 const SizedBox(height: 8),
                 Text(
                   _criar
-                      ? 'Depois entre com ela na janela do Ping no PC.'
-                      : 'Os PCs da conta aparecem neste celular.',
+                      ? context.txt.contaCriarTexto
+                      : context.txt.contaEntrarTexto,
                   style: TextStyle(color: Cor.apagado, fontSize: 14.5),
                 ),
               ],
@@ -146,7 +148,7 @@ class _FormContaState extends State<_FormConta> {
             autocorrect: false,
             style: const TextStyle(fontSize: 15.5),
             cursorColor: Cor.ouro,
-            decoration: _decoConta('E-mail'),
+            decoration: _decoConta(context.txt.contaEmail),
           ),
           const SizedBox(height: 8),
           TextField(
@@ -160,7 +162,7 @@ class _FormContaState extends State<_FormConta> {
             style: const TextStyle(fontSize: 15.5),
             cursorColor: Cor.ouro,
             decoration: _decoConta(
-              _criar ? 'Senha (6 letras ou mais)' : 'Senha',
+              _criar ? context.txt.contaSenha6 : context.txt.contaSenha,
             ),
           ),
           AnimatedSwitcher(
@@ -179,14 +181,18 @@ class _FormContaState extends State<_FormConta> {
           ),
           const SizedBox(height: 14),
           Botao(
-            texto: _criar ? 'Criar conta' : 'Entrar',
+            texto: _criar
+                ? context.txt.contaBotaoCriar
+                : context.txt.contaBotaoEntrar,
             principal: true,
             carregando: widget.con.contaOcupada,
             aoTocar: _ir,
           ),
           const SizedBox(height: 8),
           Botao(
-            texto: _criar ? 'Já tenho conta' : 'Criar conta nova',
+            texto: _criar
+                ? context.txt.contaJaTenho
+                : context.txt.contaCriarNova,
             aoTocar: () => setState(() {
               _criar = !_criar;
               _erro = null;
@@ -211,7 +217,7 @@ class _GrupoConta extends StatelessWidget {
   }
 
   /// Nome do PC e as outras contas do LoL que já apareceram nele.
-  static String _detalhe(Map<String, dynamic> p, bool aberto) {
+  static String _detalhe(Txt t, Map<String, dynamic> p, bool aberto) {
     final nome = p['nome'];
     final lol = <String>[
       if (p['lol'] is Map)
@@ -220,21 +226,22 @@ class _GrupoConta extends StatelessWidget {
     ]..sort();
     final partes = [
       if (p['pc'] is String && (p['pc'] as String).isNotEmpty) 'PC ${p['pc']}',
-      if (lol.isNotEmpty) 'também ${lol.join(', ')}',
+      if (lol.isNotEmpty) t.contaTambem(lol.join(', ')),
     ];
     final resto = partes.join(' · ');
-    if (aberto) return resto.isEmpty ? 'Aberto agora.' : 'Aberto · $resto';
-    return resto.isEmpty ? 'Toque pra abrir.' : resto;
+    if (aberto) {
+      return resto.isEmpty ? t.contaAberto : t.contaAbertoResto(resto);
+    }
+    return resto.isEmpty ? t.contaToqueAbrir : resto;
   }
 
   Future<void> _tirar(BuildContext context, String id, String nome) async {
     final sim = await confirmar(
       context,
-      titulo: 'Tirar da conta?',
-      texto:
-          '$nome sai da lista. Pra voltar, entre na conta de novo na janela do Ping dele.',
-      sim: 'Tirar',
-      nao: 'Cancelar',
+      titulo: context.txt.contaTirarQ,
+      texto: context.txt.contaTirarTexto(nome),
+      sim: context.txt.contaTirar,
+      nao: context.txt.cancelar,
     );
     if (sim) await con.tirarPc(id);
   }
@@ -242,11 +249,10 @@ class _GrupoConta extends StatelessWidget {
   Future<void> _sair(BuildContext context) async {
     final sim = await confirmar(
       context,
-      titulo: 'Sair da conta?',
-      texto:
-          'Este celular para de ver os PCs. Eles continuam na conta: é só entrar de novo.',
-      sim: 'Sair',
-      nao: 'Cancelar',
+      titulo: context.txt.contaSairQ,
+      texto: context.txt.contaSairTexto,
+      sim: context.txt.contaSair,
+      nao: context.txt.cancelar,
     );
     if (sim) await con.sairConta();
   }
@@ -258,19 +264,19 @@ class _GrupoConta extends StatelessWidget {
     final email = con.email;
     if (email == null) {
       return _Grupo(
-        titulo: 'Conta Ping',
+        titulo: context.txt.contaTitulo,
         children: [
           _LinhaMais(
             icone: Icons.shield_outlined,
-            titulo: 'Criar conta',
-            texto: 'O vínculo não se perde e junta seus PCs e smurfs.',
+            titulo: context.txt.contaBotaoCriar,
+            texto: context.txt.contaCriarLinha,
             final_: seta(),
             aoTocar: () => abrirConta(context, con),
           ),
           _LinhaMais(
             icone: Icons.login_rounded,
-            titulo: 'Já tenho conta',
-            texto: 'Entrar e ver os PCs da conta.',
+            titulo: context.txt.contaJaTenho,
+            texto: context.txt.contaEntrarLinha,
             final_: seta(),
             aoTocar: () => abrirConta(context, con, criar: false),
           ),
@@ -287,14 +293,14 @@ class _GrupoConta extends StatelessWidget {
         return da.compareTo(db);
       });
     return _Grupo(
-      titulo: 'Conta Ping',
+      titulo: context.txt.contaTitulo,
       children: [
         _LinhaMais(
           icone: Icons.verified_user_outlined,
           titulo: email,
           texto: ids.length > 1
-              ? '${ids.length} PCs nesta conta. Toque pra trocar.'
-              : 'Entre com ela em qualquer celular.',
+              ? context.txt.contaPcsN(ids.length)
+              : context.txt.contaQualquerCel,
           final_: const SizedBox.shrink(),
         ),
         for (final id in ids)
@@ -304,7 +310,7 @@ class _GrupoConta extends StatelessWidget {
                 ? Icons.desktop_windows_rounded
                 : Icons.desktop_windows_outlined,
             titulo: _titulo(con.pcs[id]!),
-            texto: _detalhe(con.pcs[id]!, id == con.pc),
+            texto: _detalhe(context.txt, con.pcs[id]!, id == con.pc),
             final_: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -325,7 +331,7 @@ class _GrupoConta extends StatelessWidget {
                 ),
                 Semantics(
                   button: true,
-                  label: 'Tirar da conta',
+                  label: context.txt.contaTirarSem,
                   child: GestureDetector(
                     behavior: HitTestBehavior.opaque,
                     onTap: () => _tirar(context, id, _titulo(con.pcs[id]!)),
@@ -344,16 +350,16 @@ class _GrupoConta extends StatelessWidget {
             ),
             aoTocar: id == con.pc ? null : () => con.trocarPc(id),
           ),
-        const _LinhaMais(
+        _LinhaMais(
           icone: Icons.add_rounded,
-          titulo: 'Outro PC',
-          texto: 'Instale o Ping nele e entre com esta conta.',
+          titulo: context.txt.contaOutroPc,
+          texto: context.txt.contaOutroPcTexto,
           final_: SizedBox.shrink(),
         ),
         _LinhaMais(
           icone: Icons.logout_rounded,
-          titulo: 'Sair da conta',
-          texto: 'Neste celular. Os PCs continuam na conta.',
+          titulo: context.txt.contaSairLinha,
+          texto: context.txt.contaSairLinhaTexto,
           final_: con.contaOcupada
               ? SizedBox(
                   width: 22,

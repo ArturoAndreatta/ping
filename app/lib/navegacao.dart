@@ -2,13 +2,18 @@ part of 'main.dart';
 
 /// Abas do app. Ao vivo é o app de sempre (segue a fase do LoL); as outras são o que o painel do PC tem.
 enum Aba {
-  aoVivo('Ao vivo', Icons.sensors_rounded),
-  hoje('Hoje', Icons.query_stats_rounded),
-  mais('Mais', Icons.more_horiz_rounded);
+  aoVivo(Icons.sensors_rounded),
+  hoje(Icons.query_stats_rounded),
+  mais(Icons.more_horiz_rounded);
 
-  const Aba(this.nome, this.icone);
-  final String nome;
+  const Aba(this.icone);
   final IconData icone;
+
+  String nomeEm(Txt t) => switch (this) {
+    Aba.aoVivo => t.abaAoVivo,
+    Aba.hoje => t.abaHoje,
+    Aba.mais => t.abaMais,
+  };
 }
 
 /// Fases em que o que acontece no LoL pede o celular na aba Ao vivo.
@@ -150,7 +155,7 @@ class _BarraAbasState extends State<_BarraAbas>
     return Semantics(
       container: true,
       explicitChildNodes: true,
-      label: 'Abas',
+      label: context.txt.abasSemantica,
       child: RepaintBoundary(
         child: topo
             ? pintura
@@ -301,7 +306,7 @@ class _ItemAbaState extends State<_ItemAba> {
     return Semantics(
       button: true,
       selected: widget.ativa,
-      label: widget.aba.nome,
+      label: widget.aba.nomeEm(context.txt),
       child: GestureDetector(
         behavior: HitTestBehavior.opaque,
         onTapDown: (_) => _apertar(true),
@@ -362,7 +367,7 @@ class _ItemAbaState extends State<_ItemAba> {
                   ),
                 );
                 final nome = Text(
-                  widget.aba.nome.toUpperCase(),
+                  widget.aba.nomeEm(context.txt).toUpperCase(),
                   maxLines: 1,
                   style: TextStyle(
                     fontSize: topo ? 11 : 10,
@@ -511,42 +516,21 @@ class _ComAquecimento extends StatelessWidget {
 }
 // ---------------- aba Hoje ----------------
 
-const _diasSemana = [
-  'Segunda',
-  'Terça',
-  'Quarta',
-  'Quinta',
-  'Sexta',
-  'Sábado',
-  'Domingo',
-];
-const _meses = [
-  'janeiro',
-  'fevereiro',
-  'março',
-  'abril',
-  'maio',
-  'junho',
-  'julho',
-  'agosto',
-  'setembro',
-  'outubro',
-  'novembro',
-  'dezembro',
-];
-
 /// Dia do resumo: vira às 5h, como no PC (partida de madrugada conta pro dia anterior).
-String _diaDoResumo() {
+String _diaDoResumo(BuildContext context) {
   final d = DateTime.now().subtract(const Duration(hours: 5));
-  return '${_diasSemana[d.weekday - 1]}, ${d.day} de ${_meses[d.month - 1]}';
+  final texto = DateFormat.MMMMEEEEd(
+    Localizations.localeOf(context).languageCode,
+  ).format(d);
+  return texto[0].toUpperCase() + texto.substring(1);
 }
 
 /// Tempo jogando: "45" minutos ou "2:01" horas (o título em Cinzel só tem maiúscula, "2h01" virava "2H01").
-(String, String) _tempoJogando(int minutos) => minutos < 60
-    ? ('$minutos', 'Minutos')
+(String, String) _tempoJogando(Txt t, int minutos) => minutos < 60
+    ? ('$minutos', t.hojeMinutos)
     : (
         '${minutos ~/ 60}:${(minutos % 60).toString().padLeft(2, '0')}',
-        'Horas',
+        t.hojeHoras,
       );
 
 class _AbaHoje extends StatelessWidget {
@@ -567,10 +551,10 @@ class _AbaHoje extends StatelessWidget {
         largura: 440,
         child: _Mensagem(
           icone: const Icone(Icons.query_stats_rounded),
-          titulo: 'Nenhuma partida hoje',
+          titulo: context.txt.hojeVazioTitulo,
           texto: jogos.isEmpty
-              ? 'Jogue uma partida e o resumo do dia aparece aqui.'
-              : 'Só remakes até agora.',
+              ? context.txt.hojeVazioTexto
+              : context.txt.hojeSoRemakes,
         ),
       );
     }
@@ -631,17 +615,20 @@ class _ResumoHoje extends StatelessWidget {
     final wr = n > 0 ? (100 * v / n).round() : 0;
     final kda = (r['kda'] as num?)?.toDouble() ?? 0;
     final mvp = r['mvp'];
-    final tempo = _tempoJogando((r['minutos'] as num?)?.toInt() ?? 0);
+    final tempo = _tempoJogando(
+      context.txt,
+      (r['minutos'] as num?)?.toInt() ?? 0,
+    );
     return _Entrada(
       chave: 'resumo-hoje',
       child: Cartao(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('HOJE', style: fonteTitulo(14)),
+            Text(context.txt.hojeTitulo.toUpperCase(), style: fonteTitulo(14)),
             const SizedBox(height: 2),
             Text(
-              _diaDoResumo(),
+              _diaDoResumo(context),
               style: TextStyle(color: Cor.apagado, fontSize: 13.5),
             ),
             const SizedBox(height: 20),
@@ -662,7 +649,7 @@ class _ResumoHoje extends StatelessWidget {
                 Padding(
                   padding: const EdgeInsets.only(bottom: 10),
                   child: Text(
-                    'WINRATE',
+                    context.txt.hojeWinrate.toUpperCase(),
                     style: TextStyle(
                       color: Cor.apagado.withValues(alpha: 0.9),
                       fontSize: 12,
@@ -678,12 +665,12 @@ class _ResumoHoje extends StatelessWidget {
                     TextSpan(
                       children: [
                         TextSpan(
-                          text: '${v}V',
+                          text: context.txt.hojeSiglaV(v),
                           style: TextStyle(color: Cor.vitoria),
                         ),
                         const TextSpan(text: '  '),
                         TextSpan(
-                          text: '${d}D',
+                          text: context.txt.hojeSiglaD(d),
                           style: TextStyle(color: Cor.derrota),
                         ),
                       ],
@@ -702,7 +689,7 @@ class _ResumoHoje extends StatelessWidget {
             const SizedBox(height: 20),
             Row(
               children: [
-                _Numero(rotulo: 'Partidas', valor: '$n'),
+                _Numero(rotulo: context.txt.hojePartidas, valor: '$n'),
                 _Numero(rotulo: 'KDA', valor: kda.toStringAsFixed(2)),
                 _Numero(rotulo: tempo.$2, valor: tempo.$1),
               ],
@@ -843,7 +830,7 @@ class _Mvp extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'MVP DO DIA',
+                context.txt.hojeMvp.toUpperCase(),
                 style: TextStyle(
                   color: Cor.ouro,
                   fontSize: 11,
@@ -863,7 +850,7 @@ class _Mvp extends StatelessWidget {
                 ),
               ),
               Text(
-                '$v de $n ${v == 1 ? 'vitória' : 'vitórias'}',
+                context.txt.hojeMvpVitorias(v, n),
                 style: TextStyle(color: Cor.apagado, fontSize: 13),
               ),
             ],
@@ -888,7 +875,10 @@ class _PartidasHoje extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('PARTIDAS', style: fonteTitulo(14)),
+          Text(
+            context.txt.hojePartidasTitulo.toUpperCase(),
+            style: fonteTitulo(14),
+          ),
           const SizedBox(height: 12),
           for (final (i, j) in jogos.indexed)
             _Entrada(
@@ -947,7 +937,11 @@ class _LinhaPartida extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  remake ? 'Remake' : (venceu ? 'Vitória' : 'Derrota'),
+                  remake
+                      ? context.txt.hojeRemake
+                      : (venceu
+                            ? context.txt.resVitoria
+                            : context.txt.resDerrota),
                   style: TextStyle(
                     color: cor,
                     fontSize: 14,
@@ -1003,6 +997,9 @@ class _AbaMaisState extends State<_AbaMais> {
 
   /// Tema aberto por cima da lista.
   bool _temas = false;
+
+  /// Idioma aberto por cima da lista.
+  bool _idioma = false;
   int _rodada = -1;
 
   @override
@@ -1024,10 +1021,12 @@ class _AbaMaisState extends State<_AbaMais> {
     _rodada = c.rodada;
     _avisos = c.tela == 'avisos';
     _temas = c.tela == 'temas';
+    _idioma = c.tela == 'idioma';
   }
 
   void _abrirAvisos(bool v) => setState(() => _avisos = v);
   void _abrirTemas(bool v) => setState(() => _temas = v);
+  void _abrirIdioma(bool v) => setState(() => _idioma = v);
 
   @override
   Widget build(BuildContext context) {
@@ -1039,6 +1038,7 @@ class _AbaMaisState extends State<_AbaMais> {
       transitionBuilder: (c, a) {
         final ePagina =
             c.key == const ValueKey('mais-avisos') ||
+            c.key == const ValueKey('mais-idioma') ||
             c.key == const ValueKey('mais-temas');
         final lado =
             (ePagina ? 1.0 : -1.0) * (_deitado(context) ? 0.035 : 0.06);
@@ -1050,7 +1050,13 @@ class _AbaMaisState extends State<_AbaMais> {
           ),
         );
       },
-      child: _temas
+      child: _idioma
+          ? _PaginaIdioma(
+              key: const ValueKey('mais-idioma'),
+              base: widget.base,
+              aoVoltar: () => _abrirIdioma(false),
+            )
+          : _temas
           ? _PaginaTemas(
               key: const ValueKey('mais-temas'),
               base: widget.base,
@@ -1079,7 +1085,7 @@ class _AbaMaisState extends State<_AbaMais> {
       chave: 'mais-celular',
       atraso: 60,
       child: _Grupo(
-        titulo: 'Este celular',
+        titulo: context.txt.maisCelular,
         children: [
           ListenableBuilder(
             listenable: Avisos.eu(con),
@@ -1089,10 +1095,10 @@ class _AbaMaisState extends State<_AbaMais> {
                 icone: av.ativo
                     ? Icons.notifications_active_outlined
                     : Icons.notifications_none_rounded,
-                titulo: 'Avisos',
+                titulo: context.txt.maisAvisos,
                 texto: av.ativo
-                    ? 'Chegam mesmo com o app fechado.'
-                    : 'Partida encontrada, sua vez e mais, no celular.',
+                    ? context.txt.maisAvisosAtivo
+                    : context.txt.maisAvisosInativo,
                 final_: seta(),
                 aoTocar: () => _abrirAvisos(true),
               );
@@ -1102,19 +1108,35 @@ class _AbaMaisState extends State<_AbaMais> {
             listenable: Temas.mudou,
             builder: (_, _) => _LinhaMais(
               icone: Icons.palette_outlined,
-              titulo: 'Tema',
-              texto:
-                  '${Temas.atual.nome}, ${Temas.claro.value ? 'claro' : 'escuro'}',
+              titulo: context.txt.pagTema,
+              texto: context.txt.temaResumo(
+                nomeTema(context.txt, Temas.atual),
+                Temas.claro.value
+                    ? context.txt.modoClaro.toLowerCase()
+                    : context.txt.modoEscuro.toLowerCase(),
+              ),
               final_: seta(),
               aoTocar: () => _abrirTemas(true),
+            ),
+          ),
+          ValueListenableBuilder<Locale?>(
+            valueListenable: Idioma.escolha,
+            builder: (_, escolha, _) => _LinhaMais(
+              icone: Icons.language_rounded,
+              titulo: context.txt.idiomaTitulo,
+              texto: escolha == null
+                  ? context.txt.idiomaAutomatico
+                  : Idioma.nome(escolha.languageCode),
+              final_: seta(),
+              aoTocar: () => _abrirIdioma(true),
             ),
           ),
           ValueListenableBuilder<bool>(
             valueListenable: som.mudo,
             builder: (_, mudo, _) => _LinhaMais(
               icone: mudo ? Icons.volume_off_rounded : Icons.volume_up_rounded,
-              titulo: 'Sons',
-              texto: 'Os sons do client quando algo acontece.',
+              titulo: context.txt.maisSons,
+              texto: context.txt.maisSonsTexto,
               final_: _Alavanca(
                 ligado: !mudo,
                 aoMudar: (_) => som.alternarMudo(),
@@ -1406,7 +1428,7 @@ class _VoltarState extends State<_Voltar> {
     children: [
       Semantics(
         button: true,
-        label: 'Voltar',
+        label: context.txt.voltar,
         child: GestureDetector(
           behavior: HitTestBehavior.opaque,
           onTapDown: (_) => _apertar(true),

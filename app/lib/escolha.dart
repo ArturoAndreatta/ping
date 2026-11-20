@@ -137,7 +137,7 @@ class _EscolhaState extends State<_Escolha> {
       _escolhido = null;
     }
     final marcado = _escolhido ?? (minhaAtual > 0 ? minhaAtual : null);
-    final verbo = acao == 'ban' ? 'Banir' : 'Travar';
+    final verbo = acao == 'ban' ? context.txt.banir : context.txt.travar;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -150,13 +150,13 @@ class _EscolhaState extends State<_Escolha> {
                 style: const TextStyle(fontSize: 15.5),
                 cursorColor: Cor.ouro,
                 decoration: InputDecoration(
-                  hintText: 'Buscar campeão',
+                  hintText: context.txt.escolhaBuscar,
                   hintStyle: TextStyle(color: Cor.apagado),
                   prefixIcon: Icon(Icons.search, color: Cor.apagado, size: 20),
                   suffixIcon: _busca.text.isEmpty
                       ? null
                       : IconButton(
-                          tooltip: 'Limpar',
+                          tooltip: context.txt.limpar,
                           onPressed: () => setState(_busca.clear),
                           icon: Icon(
                             Icons.close_rounded,
@@ -188,7 +188,7 @@ class _EscolhaState extends State<_Escolha> {
           child: lista.isEmpty
               ? Center(
                   child: Text(
-                    'Nenhum campeão com esse nome.',
+                    context.txt.escolhaNenhum,
                     style: TextStyle(color: Cor.apagado, fontSize: 14),
                   ),
                 )
@@ -321,15 +321,15 @@ class _Ordem extends StatelessWidget {
   final String atual;
   final ValueChanged<String> aoMudar;
 
-  static const _opcoes = {
-    'favorito': 'Favorito',
-    'nome': 'Nome',
-    'maestria': 'Maestria',
+  static Map<String, String> _opcoes(Txt t) => {
+    'favorito': t.ordemFavorito,
+    'nome': t.ordemNome,
+    'maestria': t.ordemMaestria,
   };
 
   @override
   Widget build(BuildContext context) => PopupMenuButton<String>(
-    tooltip: 'Ordenar por',
+    tooltip: context.txt.ordenarPor,
     initialValue: atual,
     onSelected: aoMudar,
     color: Cor.painel2,
@@ -345,7 +345,7 @@ class _Ordem extends StatelessWidget {
       side: BorderSide(color: Cor.linha2),
     ),
     itemBuilder: (_) => [
-      for (final o in _opcoes.entries)
+      for (final o in _opcoes(context.txt).entries)
         PopupMenuItem(
           value: o.key,
           child: Text(
@@ -372,7 +372,7 @@ class _Ordem extends StatelessWidget {
           Icon(Icons.sort_rounded, size: 18, color: Cor.apagado),
           const SizedBox(width: 6),
           Text(
-            _opcoes[atual] ?? 'Nome',
+            _opcoes(context.txt)[atual] ?? context.txt.ordemNome,
             style: TextStyle(
               fontSize: 13.5,
               fontWeight: FontWeight.w600,

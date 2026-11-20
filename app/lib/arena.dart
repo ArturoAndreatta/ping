@@ -59,7 +59,10 @@ class _QuadroArena extends StatelessWidget {
           child: Row(
             children: [
               Text(
-                banindo ? 'BANIMENTOS' : 'JOGADORES',
+                (banindo
+                        ? context.txt.arenaBanimentos
+                        : context.txt.arenaJogadores)
+                    .toUpperCase(),
                 style: fonteTitulo(
                   11,
                   cor: banindo ? Cor.vermelho : Cor.apagado,
@@ -69,8 +72,8 @@ class _QuadroArena extends StatelessWidget {
               if (meu.isNotEmpty)
                 Text(
                   banindo
-                      ? '$total/${meu.length} já baniram'
-                      : '$total/${meu.length} já escolheram',
+                      ? context.txt.arenaJaBaniram(total, meu.length)
+                      : context.txt.arenaJaEscolheram(total, meu.length),
                   style: TextStyle(color: Cor.apagado, fontSize: 12),
                 ),
             ],
@@ -84,7 +87,7 @@ class _QuadroArena extends StatelessWidget {
               final outros = times.skip(1).toList();
               final linhas = (outros.length / colunas).ceil();
               Widget outro(int idx) => _BlocoTimeArena(
-                titulo: 'TIME ${idx + 2}',
+                titulo: context.txt.timeN(idx + 2).toUpperCase(),
                 feitos: outros[idx].where(feito).length,
                 total: outros[idx].length,
                 children: [
@@ -103,7 +106,7 @@ class _QuadroArena extends StatelessWidget {
                     children: [
                       if (times.isNotEmpty)
                         _BlocoTimeArena(
-                          titulo: 'SEU TIME',
+                          titulo: context.txt.partidaSeuTime.toUpperCase(),
                           destaque: true,
                           feitos: times[0].where(feito).length,
                           total: times[0].length,
@@ -227,24 +230,24 @@ class _CartaArenaSel extends StatelessWidget {
     final eu = m['eu'] == true;
     final oculto = m['oculto'] == true && cid == 0;
     final jogador = eu
-        ? 'Você'
+        ? context.txt.voce
         : '${m['nome'] ?? ''}'.isEmpty
-        ? 'Jogador $n'
+        ? context.txt.arenaJogadorN(n)
         : '${m['nome']}';
     var linha = '';
     var corLinha = Cor.apagado;
     var italico = false;
     if (banindo) {
       if (ban > 0 && banTravado) {
-        linha = 'Baniu ${nome(ban)}';
+        linha = context.txt.arenaBaniu(nome(ban));
         corLinha = Cor.vermelho;
       } else if (ban > 0) {
-        linha = 'Marcou ${nome(ban)}';
+        linha = context.txt.arenaMarcou(nome(ban));
         italico = true;
       } else if (vez == 'ban') {
-        linha = 'Banindo...';
+        linha = context.txt.arenaBanindo;
       } else if (banTravado) {
-        linha = 'Não baniu';
+        linha = context.txt.arenaNaoBaniu;
       }
     } else if (cid > 0) {
       linha = nome(cid);
@@ -254,10 +257,10 @@ class _CartaArenaSel extends StatelessWidget {
       linha = nome(intencao);
       italico = true;
     } else if (oculto) {
-      linha = 'Escondido';
+      linha = context.txt.arenaEscondido;
       italico = true;
     } else if (vez == 'pick') {
-      linha = 'Escolhendo...';
+      linha = context.txt.arenaEscolhendo;
     }
     final feito = banindo ? banTravado : travado;
     return LayoutBuilder(
@@ -499,7 +502,10 @@ class _CarregamentoArena extends StatelessWidget {
         children: [
           Losango(cor: Cor.ouro, pulsar: true),
           const SizedBox(width: 10),
-          Text('CARREGANDO', style: fonteTitulo(13)),
+          Text(
+            context.txt.partidaCarregandoTitulo.toUpperCase(),
+            style: fonteTitulo(13),
+          ),
           const SizedBox(width: 12),
           if (fila.isNotEmpty)
             Expanded(
@@ -525,9 +531,9 @@ class _CarregamentoArena extends StatelessWidget {
     // nenhum time conhecido (PC antigo): uma lista só, sem rótulo
     final semGrupos = blocos.every((b) => b.$1 == null);
     String rotulo((int?, List<(int, Map)>) b) => switch (b.$1) {
-      0 => 'SEU TIME',
-      final int t => 'TIME ${t + 1}',
-      null => 'OUTROS JOGADORES',
+      0 => context.txt.partidaSeuTime.toUpperCase(),
+      final int t => context.txt.timeN(t + 1).toUpperCase(),
+      null => context.txt.arenaOutros.toUpperCase(),
     };
 
     Widget entrada(int i, Widget filho) => _Entrada(
@@ -712,7 +718,7 @@ class _CartaArena extends StatelessWidget {
                 ),
                 const SizedBox(height: 1),
                 Text(
-                  eu ? 'Você' : '${j['nome'] ?? ''}',
+                  eu ? context.txt.voce : '${j['nome'] ?? ''}',
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   textAlign: TextAlign.center,

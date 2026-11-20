@@ -5,11 +5,11 @@ class _CampoMensagem extends StatelessWidget {
   const _CampoMensagem({
     required this.campo,
     required this.aoMandar,
-    this.dica = 'Mandar mensagem',
+    this.dica,
   });
   final TextEditingController campo;
   final VoidCallback aoMandar;
-  final String dica;
+  final String? dica;
 
   @override
   Widget build(BuildContext context) => Row(
@@ -24,7 +24,7 @@ class _CampoMensagem extends StatelessWidget {
           cursorColor: Cor.ouro,
           decoration: InputDecoration(
             counterText: '',
-            hintText: dica,
+            hintText: dica ?? context.txt.msgMandarMensagem,
             hintStyle: TextStyle(color: Cor.apagado),
             isDense: true,
             filled: true,
@@ -47,7 +47,7 @@ class _CampoMensagem extends StatelessWidget {
       const SizedBox(width: 8),
       Semantics(
         button: true,
-        label: 'Mandar',
+        label: context.txt.msgMandar,
         child: SizedBox(
           width: 46,
           height: 46,
@@ -193,7 +193,7 @@ class _BotaoMensagens extends StatelessWidget {
         width: 44,
         height: 44,
         child: IconButton(
-          tooltip: n > 0 ? 'Mensagens ($n novas)' : 'Mensagens',
+          tooltip: n > 0 ? context.txt.msgNovas(n) : context.txt.msgTitulo,
           onPressed: () => _abrirMensagens(context, con),
           icon: Stack(
             clipBehavior: Clip.none,
@@ -415,7 +415,9 @@ class _FolhaMensagensState extends State<_FolhaMensagens> {
 
   Widget _cabecalho(Map quem, Map? amigo) {
     final aberta = _puuid != null;
-    final status = amigo == null ? 'Offline' : '${amigo['status']}';
+    final status = amigo == null
+        ? context.txt.msgOffline
+        : '${amigo['status']}';
     return Padding(
       padding: const EdgeInsets.fromLTRB(8, 6, 8, 10),
       child: Row(
@@ -428,7 +430,7 @@ class _FolhaMensagensState extends State<_FolhaMensagens> {
               child: aberta
                   ? IconButton(
                       key: const ValueKey('voltar'),
-                      tooltip: 'Voltar',
+                      tooltip: context.txt.voltar,
                       onPressed: _voltar,
                       icon: Icon(Icons.arrow_back, color: Cor.ouro),
                     )
@@ -465,7 +467,7 @@ class _FolhaMensagensState extends State<_FolhaMensagens> {
                       ],
                     )
                   : Text(
-                      'MENSAGENS',
+                      context.txt.msgTitulo.toUpperCase(),
                       key: const ValueKey('titulo'),
                       textAlign: TextAlign.center,
                       style: fonteTitulo(15),
@@ -476,7 +478,7 @@ class _FolhaMensagensState extends State<_FolhaMensagens> {
             width: 44,
             height: 44,
             child: IconButton(
-              tooltip: 'Fechar',
+              tooltip: context.txt.fechar,
               onPressed: () => Navigator.of(context).pop(),
               icon: Icon(Icons.close, color: Cor.apagado),
             ),
@@ -519,7 +521,7 @@ class _ListaConversas extends StatelessWidget {
             Icone(Icons.forum_outlined, cor: Cor.apagado),
             SizedBox(height: 16),
             Text(
-              'Nenhum amigo online no LoL agora.',
+              context.txt.criarNenhumAmigo,
               textAlign: TextAlign.center,
               style: TextStyle(color: Cor.apagado, fontSize: 15),
             ),
@@ -532,7 +534,7 @@ class _ListaConversas extends StatelessWidget {
       padding: const EdgeInsets.fromLTRB(16, 14, 16, 12),
       children: [
         if (convs.isNotEmpty) ...[
-          const _Secao(titulo: 'Conversas'),
+          _Secao(titulo: context.txt.msgConversas),
           for (final c in convs)
             _LinhaConversa(
               quem: c.c,
@@ -544,7 +546,7 @@ class _ListaConversas extends StatelessWidget {
           const SizedBox(height: 14),
         ],
         if (outros.isNotEmpty) ...[
-          const _Secao(titulo: 'Online agora'),
+          _Secao(titulo: context.txt.criarOnline),
           for (final a in outros)
             _LinhaConversa(
               quem: a,
@@ -576,12 +578,16 @@ class _LinhaConversa extends StatelessWidget {
     final cor = _corStatus(amigo);
     final u = ultima;
     final linha2 = u != null
-        ? '${u['eu'] == true ? 'Você: ' : ''}${u['texto']}'
-        : (amigo == null ? 'Offline' : '${amigo!['status']}');
+        ? u['eu'] == true
+              ? context.txt.msgVoceDois('${u['texto']}')
+              : '${u['texto']}'
+        : (amigo == null ? context.txt.msgOffline : '${amigo!['status']}');
     final tem = novas > 0;
     return Semantics(
       button: true,
-      label: '${quem['nome']}${tem ? ', $novas mensagens novas' : ''}',
+      label: tem
+          ? context.txt.msgLinhaSem('${quem['nome']}', novas)
+          : '${quem['nome']}',
       child: ExcludeSemantics(
         child: _Pressionar(
           aoTocar: aoTocar,
@@ -674,7 +680,7 @@ class _LinhaConversa extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
                       Text(
-                        _quando((u['hora'] as num?)?.toInt() ?? 0),
+                        _quando(context, (u['hora'] as num?)?.toInt() ?? 0),
                         style: TextStyle(
                           color: tem ? Cor.ouro : Cor.apagado,
                           fontSize: 11.5,
@@ -701,14 +707,14 @@ class _LinhaConversa extends StatelessWidget {
 }
 
 /// Hora de hoje ou dia/mês.
-String _quando(int ms) {
+String _quando(BuildContext context, int ms) {
   final d = DateTime.fromMillisecondsSinceEpoch(ms);
   final hoje = DateTime.now();
   String dois(int n) => n.toString().padLeft(2, '0');
   if (d.year == hoje.year && d.month == hoje.month && d.day == hoje.day) {
     return '${dois(d.hour)}:${dois(d.minute)}';
   }
-  return '${dois(d.day)}/${dois(d.month)}';
+  return DateFormat.Md(Localizations.localeOf(context).languageCode).format(d);
 }
 
 /// Afunda de leve ao tocar.
@@ -876,7 +882,7 @@ class _ConversaState extends State<_Conversa> {
                         const Icone(Icons.waving_hand_outlined),
                         const SizedBox(height: 14),
                         Text(
-                          'Mande a primeira mensagem pra ${widget.nome}.',
+                          context.txt.msgPrimeira(widget.nome),
                           textAlign: TextAlign.center,
                           style: TextStyle(color: Cor.apagado, fontSize: 15),
                         ),
@@ -910,7 +916,7 @@ class _ConversaState extends State<_Conversa> {
           _CampoMensagem(
             campo: _campo,
             aoMandar: _mandar,
-            dica: 'Mensagem pra ${widget.nome}',
+            dica: context.txt.msgPara(widget.nome),
           ),
         ],
       ),

@@ -26,6 +26,7 @@ class ConexaoVitrine extends Conexao {
     ('mais', 'Aba Mais', 'Abas'),
     ('avisos', 'Avisos no celular', 'Abas'),
     ('temas', 'Tema do app', 'Abas'),
+    ('idioma', 'Idioma do app', 'Abas'),
     ('sala', 'Sala com chat', 'Sala e fila'),
     ('fila', 'Na fila', 'Sala e fila'),
     ('partida', 'Partida encontrada', 'Sala e fila'),
@@ -1300,7 +1301,8 @@ class ConexaoVitrine extends Conexao {
           'hoje' ||
           'mais' ||
           'avisos' ||
-          'temas':
+          'temas' ||
+          'idioma':
         return {..._cliente('None'), 'filas': _filas()};
       case 'sala':
         return {

@@ -7,28 +7,19 @@ part of 'main.dart';
 /// só diz que ainda não saíram. O `tropas` do PC (evento do jogo) sempre ganha desta conta.
 const _tropasEm = {11: 30};
 
-const _dragoes = {
-  'fire': 'Infernal',
-  'earth': 'da Montanha',
-  'water': 'do Oceano',
-  'air': 'das Nuvens',
-  'hextech': 'Hextec',
-  'chemtech': 'Quimtec',
-  'elder': 'Ancião',
-};
-
-String _nomeEvento(Map ev) {
-  final roubado = ev['roubado'] == true ? ' (roubado)' : '';
+String _nomeEvento(Txt t, Map ev) {
+  String roubado(String nome) =>
+      ev['roubado'] == true ? t.evRoubado(nome) : nome;
   return switch (ev['tipo']) {
-    'primeiro_abate' => 'Primeiro abate',
-    'dragao' => 'Dragão ${_dragoes[ev['dragao']] ?? ''}'.trim() + roubado,
-    'arauto' => 'Arauto$roubado',
-    'barao' => 'Barão$roubado',
-    'vastilarvas' => 'Vastilarvas',
-    'atakhan' => 'Atakhan$roubado',
-    'torre' => 'Torre',
-    'inibidor' => 'Inibidor',
-    'ace' => 'Time inteiro abatido',
+    'primeiro_abate' => t.evPrimeiroAbate,
+    'dragao' => roubado(t.evDragao('${ev['dragao'] ?? ''}')),
+    'arauto' => roubado(t.evArauto),
+    'barao' => roubado(t.evBarao),
+    'vastilarvas' => t.evVastilarvas,
+    'atakhan' => roubado(t.evAtakhan),
+    'torre' => t.evTorre,
+    'inibidor' => t.evInibidor,
+    'ace' => t.evAce,
     _ => '${ev['tipo']}',
   };
 }
@@ -54,11 +45,11 @@ class _EmPartida extends StatelessWidget {
         ),
       ),
       child: carregando
-          ? const _Mensagem(
+          ? _Mensagem(
               key: ValueKey('carregando'),
               icone: _Pulso(),
-              titulo: 'Tela de carregamento',
-              texto: 'A partida começa assim que todo mundo carregar.',
+              titulo: context.txt.partidaCarregando,
+              texto: context.txt.partidaCarregandoTexto,
             )
           : _Placar(key: const ValueKey('jogo'), con: con, j: j),
     );
@@ -73,11 +64,11 @@ class _Placar extends StatelessWidget {
   int get _segundos =>
       (con.agora.millisecondsSinceEpoch - (j['inicio'] as int)) ~/ 1000;
 
-  String _tropas(int s) {
-    if (j['tropas'] is int) return 'Tropas em campo';
+  String _tropas(Txt t, int s) {
+    if (j['tropas'] is int) return t.partidaTropasCampo;
     final em = _tropasEm[j['mapa']];
-    if (em != null && s < em) return 'Tropas saem em ${_mmss(em - s)}';
-    return 'Tropas ainda não saíram';
+    if (em != null && s < em) return t.partidaTropasSaem(_mmss(em - s));
+    return t.partidaTropasNao;
   }
 
   @override
@@ -113,8 +104,8 @@ class _Placar extends StatelessWidget {
         const SizedBox(height: 14),
         Text(
           (eu?['campeao'] is String && (eu!['campeao'] as String).isNotEmpty
-                  ? 'Em partida de ${eu['campeao']}'
-                  : 'Em partida')
+                  ? context.txt.partidaDe('${eu['campeao']}')
+                  : context.txt.partidaEm)
               .toUpperCase(),
           textAlign: TextAlign.center,
           style: fonteTitulo(16),
@@ -139,8 +130,12 @@ class _Placar extends StatelessWidget {
                 AnimatedSwitcher(
                   duration: const Duration(milliseconds: 250),
                   child: Text(
-                    falta > 0 ? 'Você volta em ${_mmss(falta)}' : _tropas(s),
-                    key: ValueKey(falta > 0 ? 'morto' : _tropas(s)),
+                    falta > 0
+                        ? context.txt.partidaVolta(_mmss(falta))
+                        : _tropas(context.txt, s),
+                    key: ValueKey(
+                      falta > 0 ? 'morto' : _tropas(context.txt, s),
+                    ),
                     style: TextStyle(
                       color: falta > 0 ? Cor.vermelho : Cor.apagado,
                       fontSize: 15,
@@ -162,12 +157,20 @@ class _Placar extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              _Lado(texto: 'SEU TIME', valor: '${placar[0]}', cor: Cor.teal),
+              _Lado(
+                texto: context.txt.partidaSeuTime.toUpperCase(),
+                valor: '${placar[0]}',
+                cor: Cor.teal,
+              ),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 18),
                 child: Text('x', style: fonteTitulo(16, cor: Cor.apagado)),
               ),
-              _Lado(texto: 'INIMIGO', valor: '${placar[1]}', cor: Cor.vermelho),
+              _Lado(
+                texto: context.txt.partidaInimigo.toUpperCase(),
+                valor: '${placar[1]}',
+                cor: Cor.vermelho,
+              ),
             ],
           ),
         if (eu != null) ...[
@@ -295,7 +298,7 @@ class _LinhaEvento extends StatelessWidget {
           const SizedBox(width: 10),
           Expanded(
             child: Text(
-              _nomeEvento(ev),
+              _nomeEvento(context.txt, ev),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               style: TextStyle(color: Cor.texto, fontSize: 15),
@@ -303,7 +306,9 @@ class _LinhaEvento extends StatelessWidget {
           ),
           if (lado is String)
             Text(
-              lado == 'nos' ? 'seu time' : 'inimigo',
+              lado == 'nos'
+                  ? context.txt.partidaSeuTime.toLowerCase()
+                  : context.txt.partidaInimigo.toLowerCase(),
               style: TextStyle(color: cor, fontSize: 13),
             ),
         ],
@@ -329,23 +334,24 @@ bool _emCarregamento(Conexao con) {
   return c['times'] is List && (c['times'] as List).isNotEmpty;
 }
 
-const _elos = {
-  'IRON': 'Ferro',
-  'BRONZE': 'Bronze',
-  'SILVER': 'Prata',
-  'GOLD': 'Ouro',
-  'PLATINUM': 'Platina',
-  'EMERALD': 'Esmeralda',
-  'DIAMOND': 'Diamante',
-  'MASTER': 'Mestre',
-  'GRANDMASTER': 'Grão-Mestre',
-  'CHALLENGER': 'Desafiante',
+String _nomeElo(Txt t, String tier) => switch (tier) {
+  'IRON' => t.eloIron,
+  'BRONZE' => t.eloBronze,
+  'SILVER' => t.eloSilver,
+  'GOLD' => t.eloGold,
+  'PLATINUM' => t.eloPlatinum,
+  'EMERALD' => t.eloEmerald,
+  'DIAMOND' => t.eloDiamond,
+  'MASTER' => t.eloMaster,
+  'GRANDMASTER' => t.eloGrandmaster,
+  'CHALLENGER' => t.eloChallenger,
+  _ => '',
 };
 
-String _textoElo(Object? elo) {
+String _textoElo(Txt txt, Object? elo) {
   if (elo is! Map) return '';
   final t = '${elo['tier'] ?? ''}';
-  final nome = _elos[t] ?? '';
+  final nome = _nomeElo(txt, t);
   if (nome.isEmpty) return '';
   // do Mestre pra cima não tem divisão
   if (const {'MASTER', 'GRANDMASTER', 'CHALLENGER'}.contains(t)) return nome;
@@ -438,7 +444,10 @@ class _Carregamento extends StatelessWidget {
       children: [
         Losango(cor: Cor.ouro, pulsar: true),
         const SizedBox(width: 10),
-        Text('CARREGANDO', style: fonteTitulo(13)),
+        Text(
+          context.txt.partidaCarregandoTitulo.toUpperCase(),
+          style: fonteTitulo(13),
+        ),
         const SizedBox(width: 12),
         if (fila.isNotEmpty)
           Expanded(
@@ -504,7 +513,7 @@ class _Carregamento extends StatelessWidget {
                       ),
                       // Cinzel em caixa alta não cabe na sobra do lado: fonte do texto, em dourado
                       Text(
-                        'Carregando',
+                        context.txt.partidaCarregandoTitulo,
                         maxLines: 1,
                         overflow: TextOverflow.fade,
                         softWrap: false,
@@ -600,7 +609,7 @@ class _Carta2 extends StatelessWidget {
   Widget build(BuildContext context) {
     final eu = j['eu'] == true;
     final cid = (j['campeao'] as num?)?.toInt() ?? 0;
-    final elo = _textoElo(j['elo']);
+    final elo = _textoElo(context.txt, j['elo']);
     return Container(
       decoration: BoxDecoration(
         color: Cor.painel,
@@ -745,7 +754,7 @@ class _Faixa extends StatelessWidget {
   Widget build(BuildContext context) {
     final eu = j['eu'] == true;
     final cid = (j['campeao'] as num?)?.toInt() ?? 0;
-    final elo = _textoElo(j['elo']);
+    final elo = _textoElo(context.txt, j['elo']);
     final tag = '${j['tag'] ?? ''}';
     return Container(
       decoration: BoxDecoration(
