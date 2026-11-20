@@ -2600,6 +2600,732 @@ abstract class Txt {
   /// In pt, this message translates to:
   /// **'Quando você fecha o LoL.'**
   String get avisoResumoT;
+
+  /// No description provided for @rspLolFechado.
+  ///
+  /// In pt, this message translates to:
+  /// **'LoL fechado'**
+  String get rspLolFechado;
+
+  /// No description provided for @rspLolRecusou.
+  ///
+  /// In pt, this message translates to:
+  /// **'O LoL recusou'**
+  String get rspLolRecusou;
+
+  /// No description provided for @rspConversaNaoAchada.
+  ///
+  /// In pt, this message translates to:
+  /// **'Conversa não encontrada'**
+  String get rspConversaNaoAchada;
+
+  /// No description provided for @rspLolRecusouMensagem.
+  ///
+  /// In pt, this message translates to:
+  /// **'O LoL recusou a mensagem'**
+  String get rspLolRecusouMensagem;
+
+  /// No description provided for @rspMensagemVazia.
+  ///
+  /// In pt, this message translates to:
+  /// **'Mensagem vazia'**
+  String get rspMensagemVazia;
+
+  /// No description provided for @rspAmigoNaoAchado.
+  ///
+  /// In pt, this message translates to:
+  /// **'Amigo não encontrado'**
+  String get rspAmigoNaoAchado;
+
+  /// No description provided for @rspModoInvalido.
+  ///
+  /// In pt, this message translates to:
+  /// **'Modo inválido'**
+  String get rspModoInvalido;
+
+  /// No description provided for @rspSalaAgoraNao.
+  ///
+  /// In pt, this message translates to:
+  /// **'Agora não dá pra criar sala'**
+  String get rspSalaAgoraNao;
+
+  /// No description provided for @rspModoFechado.
+  ///
+  /// In pt, this message translates to:
+  /// **'Esse modo não está aberto agora'**
+  String get rspModoFechado;
+
+  /// No description provided for @rspSoLiderModo.
+  ///
+  /// In pt, this message translates to:
+  /// **'Só o líder da sala troca o modo'**
+  String get rspSoLiderModo;
+
+  /// No description provided for @rspLolRecusouModo.
+  ///
+  /// In pt, this message translates to:
+  /// **'O LoL recusou esse modo'**
+  String get rspLolRecusouModo;
+
+  /// No description provided for @rspSalaCriada.
+  ///
+  /// In pt, this message translates to:
+  /// **'Sala criada'**
+  String get rspSalaCriada;
+
+  /// No description provided for @rspNinguemEscolhido.
+  ///
+  /// In pt, this message translates to:
+  /// **'Ninguém escolhido'**
+  String get rspNinguemEscolhido;
+
+  /// No description provided for @rspForaDaSala.
+  ///
+  /// In pt, this message translates to:
+  /// **'Você não está numa sala'**
+  String get rspForaDaSala;
+
+  /// No description provided for @rspLolRecusouConvite.
+  ///
+  /// In pt, this message translates to:
+  /// **'O LoL recusou o convite'**
+  String get rspLolRecusouConvite;
+
+  /// No description provided for @rspConviteMandado.
+  ///
+  /// In pt, this message translates to:
+  /// **'Convite mandado'**
+  String get rspConviteMandado;
+
+  /// No description provided for @rspConvitesMandados.
+  ///
+  /// In pt, this message translates to:
+  /// **'{n} convites mandados'**
+  String rspConvitesMandados(int n);
+
+  /// No description provided for @rspPosicaoInvalida.
+  ///
+  /// In pt, this message translates to:
+  /// **'Posição inválida'**
+  String get rspPosicaoInvalida;
+
+  /// No description provided for @rspModoSemPosicao.
+  ///
+  /// In pt, this message translates to:
+  /// **'Esse modo não tem posição'**
+  String get rspModoSemPosicao;
+
+  /// No description provided for @rspPosicaoSegundaNao.
+  ///
+  /// In pt, this message translates to:
+  /// **'Essa posição não dá na segunda'**
+  String get rspPosicaoSegundaNao;
+
+  /// No description provided for @rspLolRecusouPosicao.
+  ///
+  /// In pt, this message translates to:
+  /// **'O LoL recusou essa posição'**
+  String get rspLolRecusouPosicao;
+
+  /// No description provided for @rspSkinIndisponivel.
+  ///
+  /// In pt, this message translates to:
+  /// **'Skin indisponível'**
+  String get rspSkinIndisponivel;
+
+  /// No description provided for @rspLolRecusouSkin.
+  ///
+  /// In pt, this message translates to:
+  /// **'O LoL recusou essa skin'**
+  String get rspLolRecusouSkin;
+
+  /// No description provided for @rspFeiticoInvalido.
+  ///
+  /// In pt, this message translates to:
+  /// **'Feitiço inválido'**
+  String get rspFeiticoInvalido;
+
+  /// No description provided for @rspForaDaSelecao.
+  ///
+  /// In pt, this message translates to:
+  /// **'Você não está na seleção'**
+  String get rspForaDaSelecao;
+
+  /// No description provided for @rspArenaSoOrdem.
+  ///
+  /// In pt, this message translates to:
+  /// **'Na Arena só dá pra trocar a ordem dos feitiços'**
+  String get rspArenaSoOrdem;
+
+  /// No description provided for @rspFeiticoModo.
+  ///
+  /// In pt, this message translates to:
+  /// **'Esse feitiço não vale nesse modo'**
+  String get rspFeiticoModo;
+
+  /// No description provided for @rspGolpearSelva.
+  ///
+  /// In pt, this message translates to:
+  /// **'Golpear só na selva'**
+  String get rspGolpearSelva;
+
+  /// No description provided for @rspLolRecusouFeitico.
+  ///
+  /// In pt, this message translates to:
+  /// **'O LoL recusou esse feitiço'**
+  String get rspLolRecusouFeitico;
+
+  /// No description provided for @rspPaginaNaoAchada.
+  ///
+  /// In pt, this message translates to:
+  /// **'Página não encontrada'**
+  String get rspPaginaNaoAchada;
+
+  /// No description provided for @rspLolRecusouPagina.
+  ///
+  /// In pt, this message translates to:
+  /// **'O LoL recusou essa página'**
+  String get rspLolRecusouPagina;
+
+  /// No description provided for @rspPaginaIncompleta.
+  ///
+  /// In pt, this message translates to:
+  /// **'Página incompleta'**
+  String get rspPaginaIncompleta;
+
+  /// No description provided for @rspPaginaNaoEdita.
+  ///
+  /// In pt, this message translates to:
+  /// **'Essa página não dá pra editar'**
+  String get rspPaginaNaoEdita;
+
+  /// No description provided for @rspPaginaSemEspaco.
+  ///
+  /// In pt, this message translates to:
+  /// **'Sem espaço pra página nova'**
+  String get rspPaginaSemEspaco;
+
+  /// No description provided for @rspPaginaSalva.
+  ///
+  /// In pt, this message translates to:
+  /// **'Página salva'**
+  String get rspPaginaSalva;
+
+  /// No description provided for @rspComandoInvalido.
+  ///
+  /// In pt, this message translates to:
+  /// **'Comando inválido'**
+  String get rspComandoInvalido;
+
+  /// No description provided for @rspComandoOutraConta.
+  ///
+  /// In pt, this message translates to:
+  /// **'Comando de outra conta'**
+  String get rspComandoOutraConta;
+
+  /// No description provided for @rspComandoAtrasado.
+  ///
+  /// In pt, this message translates to:
+  /// **'Comando chegou atrasado'**
+  String get rspComandoAtrasado;
+
+  /// No description provided for @rspComandoDesconhecido.
+  ///
+  /// In pt, this message translates to:
+  /// **'Comando desconhecido'**
+  String get rspComandoDesconhecido;
+
+  /// No description provided for @rspLolFechandoEspere.
+  ///
+  /// In pt, this message translates to:
+  /// **'Espere o LoL terminar de fechar'**
+  String get rspLolFechandoEspere;
+
+  /// No description provided for @rspLolJaAberto.
+  ///
+  /// In pt, this message translates to:
+  /// **'O LoL já está aberto'**
+  String get rspLolJaAberto;
+
+  /// No description provided for @rspLolJaAbrindo.
+  ///
+  /// In pt, this message translates to:
+  /// **'O LoL já está abrindo'**
+  String get rspLolJaAbrindo;
+
+  /// No description provided for @rspAbrindoLol.
+  ///
+  /// In pt, this message translates to:
+  /// **'Abrindo o LoL'**
+  String get rspAbrindoLol;
+
+  /// No description provided for @rspLolNaoAchado.
+  ///
+  /// In pt, this message translates to:
+  /// **'Não achei o LoL neste PC'**
+  String get rspLolNaoAchado;
+
+  /// No description provided for @rspLolNaoAbriu.
+  ///
+  /// In pt, this message translates to:
+  /// **'Não consegui abrir o LoL'**
+  String get rspLolNaoAbriu;
+
+  /// No description provided for @rspFecharEmPartida.
+  ///
+  /// In pt, this message translates to:
+  /// **'Agora não: você sairia da partida'**
+  String get rspFecharEmPartida;
+
+  /// No description provided for @rspLolJaFechando.
+  ///
+  /// In pt, this message translates to:
+  /// **'O LoL já está fechando'**
+  String get rspLolJaFechando;
+
+  /// No description provided for @rspLolJaFechado.
+  ///
+  /// In pt, this message translates to:
+  /// **'O LoL já está fechado'**
+  String get rspLolJaFechado;
+
+  /// No description provided for @rspFechandoLol.
+  ///
+  /// In pt, this message translates to:
+  /// **'Fechando o LoL'**
+  String get rspFechandoLol;
+
+  /// No description provided for @rspSairSelecaoNao.
+  ///
+  /// In pt, this message translates to:
+  /// **'Aqui não dá pra sair'**
+  String get rspSairSelecaoNao;
+
+  /// No description provided for @rspSaiuSelecao.
+  ///
+  /// In pt, this message translates to:
+  /// **'Saiu da seleção'**
+  String get rspSaiuSelecao;
+
+  /// No description provided for @rspTrocaInexistente.
+  ///
+  /// In pt, this message translates to:
+  /// **'Essa troca não existe mais'**
+  String get rspTrocaInexistente;
+
+  /// No description provided for @rspTrocaTermineOutra.
+  ///
+  /// In pt, this message translates to:
+  /// **'Termine a outra troca antes'**
+  String get rspTrocaTermineOutra;
+
+  /// No description provided for @rspTrocaAliadoOcupado.
+  ///
+  /// In pt, this message translates to:
+  /// **'Esse aliado está em outra troca'**
+  String get rspTrocaAliadoOcupado;
+
+  /// No description provided for @rspTrocaAgoraNao.
+  ///
+  /// In pt, this message translates to:
+  /// **'Agora não dá pra trocar com ele'**
+  String get rspTrocaAgoraNao;
+
+  /// No description provided for @rspTrocaJaPediu.
+  ///
+  /// In pt, this message translates to:
+  /// **'Você já pediu essa troca'**
+  String get rspTrocaJaPediu;
+
+  /// No description provided for @rspTrocaElePediu.
+  ///
+  /// In pt, this message translates to:
+  /// **'Ele já pediu troca com você'**
+  String get rspTrocaElePediu;
+
+  /// No description provided for @rspTrocaInvalida.
+  ///
+  /// In pt, this message translates to:
+  /// **'Essa troca não está mais valendo'**
+  String get rspTrocaInvalida;
+
+  /// No description provided for @rspTrocaTarde.
+  ///
+  /// In pt, this message translates to:
+  /// **'Tarde demais pra trocar'**
+  String get rspTrocaTarde;
+
+  /// No description provided for @rspTrocaOrdemNao.
+  ///
+  /// In pt, this message translates to:
+  /// **'Agora não dá pra trocar a ordem'**
+  String get rspTrocaOrdemNao;
+
+  /// No description provided for @rspLolRecusouTroca.
+  ///
+  /// In pt, this message translates to:
+  /// **'O LoL recusou a troca'**
+  String get rspLolRecusouTroca;
+
+  /// No description provided for @rspPedidoCancelado.
+  ///
+  /// In pt, this message translates to:
+  /// **'Pedido cancelado'**
+  String get rspPedidoCancelado;
+
+  /// No description provided for @rspTrocaPedida.
+  ///
+  /// In pt, this message translates to:
+  /// **'Troca pedida'**
+  String get rspTrocaPedida;
+
+  /// No description provided for @rspTrocaAceita.
+  ///
+  /// In pt, this message translates to:
+  /// **'Troca aceita'**
+  String get rspTrocaAceita;
+
+  /// No description provided for @rspTrocaRecusada.
+  ///
+  /// In pt, this message translates to:
+  /// **'Troca recusada'**
+  String get rspTrocaRecusada;
+
+  /// No description provided for @rspTrocaPosPedida.
+  ///
+  /// In pt, this message translates to:
+  /// **'Troca de posição pedida'**
+  String get rspTrocaPosPedida;
+
+  /// No description provided for @rspTrocaPosAceita.
+  ///
+  /// In pt, this message translates to:
+  /// **'Troca de posição aceita'**
+  String get rspTrocaPosAceita;
+
+  /// No description provided for @rspTrocaPosRecusada.
+  ///
+  /// In pt, this message translates to:
+  /// **'Troca de posição recusada'**
+  String get rspTrocaPosRecusada;
+
+  /// No description provided for @rspTrocaOrdemPedida.
+  ///
+  /// In pt, this message translates to:
+  /// **'Troca de ordem pedida'**
+  String get rspTrocaOrdemPedida;
+
+  /// No description provided for @rspTrocaOrdemAceita.
+  ///
+  /// In pt, this message translates to:
+  /// **'Troca de ordem aceita'**
+  String get rspTrocaOrdemAceita;
+
+  /// No description provided for @rspTrocaOrdemRecusada.
+  ///
+  /// In pt, this message translates to:
+  /// **'Troca de ordem recusada'**
+  String get rspTrocaOrdemRecusada;
+
+  /// No description provided for @rspCampeaoInvalido.
+  ///
+  /// In pt, this message translates to:
+  /// **'Campeão inválido'**
+  String get rspCampeaoInvalido;
+
+  /// No description provided for @rspCartasFecharam.
+  ///
+  /// In pt, this message translates to:
+  /// **'As cartas já fecharam'**
+  String get rspCartasFecharam;
+
+  /// No description provided for @rspJaEscolheu.
+  ///
+  /// In pt, this message translates to:
+  /// **'Você já escolheu'**
+  String get rspJaEscolheu;
+
+  /// No description provided for @rspCartaInvalida.
+  ///
+  /// In pt, this message translates to:
+  /// **'Essa carta não está mais valendo'**
+  String get rspCartaInvalida;
+
+  /// No description provided for @rspLolNegouCarta.
+  ///
+  /// In pt, this message translates to:
+  /// **'O LoL não deixou escolher {nome}'**
+  String rspLolNegouCarta(String nome);
+
+  /// No description provided for @rspLolRecusouCarta.
+  ///
+  /// In pt, this message translates to:
+  /// **'O LoL não deixou escolher essa carta'**
+  String get rspLolRecusouCarta;
+
+  /// No description provided for @rspCartaEscolheu.
+  ///
+  /// In pt, this message translates to:
+  /// **'Escolheu {nome}'**
+  String rspCartaEscolheu(String nome);
+
+  /// No description provided for @rspCartaEscolhida.
+  ///
+  /// In pt, this message translates to:
+  /// **'Carta escolhida'**
+  String get rspCartaEscolhida;
+
+  /// No description provided for @rspBancoSaiu.
+  ///
+  /// In pt, this message translates to:
+  /// **'Esse campeão saiu do banco'**
+  String get rspBancoSaiu;
+
+  /// No description provided for @rspBancoTermineTroca.
+  ///
+  /// In pt, this message translates to:
+  /// **'Termine a troca com o aliado antes'**
+  String get rspBancoTermineTroca;
+
+  /// No description provided for @rspBancoAindaNao.
+  ///
+  /// In pt, this message translates to:
+  /// **'Ainda não dá pra pegar do banco'**
+  String get rspBancoAindaNao;
+
+  /// No description provided for @rspLolNegouBanco.
+  ///
+  /// In pt, this message translates to:
+  /// **'O LoL não deixou pegar {nome}'**
+  String rspLolNegouBanco(String nome);
+
+  /// No description provided for @rspLolRecusouBanco.
+  ///
+  /// In pt, this message translates to:
+  /// **'O LoL não deixou pegar esse campeão'**
+  String get rspLolRecusouBanco;
+
+  /// No description provided for @rspBancoPegou.
+  ///
+  /// In pt, this message translates to:
+  /// **'Pegou {nome}'**
+  String rspBancoPegou(String nome);
+
+  /// No description provided for @rspBancoPegouSem.
+  ///
+  /// In pt, this message translates to:
+  /// **'Pegou do banco'**
+  String get rspBancoPegouSem;
+
+  /// No description provided for @rspAramSorteado.
+  ///
+  /// In pt, this message translates to:
+  /// **'Na ARAM: Desordem o campeão é sorteado'**
+  String get rspAramSorteado;
+
+  /// No description provided for @rspEscolhaNaoAbriu.
+  ///
+  /// In pt, this message translates to:
+  /// **'Ainda não abriu a escolha'**
+  String get rspEscolhaNaoAbriu;
+
+  /// No description provided for @rspNaoSuaVez.
+  ///
+  /// In pt, this message translates to:
+  /// **'Não é sua vez'**
+  String get rspNaoSuaVez;
+
+  /// No description provided for @rspCampeaoBanido.
+  ///
+  /// In pt, this message translates to:
+  /// **'Esse campeão foi banido'**
+  String get rspCampeaoBanido;
+
+  /// No description provided for @rspLolRecusouCampeao.
+  ///
+  /// In pt, this message translates to:
+  /// **'O LoL recusou esse campeão'**
+  String get rspLolRecusouCampeao;
+
+  /// No description provided for @rspBanido.
+  ///
+  /// In pt, this message translates to:
+  /// **'Banido: {nome}'**
+  String rspBanido(String nome);
+
+  /// No description provided for @rspTravado.
+  ///
+  /// In pt, this message translates to:
+  /// **'Travado: {nome}'**
+  String rspTravado(String nome);
+
+  /// No description provided for @rspSemChat.
+  ///
+  /// In pt, this message translates to:
+  /// **'Sem chat agora'**
+  String get rspSemChat;
+
+  /// No description provided for @rspMuitosComandos.
+  ///
+  /// In pt, this message translates to:
+  /// **'Muitos comandos seguidos: espere um pouco'**
+  String get rspMuitosComandos;
+
+  /// No description provided for @rspErroNoPc.
+  ///
+  /// In pt, this message translates to:
+  /// **'Deu erro no PC'**
+  String get rspErroNoPc;
+
+  /// No description provided for @rspPartidaAceita.
+  ///
+  /// In pt, this message translates to:
+  /// **'Partida aceita'**
+  String get rspPartidaAceita;
+
+  /// No description provided for @rspPartidaRecusada.
+  ///
+  /// In pt, this message translates to:
+  /// **'Partida recusada'**
+  String get rspPartidaRecusada;
+
+  /// No description provided for @rspSaiuFila.
+  ///
+  /// In pt, this message translates to:
+  /// **'Saiu da fila'**
+  String get rspSaiuFila;
+
+  /// No description provided for @rspFilaIniciada.
+  ///
+  /// In pt, this message translates to:
+  /// **'Fila iniciada'**
+  String get rspFilaIniciada;
+
+  /// No description provided for @rspSaiuSala.
+  ///
+  /// In pt, this message translates to:
+  /// **'Saiu da sala'**
+  String get rspSaiuSala;
+
+  /// No description provided for @stNoCelular.
+  ///
+  /// In pt, this message translates to:
+  /// **'No celular'**
+  String get stNoCelular;
+
+  /// No description provided for @stEmPartida.
+  ///
+  /// In pt, this message translates to:
+  /// **'Em partida'**
+  String get stEmPartida;
+
+  /// No description provided for @stNaSelecao.
+  ///
+  /// In pt, this message translates to:
+  /// **'Na seleção'**
+  String get stNaSelecao;
+
+  /// No description provided for @stNaFila.
+  ///
+  /// In pt, this message translates to:
+  /// **'Na fila'**
+  String get stNaFila;
+
+  /// No description provided for @stNumaSala.
+  ///
+  /// In pt, this message translates to:
+  /// **'Numa sala'**
+  String get stNumaSala;
+
+  /// No description provided for @stAssistindo.
+  ///
+  /// In pt, this message translates to:
+  /// **'Assistindo'**
+  String get stAssistindo;
+
+  /// No description provided for @stAusente.
+  ///
+  /// In pt, this message translates to:
+  /// **'Ausente'**
+  String get stAusente;
+
+  /// No description provided for @stOcupado.
+  ///
+  /// In pt, this message translates to:
+  /// **'Ocupado'**
+  String get stOcupado;
+
+  /// No description provided for @stDisponivel.
+  ///
+  /// In pt, this message translates to:
+  /// **'Disponível'**
+  String get stDisponivel;
+
+  /// No description provided for @grSummonersRift.
+  ///
+  /// In pt, this message translates to:
+  /// **'Summoner\'s Rift'**
+  String get grSummonersRift;
+
+  /// No description provided for @grAram.
+  ///
+  /// In pt, this message translates to:
+  /// **'ARAM'**
+  String get grAram;
+
+  /// No description provided for @grRiftClassico.
+  ///
+  /// In pt, this message translates to:
+  /// **'Rift Clássico'**
+  String get grRiftClassico;
+
+  /// No description provided for @grOutrosModos.
+  ///
+  /// In pt, this message translates to:
+  /// **'Outros modos'**
+  String get grOutrosModos;
+
+  /// No description provided for @grContraIa.
+  ///
+  /// In pt, this message translates to:
+  /// **'Contra a IA'**
+  String get grContraIa;
+
+  /// No description provided for @grPersonalizada.
+  ///
+  /// In pt, this message translates to:
+  /// **'Personalizada'**
+  String get grPersonalizada;
+
+  /// No description provided for @grTreino.
+  ///
+  /// In pt, this message translates to:
+  /// **'Treino'**
+  String get grTreino;
+
+  /// No description provided for @grTft.
+  ///
+  /// In pt, this message translates to:
+  /// **'TFT'**
+  String get grTft;
+
+  /// No description provided for @avEntrou.
+  ///
+  /// In pt, this message translates to:
+  /// **'{quem} entrou'**
+  String avEntrou(String quem);
+
+  /// No description provided for @avSaiu.
+  ///
+  /// In pt, this message translates to:
+  /// **'{quem} saiu'**
+  String avSaiu(String quem);
+
+  /// No description provided for @avAlguem.
+  ///
+  /// In pt, this message translates to:
+  /// **'Alguém'**
+  String get avAlguem;
 }
 
 class _TxtDelegate extends LocalizationsDelegate<Txt> {

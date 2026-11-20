@@ -820,5 +820,189 @@
   "avisoFimN": "Fim da partida",
   "avisoFimT": "Vitória ou derrota, com o seu placar.",
   "avisoResumoN": "Resumo do dia",
-  "avisoResumoT": "Quando você fecha o LoL."
+  "avisoResumoT": "Quando você fecha o LoL.",
+  "rspLolFechado": "LoL fechado",
+  "rspLolRecusou": "O LoL recusou",
+  "rspConversaNaoAchada": "Conversa não encontrada",
+  "rspLolRecusouMensagem": "O LoL recusou a mensagem",
+  "rspMensagemVazia": "Mensagem vazia",
+  "rspAmigoNaoAchado": "Amigo não encontrado",
+  "rspModoInvalido": "Modo inválido",
+  "rspSalaAgoraNao": "Agora não dá pra criar sala",
+  "rspModoFechado": "Esse modo não está aberto agora",
+  "rspSoLiderModo": "Só o líder da sala troca o modo",
+  "rspLolRecusouModo": "O LoL recusou esse modo",
+  "rspSalaCriada": "Sala criada",
+  "rspNinguemEscolhido": "Ninguém escolhido",
+  "rspForaDaSala": "Você não está numa sala",
+  "rspLolRecusouConvite": "O LoL recusou o convite",
+  "rspConviteMandado": "Convite mandado",
+  "rspConvitesMandados": "{n} convites mandados",
+  "@rspConvitesMandados": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "rspPosicaoInvalida": "Posição inválida",
+  "rspModoSemPosicao": "Esse modo não tem posição",
+  "rspPosicaoSegundaNao": "Essa posição não dá na segunda",
+  "rspLolRecusouPosicao": "O LoL recusou essa posição",
+  "rspSkinIndisponivel": "Skin indisponível",
+  "rspLolRecusouSkin": "O LoL recusou essa skin",
+  "rspFeiticoInvalido": "Feitiço inválido",
+  "rspForaDaSelecao": "Você não está na seleção",
+  "rspArenaSoOrdem": "Na Arena só dá pra trocar a ordem dos feitiços",
+  "rspFeiticoModo": "Esse feitiço não vale nesse modo",
+  "rspGolpearSelva": "Golpear só na selva",
+  "rspLolRecusouFeitico": "O LoL recusou esse feitiço",
+  "rspPaginaNaoAchada": "Página não encontrada",
+  "rspLolRecusouPagina": "O LoL recusou essa página",
+  "rspPaginaIncompleta": "Página incompleta",
+  "rspPaginaNaoEdita": "Essa página não dá pra editar",
+  "rspPaginaSemEspaco": "Sem espaço pra página nova",
+  "rspPaginaSalva": "Página salva",
+  "rspComandoInvalido": "Comando inválido",
+  "rspComandoOutraConta": "Comando de outra conta",
+  "rspComandoAtrasado": "Comando chegou atrasado",
+  "rspComandoDesconhecido": "Comando desconhecido",
+  "rspLolFechandoEspere": "Espere o LoL terminar de fechar",
+  "rspLolJaAberto": "O LoL já está aberto",
+  "rspLolJaAbrindo": "O LoL já está abrindo",
+  "rspAbrindoLol": "Abrindo o LoL",
+  "rspLolNaoAchado": "Não achei o LoL neste PC",
+  "rspLolNaoAbriu": "Não consegui abrir o LoL",
+  "rspFecharEmPartida": "Agora não: você sairia da partida",
+  "rspLolJaFechando": "O LoL já está fechando",
+  "rspLolJaFechado": "O LoL já está fechado",
+  "rspFechandoLol": "Fechando o LoL",
+  "rspSairSelecaoNao": "Aqui não dá pra sair",
+  "rspSaiuSelecao": "Saiu da seleção",
+  "rspTrocaInexistente": "Essa troca não existe mais",
+  "rspTrocaTermineOutra": "Termine a outra troca antes",
+  "rspTrocaAliadoOcupado": "Esse aliado está em outra troca",
+  "rspTrocaAgoraNao": "Agora não dá pra trocar com ele",
+  "rspTrocaJaPediu": "Você já pediu essa troca",
+  "rspTrocaElePediu": "Ele já pediu troca com você",
+  "rspTrocaInvalida": "Essa troca não está mais valendo",
+  "rspTrocaTarde": "Tarde demais pra trocar",
+  "rspTrocaOrdemNao": "Agora não dá pra trocar a ordem",
+  "rspLolRecusouTroca": "O LoL recusou a troca",
+  "rspPedidoCancelado": "Pedido cancelado",
+  "rspTrocaPedida": "Troca pedida",
+  "rspTrocaAceita": "Troca aceita",
+  "rspTrocaRecusada": "Troca recusada",
+  "rspTrocaPosPedida": "Troca de posição pedida",
+  "rspTrocaPosAceita": "Troca de posição aceita",
+  "rspTrocaPosRecusada": "Troca de posição recusada",
+  "rspTrocaOrdemPedida": "Troca de ordem pedida",
+  "rspTrocaOrdemAceita": "Troca de ordem aceita",
+  "rspTrocaOrdemRecusada": "Troca de ordem recusada",
+  "rspCampeaoInvalido": "Campeão inválido",
+  "rspCartasFecharam": "As cartas já fecharam",
+  "rspJaEscolheu": "Você já escolheu",
+  "rspCartaInvalida": "Essa carta não está mais valendo",
+  "rspLolNegouCarta": "O LoL não deixou escolher {nome}",
+  "@rspLolNegouCarta": {
+    "placeholders": {
+      "nome": {
+        "type": "String"
+      }
+    }
+  },
+  "rspLolRecusouCarta": "O LoL não deixou escolher essa carta",
+  "rspCartaEscolheu": "Escolheu {nome}",
+  "@rspCartaEscolheu": {
+    "placeholders": {
+      "nome": {
+        "type": "String"
+      }
+    }
+  },
+  "rspCartaEscolhida": "Carta escolhida",
+  "rspBancoSaiu": "Esse campeão saiu do banco",
+  "rspBancoTermineTroca": "Termine a troca com o aliado antes",
+  "rspBancoAindaNao": "Ainda não dá pra pegar do banco",
+  "rspLolNegouBanco": "O LoL não deixou pegar {nome}",
+  "@rspLolNegouBanco": {
+    "placeholders": {
+      "nome": {
+        "type": "String"
+      }
+    }
+  },
+  "rspLolRecusouBanco": "O LoL não deixou pegar esse campeão",
+  "rspBancoPegou": "Pegou {nome}",
+  "@rspBancoPegou": {
+    "placeholders": {
+      "nome": {
+        "type": "String"
+      }
+    }
+  },
+  "rspBancoPegouSem": "Pegou do banco",
+  "rspAramSorteado": "Na ARAM: Desordem o campeão é sorteado",
+  "rspEscolhaNaoAbriu": "Ainda não abriu a escolha",
+  "rspNaoSuaVez": "Não é sua vez",
+  "rspCampeaoBanido": "Esse campeão foi banido",
+  "rspLolRecusouCampeao": "O LoL recusou esse campeão",
+  "rspBanido": "Banido: {nome}",
+  "@rspBanido": {
+    "placeholders": {
+      "nome": {
+        "type": "String"
+      }
+    }
+  },
+  "rspTravado": "Travado: {nome}",
+  "@rspTravado": {
+    "placeholders": {
+      "nome": {
+        "type": "String"
+      }
+    }
+  },
+  "rspSemChat": "Sem chat agora",
+  "rspMuitosComandos": "Muitos comandos seguidos: espere um pouco",
+  "rspErroNoPc": "Deu erro no PC",
+  "rspPartidaAceita": "Partida aceita",
+  "rspPartidaRecusada": "Partida recusada",
+  "rspSaiuFila": "Saiu da fila",
+  "rspFilaIniciada": "Fila iniciada",
+  "rspSaiuSala": "Saiu da sala",
+  "stNoCelular": "No celular",
+  "stEmPartida": "Em partida",
+  "stNaSelecao": "Na seleção",
+  "stNaFila": "Na fila",
+  "stNumaSala": "Numa sala",
+  "stAssistindo": "Assistindo",
+  "stAusente": "Ausente",
+  "stOcupado": "Ocupado",
+  "stDisponivel": "Disponível",
+  "grSummonersRift": "Summoner's Rift",
+  "grAram": "ARAM",
+  "grRiftClassico": "Rift Clássico",
+  "grOutrosModos": "Outros modos",
+  "grContraIa": "Contra a IA",
+  "grPersonalizada": "Personalizada",
+  "grTreino": "Treino",
+  "grTft": "TFT",
+  "avEntrou": "{quem} entrou",
+  "@avEntrou": {
+    "placeholders": {
+      "quem": {
+        "type": "String"
+      }
+    }
+  },
+  "avSaiu": "{quem} saiu",
+  "@avSaiu": {
+    "placeholders": {
+      "quem": {
+        "type": "String"
+      }
+    }
+  },
+  "avAlguem": "Alguém"
 }

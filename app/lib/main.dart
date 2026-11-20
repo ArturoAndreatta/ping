@@ -15,6 +15,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 
 import 'atualizacao.dart';
+import 'codigos.dart';
 import 'conexao.dart';
 import 'idioma.dart';
 import 'l10n/txt.dart';

@@ -1399,4 +1399,386 @@ class TxtPt extends Txt {
 
   @override
   String get avisoResumoT => 'Quando você fecha o LoL.';
+
+  @override
+  String get rspLolFechado => 'LoL fechado';
+
+  @override
+  String get rspLolRecusou => 'O LoL recusou';
+
+  @override
+  String get rspConversaNaoAchada => 'Conversa não encontrada';
+
+  @override
+  String get rspLolRecusouMensagem => 'O LoL recusou a mensagem';
+
+  @override
+  String get rspMensagemVazia => 'Mensagem vazia';
+
+  @override
+  String get rspAmigoNaoAchado => 'Amigo não encontrado';
+
+  @override
+  String get rspModoInvalido => 'Modo inválido';
+
+  @override
+  String get rspSalaAgoraNao => 'Agora não dá pra criar sala';
+
+  @override
+  String get rspModoFechado => 'Esse modo não está aberto agora';
+
+  @override
+  String get rspSoLiderModo => 'Só o líder da sala troca o modo';
+
+  @override
+  String get rspLolRecusouModo => 'O LoL recusou esse modo';
+
+  @override
+  String get rspSalaCriada => 'Sala criada';
+
+  @override
+  String get rspNinguemEscolhido => 'Ninguém escolhido';
+
+  @override
+  String get rspForaDaSala => 'Você não está numa sala';
+
+  @override
+  String get rspLolRecusouConvite => 'O LoL recusou o convite';
+
+  @override
+  String get rspConviteMandado => 'Convite mandado';
+
+  @override
+  String rspConvitesMandados(int n) {
+    return '$n convites mandados';
+  }
+
+  @override
+  String get rspPosicaoInvalida => 'Posição inválida';
+
+  @override
+  String get rspModoSemPosicao => 'Esse modo não tem posição';
+
+  @override
+  String get rspPosicaoSegundaNao => 'Essa posição não dá na segunda';
+
+  @override
+  String get rspLolRecusouPosicao => 'O LoL recusou essa posição';
+
+  @override
+  String get rspSkinIndisponivel => 'Skin indisponível';
+
+  @override
+  String get rspLolRecusouSkin => 'O LoL recusou essa skin';
+
+  @override
+  String get rspFeiticoInvalido => 'Feitiço inválido';
+
+  @override
+  String get rspForaDaSelecao => 'Você não está na seleção';
+
+  @override
+  String get rspArenaSoOrdem =>
+      'Na Arena só dá pra trocar a ordem dos feitiços';
+
+  @override
+  String get rspFeiticoModo => 'Esse feitiço não vale nesse modo';
+
+  @override
+  String get rspGolpearSelva => 'Golpear só na selva';
+
+  @override
+  String get rspLolRecusouFeitico => 'O LoL recusou esse feitiço';
+
+  @override
+  String get rspPaginaNaoAchada => 'Página não encontrada';
+
+  @override
+  String get rspLolRecusouPagina => 'O LoL recusou essa página';
+
+  @override
+  String get rspPaginaIncompleta => 'Página incompleta';
+
+  @override
+  String get rspPaginaNaoEdita => 'Essa página não dá pra editar';
+
+  @override
+  String get rspPaginaSemEspaco => 'Sem espaço pra página nova';
+
+  @override
+  String get rspPaginaSalva => 'Página salva';
+
+  @override
+  String get rspComandoInvalido => 'Comando inválido';
+
+  @override
+  String get rspComandoOutraConta => 'Comando de outra conta';
+
+  @override
+  String get rspComandoAtrasado => 'Comando chegou atrasado';
+
+  @override
+  String get rspComandoDesconhecido => 'Comando desconhecido';
+
+  @override
+  String get rspLolFechandoEspere => 'Espere o LoL terminar de fechar';
+
+  @override
+  String get rspLolJaAberto => 'O LoL já está aberto';
+
+  @override
+  String get rspLolJaAbrindo => 'O LoL já está abrindo';
+
+  @override
+  String get rspAbrindoLol => 'Abrindo o LoL';
+
+  @override
+  String get rspLolNaoAchado => 'Não achei o LoL neste PC';
+
+  @override
+  String get rspLolNaoAbriu => 'Não consegui abrir o LoL';
+
+  @override
+  String get rspFecharEmPartida => 'Agora não: você sairia da partida';
+
+  @override
+  String get rspLolJaFechando => 'O LoL já está fechando';
+
+  @override
+  String get rspLolJaFechado => 'O LoL já está fechado';
+
+  @override
+  String get rspFechandoLol => 'Fechando o LoL';
+
+  @override
+  String get rspSairSelecaoNao => 'Aqui não dá pra sair';
+
+  @override
+  String get rspSaiuSelecao => 'Saiu da seleção';
+
+  @override
+  String get rspTrocaInexistente => 'Essa troca não existe mais';
+
+  @override
+  String get rspTrocaTermineOutra => 'Termine a outra troca antes';
+
+  @override
+  String get rspTrocaAliadoOcupado => 'Esse aliado está em outra troca';
+
+  @override
+  String get rspTrocaAgoraNao => 'Agora não dá pra trocar com ele';
+
+  @override
+  String get rspTrocaJaPediu => 'Você já pediu essa troca';
+
+  @override
+  String get rspTrocaElePediu => 'Ele já pediu troca com você';
+
+  @override
+  String get rspTrocaInvalida => 'Essa troca não está mais valendo';
+
+  @override
+  String get rspTrocaTarde => 'Tarde demais pra trocar';
+
+  @override
+  String get rspTrocaOrdemNao => 'Agora não dá pra trocar a ordem';
+
+  @override
+  String get rspLolRecusouTroca => 'O LoL recusou a troca';
+
+  @override
+  String get rspPedidoCancelado => 'Pedido cancelado';
+
+  @override
+  String get rspTrocaPedida => 'Troca pedida';
+
+  @override
+  String get rspTrocaAceita => 'Troca aceita';
+
+  @override
+  String get rspTrocaRecusada => 'Troca recusada';
+
+  @override
+  String get rspTrocaPosPedida => 'Troca de posição pedida';
+
+  @override
+  String get rspTrocaPosAceita => 'Troca de posição aceita';
+
+  @override
+  String get rspTrocaPosRecusada => 'Troca de posição recusada';
+
+  @override
+  String get rspTrocaOrdemPedida => 'Troca de ordem pedida';
+
+  @override
+  String get rspTrocaOrdemAceita => 'Troca de ordem aceita';
+
+  @override
+  String get rspTrocaOrdemRecusada => 'Troca de ordem recusada';
+
+  @override
+  String get rspCampeaoInvalido => 'Campeão inválido';
+
+  @override
+  String get rspCartasFecharam => 'As cartas já fecharam';
+
+  @override
+  String get rspJaEscolheu => 'Você já escolheu';
+
+  @override
+  String get rspCartaInvalida => 'Essa carta não está mais valendo';
+
+  @override
+  String rspLolNegouCarta(String nome) {
+    return 'O LoL não deixou escolher $nome';
+  }
+
+  @override
+  String get rspLolRecusouCarta => 'O LoL não deixou escolher essa carta';
+
+  @override
+  String rspCartaEscolheu(String nome) {
+    return 'Escolheu $nome';
+  }
+
+  @override
+  String get rspCartaEscolhida => 'Carta escolhida';
+
+  @override
+  String get rspBancoSaiu => 'Esse campeão saiu do banco';
+
+  @override
+  String get rspBancoTermineTroca => 'Termine a troca com o aliado antes';
+
+  @override
+  String get rspBancoAindaNao => 'Ainda não dá pra pegar do banco';
+
+  @override
+  String rspLolNegouBanco(String nome) {
+    return 'O LoL não deixou pegar $nome';
+  }
+
+  @override
+  String get rspLolRecusouBanco => 'O LoL não deixou pegar esse campeão';
+
+  @override
+  String rspBancoPegou(String nome) {
+    return 'Pegou $nome';
+  }
+
+  @override
+  String get rspBancoPegouSem => 'Pegou do banco';
+
+  @override
+  String get rspAramSorteado => 'Na ARAM: Desordem o campeão é sorteado';
+
+  @override
+  String get rspEscolhaNaoAbriu => 'Ainda não abriu a escolha';
+
+  @override
+  String get rspNaoSuaVez => 'Não é sua vez';
+
+  @override
+  String get rspCampeaoBanido => 'Esse campeão foi banido';
+
+  @override
+  String get rspLolRecusouCampeao => 'O LoL recusou esse campeão';
+
+  @override
+  String rspBanido(String nome) {
+    return 'Banido: $nome';
+  }
+
+  @override
+  String rspTravado(String nome) {
+    return 'Travado: $nome';
+  }
+
+  @override
+  String get rspSemChat => 'Sem chat agora';
+
+  @override
+  String get rspMuitosComandos => 'Muitos comandos seguidos: espere um pouco';
+
+  @override
+  String get rspErroNoPc => 'Deu erro no PC';
+
+  @override
+  String get rspPartidaAceita => 'Partida aceita';
+
+  @override
+  String get rspPartidaRecusada => 'Partida recusada';
+
+  @override
+  String get rspSaiuFila => 'Saiu da fila';
+
+  @override
+  String get rspFilaIniciada => 'Fila iniciada';
+
+  @override
+  String get rspSaiuSala => 'Saiu da sala';
+
+  @override
+  String get stNoCelular => 'No celular';
+
+  @override
+  String get stEmPartida => 'Em partida';
+
+  @override
+  String get stNaSelecao => 'Na seleção';
+
+  @override
+  String get stNaFila => 'Na fila';
+
+  @override
+  String get stNumaSala => 'Numa sala';
+
+  @override
+  String get stAssistindo => 'Assistindo';
+
+  @override
+  String get stAusente => 'Ausente';
+
+  @override
+  String get stOcupado => 'Ocupado';
+
+  @override
+  String get stDisponivel => 'Disponível';
+
+  @override
+  String get grSummonersRift => 'Summoner\'s Rift';
+
+  @override
+  String get grAram => 'ARAM';
+
+  @override
+  String get grRiftClassico => 'Rift Clássico';
+
+  @override
+  String get grOutrosModos => 'Outros modos';
+
+  @override
+  String get grContraIa => 'Contra a IA';
+
+  @override
+  String get grPersonalizada => 'Personalizada';
+
+  @override
+  String get grTreino => 'Treino';
+
+  @override
+  String get grTft => 'TFT';
+
+  @override
+  String avEntrou(String quem) {
+    return '$quem entrou';
+  }
+
+  @override
+  String avSaiu(String quem) {
+    return '$quem saiu';
+  }
+
+  @override
+  String get avAlguem => 'Alguém';
 }

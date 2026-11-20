@@ -19,6 +19,7 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from urllib.parse import parse_qs, urlparse
 
+import idioma
 import lcu
 
 BASE = Path(__file__).resolve().parent
@@ -32,6 +33,7 @@ _ultimo_ping = 0.0
 _srv = None
 ao_reiniciar = None  # a bandeja registra
 ao_sair = None
+ao_idioma = None  # a bandeja registra: troca o idioma do menu na hora
 SEM_JANELA = getattr(subprocess, "CREATE_NO_WINDOW", 0)
 FORA_DO_JOB = 0x01000000  # CREATE_BREAKAWAY_FROM_JOB: a tarefa do logon nao derruba o desinstalador junto
 
@@ -78,7 +80,12 @@ def opcoes():
     cfg = lcu.config()
     import atualizar
     return {"opcoes": {k: cfg.get(k, True) is not False for k in lcu.OPCOES}, "versao": atualizar.versao_local(),
-            "desinstalar": desinstalador() is not None}
+            "desinstalar": desinstalador() is not None, **dados_idioma()}
+
+
+def dados_idioma():
+    """Idioma da janela: o que esta guardado (auto, pt, en, es) e o que vale agora (pt, en, es)."""
+    return {"idioma": idioma.escolha(), "idioma_atual": idioma.atual()}
 
 
 def conta():
@@ -161,7 +168,8 @@ class Handler(BaseHTTPRequestHandler):
             return self._enviar(403, {"erro": "proibido"})
         try:
             if u.path in (CAMINHO, "/"):  # "/": janela aberta antes da troca pra /ping
-                html = UI.read_text(encoding="utf-8").replace("__TOKEN__", TOKEN)
+                html = (UI.read_text(encoding="utf-8").replace("__TOKEN__", TOKEN)
+                        .replace("__IDIOMA__", idioma.atual()))  # a janela ja nasce no idioma certo
                 return self._enviar(200, html, "text/html; charset=utf-8")
             if u.path == "/api/atividade":
                 return self._enviar(200, atividade())
@@ -200,11 +208,19 @@ class Handler(BaseHTTPRequestHandler):
                 except PermissionError as e:
                     return self._enviar(401, {"erro": str(e)})
                 except ponte.requests.RequestException:
-                    return self._enviar(502, {"erro": "Sem conexão com a conta. Tente de novo."})
+                    return self._enviar(502, {"erro": idioma.t("conta.sem_conexao")})
             if u.path == "/api/opcoes":
                 mudou = {k: corpo[k] is True for k in lcu.OPCOES if k in corpo}
                 lcu.salvar_config(mudou)
                 return self._enviar(200, opcoes())
+            if u.path == "/api/idioma":
+                idioma.definir(corpo.get("idioma"))  # ValueError (valor estranho) vira 400 la embaixo
+                if ao_idioma:
+                    try:
+                        ao_idioma()
+                    except Exception:  # o menu so troca no proximo inicio; a janela ja trocou
+                        pass
+                return self._enviar(200, dados_idioma())
             if u.path == "/api/reiniciar":
                 if not ao_reiniciar:
                     return self._enviar(501, {"erro": "so da pra reiniciar rodando pela bandeja"})
@@ -213,7 +229,7 @@ class Handler(BaseHTTPRequestHandler):
                 return
             if u.path == "/api/desinstalar":
                 if not desinstalador() or not ao_sair:
-                    return self._enviar(501, {"erro": "Só dá pra desinstalar o Ping instalado."})
+                    return self._enviar(501, {"erro": idioma.t("painel.so_instalado")})
                 self._enviar(200, {"ok": True})
                 threading.Timer(0.3, desinstalar).start()
                 return

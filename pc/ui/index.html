@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="pt-BR">
+<html lang="__IDIOMA__">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -360,6 +360,19 @@ dialog.janela[open]::backdrop { opacity: 1; }
 .tc[aria-checked="true"]::after { transform: rotate(45deg) scale(1); }
 :root { --sel: var(--gold); }
 
+/* idioma: mesma ideia do .seg do tema (marcador que desliza), com quatro opcoes embaixo do titulo da linha */
+.opcao.idioma { flex-wrap: wrap; }
+.idiomas { position: relative; display: grid; grid-template-columns: repeat(4, 1fr); flex: 0 0 100%; padding: 3px; border: 1px solid var(--line-2); border-radius: var(--r2); }
+.idiomas::before { content: ""; position: absolute; top: 3px; bottom: 3px; left: 3px; width: calc((100% - 6px) / 4); border-radius: var(--r1);
+  border: 1px solid var(--gold-lo); background: color-mix(in srgb, var(--gold) 12%, transparent);
+  transform: translateX(calc(var(--i, 0) * 100%)); transition: transform .28s var(--ease-out); }
+.idiomas button { position: relative; min-width: 0; height: 34px; padding: 0 4px; border: 0; background: none; color: var(--muted); cursor: pointer;
+  font: 600 12.5px/1 var(--fonte); letter-spacing: .03em; transition: color .2s, transform .12s var(--ease-out); overflow-wrap: anywhere; }
+.idiomas button:hover { color: var(--text); }
+.idiomas button:active { transform: scale(.97); }
+.idiomas button:focus-visible { outline: 2px solid var(--gold); outline-offset: -2px; }
+.idiomas button[aria-checked="true"] { color: var(--gold-hi); }
+
 /* toast */
 #toast {
   position: fixed; left: 50%; bottom: 24px; transform: translate(-50%, 16px); opacity: 0; pointer-events: none;
@@ -397,147 +410,268 @@ dialog.janela[open]::backdrop { opacity: 1; }
     </svg>
     <b>PING</b>
   </div>
-  <div class="status" id="status"><i class="losango"></i><span>Procurando o LoL...</span></div>
+  <div class="status" id="status"><i class="losango"></i><span data-i18n="status.procurando">Procurando o LoL...</span></div>
   <div class="espaco"></div>
-  <button class="icone-btn" id="tema" title="Tema" aria-label="Tema" aria-haspopup="dialog">
+  <button class="icone-btn" id="tema" title="Tema" aria-label="Tema" data-i18n-title="tema" aria-haspopup="dialog">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a9 9 0 1 0 0 18c1.1 0 1.8-.8 1.8-1.8 0-.5-.2-.9-.5-1.2-.3-.3-.5-.7-.5-1.2 0-1 .8-1.8 1.8-1.8H17a4 4 0 0 0 4-4c0-4.4-4-8-9-8z"/><circle cx="7.5" cy="11.5" r="1"/><circle cx="10.5" cy="7.5" r="1"/><circle cx="15" cy="7.5" r="1"/></svg>
   </button>
-  <button class="icone-btn" id="reiniciar" title="Reiniciar o Ping" aria-label="Reiniciar o Ping">
+  <button class="icone-btn" id="reiniciar" title="Reiniciar o Ping" aria-label="Reiniciar o Ping" data-i18n-title="reiniciar">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 1 1-3-6.7L21 8"/><path d="M21 3v5h-5"/></svg>
   </button>
 </header>
 
 <main>
   <section class="card" id="cardConta">
-    <h2>Sua conta</h2>
+    <h2 data-i18n="conta.titulo">Sua conta</h2>
     <div id="conta"></div>
   </section>
   <section class="card" id="cardOpcoes">
-    <h2>Opções</h2>
+    <h2 data-i18n="opcoes.titulo">Opções</h2>
     <div id="opcoes"></div>
+    <div class="opcao idioma">
+      <span><b data-i18n="idioma.titulo" style="font-weight: inherit">Idioma</b><small data-i18n="idioma.dica">Vale para esta janela e para o menu da bandeja.</small></span>
+      <div class="idiomas" id="idiomas" role="radiogroup" data-i18n-aria="idioma.titulo" aria-label="Idioma">
+        <button type="button" role="radio" data-idioma="auto" data-i18n="idioma.auto">Automático</button>
+        <button type="button" role="radio" data-idioma="pt">Português</button>
+        <button type="button" role="radio" data-idioma="en">English</button>
+        <button type="button" role="radio" data-idioma="es">Español</button>
+      </div>
+    </div>
   </section>
   <section class="card" id="cardCelular">
-    <h2>No celular</h2>
+    <h2 data-i18n="celular.titulo">No celular</h2>
     <div class="qr">
       <div class="codigo" id="qr"></div>
       <ol class="passos">
-        <li>Aponte a câmera do celular pro código.</li>
-        <li>Entre com a <b>mesma conta</b> deste PC.</li>
-        <li>No iPhone, toque em Compartilhar e <b>Adicionar à Tela de Início</b>.</li>
+        <li data-i18n="passo1">Aponte a câmera do celular pro código.</li>
+        <li data-i18n-html="passo2">Entre com a <b>mesma conta</b> deste PC.</li>
+        <li data-i18n-html="passo3">No iPhone, toque em Compartilhar e <b>Adicionar à Tela de Início</b>.</li>
       </ol>
     </div>
   </section>
 </main>
-<footer class="versao"><span id="versao"></span><button type="button" class="link-sutil" id="desinstalar" hidden aria-haspopup="dialog">Desinstalar</button></footer>
+<footer class="versao"><span id="versao"></span><button type="button" class="link-sutil" id="desinstalar" hidden aria-haspopup="dialog" data-i18n="desinstalar">Desinstalar</button></footer>
 
 <dialog class="janela" id="janelaTema" aria-labelledby="jtTitulo">
   <div class="jt-topo">
-    <h2 id="jtTitulo">Tema</h2>
-    <button class="icone-btn" id="jtFechar" title="Fechar" aria-label="Fechar">
+    <h2 id="jtTitulo" data-i18n="tema">Tema</h2>
+    <button class="icone-btn" id="jtFechar" title="Fechar" aria-label="Fechar" data-i18n-title="fechar">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
     </button>
   </div>
   <div class="jt-corpo">
-    <p>As cores desta janela. O app do celular tem os mesmos temas.</p>
-    <div class="seg" role="radiogroup" aria-label="Modo">
+    <p data-i18n="tema.texto">As cores desta janela. O app do celular tem os mesmos temas.</p>
+    <div class="seg" role="radiogroup" aria-label="Modo" data-i18n-aria="modo">
       <button type="button" role="radio" data-modo="escuro">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>Escuro
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg><span data-i18n="escuro">Escuro</span>
       </button>
       <button type="button" role="radio" data-modo="claro">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>Claro
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg><span data-i18n="claro">Claro</span>
       </button>
     </div>
-    <div class="temas" id="temas" role="radiogroup" aria-label="Região"></div>
+    <div class="temas" id="temas" role="radiogroup" aria-label="Região" data-i18n-aria="regiao"></div>
   </div>
 </dialog>
 
 <dialog class="janela" id="janelaDesinstalar" aria-labelledby="jdTitulo">
   <div class="jt-topo">
-    <h2 id="jdTitulo">Desinstalar o Ping</h2>
-    <button class="icone-btn" id="jdFechar" title="Fechar" aria-label="Fechar">
+    <h2 id="jdTitulo" data-i18n="des.titulo">Desinstalar o Ping</h2>
+    <button class="icone-btn" id="jdFechar" title="Fechar" aria-label="Fechar" data-i18n-title="fechar">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
     </button>
   </div>
   <div class="jt-corpo">
     <div class="jd-pergunta">
-      <p>O Ping sai deste PC:</p>
+      <p data-i18n="des.intro">O Ping sai deste PC:</p>
       <ul class="jd-lista">
-        <li>fecha e para de abrir com o Windows;</li>
-        <li>some da Área de Trabalho e de Configurações &gt; Apps;</li>
-        <li>a pasta dele é apagada;</li>
-        <li id="jdConta">este PC sai da sua conta e o celular para de ver ele (a conta continua existindo).</li>
+        <li data-i18n="des.l1">fecha e para de abrir com o Windows;</li>
+        <li data-i18n="des.l2">some da Área de Trabalho e de Configurações &gt; Apps;</li>
+        <li data-i18n="des.l3">a pasta dele é apagada;</li>
+        <li id="jdConta" data-i18n="des.l4">este PC sai da sua conta e o celular para de ver ele (a conta continua existindo).</li>
       </ul>
       <div class="botoes" style="justify-content: flex-end">
-        <button class="btn" type="button" id="jdCancelar">Cancelar</button>
-        <button class="btn perigo cheio" type="button" id="jdConfirmar">Desinstalar</button>
+        <button class="btn" type="button" id="jdCancelar" data-i18n="cancelar">Cancelar</button>
+        <button class="btn perigo cheio" type="button" id="jdConfirmar" data-i18n="desinstalar">Desinstalar</button>
       </div>
       <p class="erro" id="jdErro"></p>
     </div>
     <div class="jd-fim" role="status">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>
-      <b>Ping desinstalado</b>
-      <p>Pode fechar esta janela. Pra voltar, é só baixar e abrir o Ping de novo.</p>
+      <b data-i18n="des.feito">Ping desinstalado</b>
+      <p data-i18n="des.feito2">Pode fechar esta janela. Pra voltar, é só baixar e abrir o Ping de novo.</p>
     </div>
   </div>
 </dialog>
 
 <div id="toast" role="status" aria-live="polite"></div>
-<div id="offline"><div><b>Sem conexão com o Ping</b><br>Ele foi fechado? Abra de novo pelo atalho.</div></div>
+<div id="offline"><div><b data-i18n="offline">Sem conexão com o Ping</b><br><span data-i18n="offline.dica">Ele foi fechado? Abra de novo pelo atalho.</span></div></div>
 
 <script>
 const TOKEN = "__TOKEN__";
 const $ = (s) => document.querySelector(s);
-const esc = (t) => String(t ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const esc = (x) => String(x ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+
+
+// ---------- idioma ----------
+// Textos da janela em pt, en e es. O idioma vem do PC (painel.py poe em <html lang>): automatico pelo Windows ou o
+// escolhido nas opcoes. Elemento com data-i18n (texto), data-i18n-html (texto com <b>), data-i18n-title (title e
+// aria-label) ou data-i18n-aria (so aria-label) troca ao vivo. Os textos do Python (erros da conta, menu da bandeja)
+// ficam em idioma.py.
+const I18N = {
+  pt: {
+    "status.procurando": "Procurando o LoL...", "status.conectado": "Conectado ao LoL", "status.esperando": "Esperando o LoL abrir",
+    "tema": "Tema", "reiniciar": "Reiniciar o Ping", "fechar": "Fechar",
+    "conta.titulo": "Sua conta", "opcoes.titulo": "Opções", "celular.titulo": "No celular",
+    "passo1": "Aponte a câmera do celular pro código.",
+    "passo2": "Entre com a <b>mesma conta</b> deste PC.",
+    "passo3": "No iPhone, toque em Compartilhar e <b>Adicionar à Tela de Início</b>.",
+    "desinstalar": "Desinstalar", "desinstalando": "Desinstalando...", "cancelar": "Cancelar",
+    "tema.texto": "As cores desta janela. O app do celular tem os mesmos temas.",
+    "modo": "Modo", "escuro": "Escuro", "claro": "Claro", "regiao": "Região", "tema.aria": "Tema {nome}",
+    "des.titulo": "Desinstalar o Ping", "des.intro": "O Ping sai deste PC:",
+    "des.l1": "fecha e para de abrir com o Windows;", "des.l2": "some da Área de Trabalho e de Configurações > Apps;",
+    "des.l3": "a pasta dele é apagada;",
+    "des.l4": "este PC sai da sua conta e o celular para de ver ele (a conta continua existindo).",
+    "des.feito": "Ping desinstalado", "des.feito2": "Pode fechar esta janela. Pra voltar, é só baixar e abrir o Ping de novo.",
+    "salvo": "Salvo", "erro": "Não deu certo. Tente de novo.",
+    "conta.aparece": "Este PC aparece no app de quem entrar com esta conta.", "sair": "Sair",
+    "sair.confirma": "Tirar este PC da conta? O celular para de ver este PC.", "conta.fora": "PC fora da conta",
+    "conta.entre": "Entre ou crie uma conta. O celular que entrar nela controla o LoL deste PC.",
+    "email": "E-mail", "senha": "Senha", "entrar": "Entrar", "criar": "Criar conta",
+    "conta.criada": "Conta criada", "conta.conectada": "Conta conectada",
+    "opc.abrir_com_windows": "Abrir com o Windows", "opc.abrir_com_windows.dica": "Liga sozinho quando você entra no PC.",
+    "opc.atualizar_sozinho": "Atualizar sozinho", "opc.atualizar_sozinho.dica": "Baixa a versão nova com o LoL parado.",
+    "versao": "Versão {v}", "versao.dev": "Versão de desenvolvimento",
+    "idioma.titulo": "Idioma", "idioma.dica": "Vale para esta janela e para o menu da bandeja.", "idioma.auto": "Automático",
+    "offline": "Sem conexão com o Ping", "offline.dica": "Ele foi fechado? Abra de novo pelo atalho.",
+    "t.escuro": "Client", "t.bilgewater": "Águas de Sentina", "t.sombras": "Ilha das Sombras", "t.bandopolis": "Bandópolis", "t.vazio": "Vazio",
+  },
+  en: {
+    "status.procurando": "Looking for LoL...", "status.conectado": "Connected to LoL", "status.esperando": "Waiting for LoL to open",
+    "tema": "Theme", "reiniciar": "Restart Ping", "fechar": "Close",
+    "conta.titulo": "Your account", "opcoes.titulo": "Options", "celular.titulo": "On your phone",
+    "passo1": "Point your phone's camera at the code.",
+    "passo2": "Sign in with the <b>same account</b> as this PC.",
+    "passo3": "On iPhone, tap Share and <b>Add to Home Screen</b>.",
+    "desinstalar": "Uninstall", "desinstalando": "Uninstalling...", "cancelar": "Cancel",
+    "tema.texto": "The colors of this window. The phone app has the same themes.",
+    "modo": "Mode", "escuro": "Dark", "claro": "Light", "regiao": "Region", "tema.aria": "{nome} theme",
+    "des.titulo": "Uninstall Ping", "des.intro": "Ping leaves this PC:",
+    "des.l1": "it closes and stops starting with Windows;", "des.l2": "it disappears from the Desktop and from Settings > Apps;",
+    "des.l3": "its folder is deleted;",
+    "des.l4": "this PC leaves your account and the phone stops seeing it (the account still exists).",
+    "des.feito": "Ping uninstalled", "des.feito2": "You can close this window. To come back, just download and open Ping again.",
+    "salvo": "Saved", "erro": "That didn't work. Try again.",
+    "conta.aparece": "This PC shows up in the app for anyone who signs in with this account.", "sair": "Sign out",
+    "sair.confirma": "Remove this PC from the account? The phone will stop seeing this PC.", "conta.fora": "PC removed from the account",
+    "conta.entre": "Sign in or create an account. The phone that signs in to it controls LoL on this PC.",
+    "email": "Email", "senha": "Password", "entrar": "Sign in", "criar": "Create account",
+    "conta.criada": "Account created", "conta.conectada": "Account connected",
+    "opc.abrir_com_windows": "Start with Windows", "opc.abrir_com_windows.dica": "Starts by itself when you log in to the PC.",
+    "opc.atualizar_sozinho": "Update automatically", "opc.atualizar_sozinho.dica": "Downloads the new version while LoL is closed.",
+    "versao": "Version {v}", "versao.dev": "Development version",
+    "idioma.titulo": "Language", "idioma.dica": "Applies to this window and the tray menu.", "idioma.auto": "Automatic",
+    "offline": "No connection to Ping", "offline.dica": "Was it closed? Open it again from the shortcut.",
+    "t.escuro": "Client", "t.bilgewater": "Bilgewater", "t.sombras": "Shadow Isles", "t.bandopolis": "Bandle City", "t.vazio": "The Void",
+  },
+  es: {
+    "status.procurando": "Buscando LoL...", "status.conectado": "Conectado a LoL", "status.esperando": "Esperando a que se abra LoL",
+    "tema": "Tema", "reiniciar": "Reiniciar Ping", "fechar": "Cerrar",
+    "conta.titulo": "Tu cuenta", "opcoes.titulo": "Opciones", "celular.titulo": "En el móvil",
+    "passo1": "Apunta la cámara del móvil al código.",
+    "passo2": "Entra con la <b>misma cuenta</b> de este PC.",
+    "passo3": "En iPhone, toca Compartir y <b>Añadir a pantalla de inicio</b>.",
+    "desinstalar": "Desinstalar", "desinstalando": "Desinstalando...", "cancelar": "Cancelar",
+    "tema.texto": "Los colores de esta ventana. La app del móvil tiene los mismos temas.",
+    "modo": "Modo", "escuro": "Oscuro", "claro": "Claro", "regiao": "Región", "tema.aria": "Tema {nome}",
+    "des.titulo": "Desinstalar Ping", "des.intro": "Ping sale de este PC:",
+    "des.l1": "se cierra y deja de abrirse con Windows;", "des.l2": "desaparece del escritorio y de Configuración > Aplicaciones;",
+    "des.l3": "su carpeta se borra;",
+    "des.l4": "este PC sale de tu cuenta y el móvil deja de verlo (la cuenta sigue existiendo).",
+    "des.feito": "Ping desinstalado", "des.feito2": "Puedes cerrar esta ventana. Para volver, solo descarga y abre Ping otra vez.",
+    "salvo": "Guardado", "erro": "No funcionó. Inténtalo de nuevo.",
+    "conta.aparece": "Este PC aparece en la app de quien entre con esta cuenta.", "sair": "Salir",
+    "sair.confirma": "¿Quitar este PC de la cuenta? El móvil dejará de ver este PC.", "conta.fora": "PC fuera de la cuenta",
+    "conta.entre": "Entra o crea una cuenta. El móvil que entre en ella controla LoL en este PC.",
+    "email": "Correo", "senha": "Contraseña", "entrar": "Entrar", "criar": "Crear cuenta",
+    "conta.criada": "Cuenta creada", "conta.conectada": "Cuenta conectada",
+    "opc.abrir_com_windows": "Abrir con Windows", "opc.abrir_com_windows.dica": "Se inicia solo cuando entras al PC.",
+    "opc.atualizar_sozinho": "Actualizar solo", "opc.atualizar_sozinho.dica": "Descarga la versión nueva con LoL cerrado.",
+    "versao": "Versión {v}", "versao.dev": "Versión de desarrollo",
+    "idioma.titulo": "Idioma", "idioma.dica": "Vale para esta ventana y el menú de la bandeja.", "idioma.auto": "Automático",
+    "offline": "Sin conexión con Ping", "offline.dica": "¿Se cerró? Ábrelo de nuevo desde el acceso directo.",
+    "t.escuro": "Client", "t.bilgewater": "Aguas Estancadas", "t.sombras": "Islas de la Sombra", "t.bandopolis": "Ciudad de Bandle", "t.vazio": "El Vacío",
+  },
+};
+const LINGUAS = ["pt", "en", "es"];
+let lingua = LINGUAS.includes(document.documentElement.lang) ? document.documentElement.lang : "pt";
+let escolhaIdioma = "auto";
+const t = (k, p) => {
+  let s = (I18N[lingua] || I18N.pt)[k] ?? I18N.pt[k] ?? k;
+  for (const n in p || {}) s = s.replaceAll("{" + n + "}", p[n]);
+  return s;
+};
+// aplica os textos nos elementos marcados (a janela toda, ou so um pedaco recem desenhado)
+function traduzir(raizEl = document) {
+  raizEl.querySelectorAll("[data-i18n]").forEach((e) => (e.textContent = t(e.dataset.i18n)));
+  raizEl.querySelectorAll("[data-i18n-html]").forEach((e) => (e.innerHTML = t(e.dataset.i18nHtml)));
+  raizEl.querySelectorAll("[data-i18n-title]").forEach((e) => { e.title = t(e.dataset.i18nTitle); e.setAttribute("aria-label", e.title); });
+  raizEl.querySelectorAll("[data-i18n-aria]").forEach((e) => e.setAttribute("aria-label", t(e.dataset.i18nAria)));
+}
 
 async function api(caminho, corpo) {
   const r = await fetch(caminho, corpo === undefined ? { headers: { "X-Token": TOKEN } } : {
     method: "POST", headers: { "X-Token": TOKEN, "Content-Type": "application/json" }, body: JSON.stringify(corpo),
   });
   const j = await r.json().catch(() => ({}));
-  if (!r.ok) throw new Error(j.erro || "Não deu certo. Tente de novo.");
+  if (!r.ok) throw new Error(j.erro || t("erro"));
   return j;
 }
 
 let tToast;
 function toast(texto) {
-  const t = $("#toast");
-  t.textContent = texto;
-  t.classList.add("vis");
+  const el = $("#toast");
+  el.textContent = texto;
+  el.classList.add("vis");
   clearTimeout(tToast);
-  tToast = setTimeout(() => t.classList.remove("vis"), 2600);
+  tToast = setTimeout(() => el.classList.remove("vis"), 2600);
 }
 
 // ---------- conta ----------
+let ultimaConta = null;
 function desenharConta(c) {
+  ultimaConta = c;
   const el = $("#conta");
   if (c.conta) {
     const email = c.conta.email || "";
     el.innerHTML = `<div class="conta-linha">
         <div class="avatar"><b>${esc((email[0] || "?").toUpperCase())}</b></div>
-        <div class="email">${esc(email)}<br><small class="vazio">Este PC aparece no app de quem entrar com esta conta.</small></div>
-        <button class="btn" id="sair">Sair</button>
+        <div class="email">${esc(email)}<br><small class="vazio" data-i18n="conta.aparece"></small></div>
+        <button class="btn" id="sair" data-i18n="sair"></button>
       </div>`;
+    traduzir(el);
     $("#sair").onclick = async () => {
-      if (!confirm("Tirar este PC da conta? O celular para de ver este PC.")) return;
-      try { desenharConta(await api("/api/conta/sair", {})); toast("PC fora da conta"); }
+      if (!confirm(t("sair.confirma"))) return;
+      try { desenharConta(await api("/api/conta/sair", {})); toast(t("conta.fora")); }
       catch (e) { toast(e.message); }
     };
     return;
   }
-  el.innerHTML = `<p>Entre ou crie uma conta. O celular que entrar nela controla o LoL deste PC.</p>
+  el.innerHTML = `<p data-i18n="conta.entre"></p>
     <form id="form">
-      <label class="campo"><span>E-mail</span><input type="email" id="email" autocomplete="email" required></label>
-      <label class="campo"><span>Senha</span><input type="password" id="senha" autocomplete="current-password" required minlength="6"></label>
-      <div class="botoes"><button class="btn cheio" type="submit">Entrar</button><button class="btn" type="button" id="criar">Criar conta</button></div>
+      <label class="campo"><span data-i18n="email"></span><input type="email" id="email" autocomplete="email" required></label>
+      <label class="campo"><span data-i18n="senha"></span><input type="password" id="senha" autocomplete="current-password" required minlength="6"></label>
+      <div class="botoes"><button class="btn cheio" type="submit" data-i18n="entrar"></button><button class="btn" type="button" id="criar" data-i18n="criar"></button></div>
       <p class="erro" id="erroConta"></p>
     </form>`;
+  traduzir(el);
   const enviar = async (criar) => {
     const botoes = el.querySelectorAll("button");
     botoes.forEach((b) => (b.disabled = true));
     $("#erroConta").textContent = "";
     try {
       desenharConta(await api("/api/conta", { email: $("#email").value, senha: $("#senha").value, criar }));
-      toast(criar ? "Conta criada" : "Conta conectada");
+      toast(t(criar ? "conta.criada" : "conta.conectada"));
     } catch (e) {
       $("#erroConta").textContent = e.message;
       botoes.forEach((b) => (b.disabled = false));
@@ -554,27 +688,59 @@ async function carregarConta() {
 }
 
 // ---------- opcoes ----------
-const OPCOES = [
-  ["abrir_com_windows", "Abrir com o Windows", "Liga sozinho quando você entra no PC."],
-  ["atualizar_sozinho", "Atualizar sozinho", "Baixa a versão nova com o LoL parado."],
-];
+const OPCOES = ["abrir_com_windows", "atualizar_sozinho"];
+let ultimaVersao = null;
 function desenharOpcoes(o) {
-  $("#opcoes").innerHTML = OPCOES.map(([k, nome, dica]) => `<div class="opcao">
-      <span>${nome}<small>${dica}</small></span>
-      <label class="chave"><input type="checkbox" data-k="${k}" ${o.opcoes[k] ? "checked" : ""} aria-label="${nome}"><i></i></label>
+  $("#opcoes").innerHTML = OPCOES.map((k) => `<div class="opcao">
+      <span><i data-i18n="opc.${k}" style="font-style: normal"></i><small data-i18n="opc.${k}.dica"></small></span>
+      <label class="chave"><input type="checkbox" data-k="${k}" ${o.opcoes[k] ? "checked" : ""} data-i18n-aria="opc.${k}"><i></i></label>
     </div>`).join("");
-  $("#versao").textContent = o.versao ? `Versão ${o.versao}` : "Versão de desenvolvimento";
+  traduzir($("#opcoes"));
+  ultimaVersao = o.versao || null;
+  $("#versao").textContent = ultimaVersao ? t("versao", { v: ultimaVersao }) : t("versao.dev");
   $("#desinstalar").hidden = !o.desinstalar;
+  if (o.idioma_atual) mudarIdioma(o.idioma, o.idioma_atual);
 }
+
+// idioma: so desenha (o PC ja sabe). escolha = auto|pt|en|es; atual = pt|en|es que vale agora
+function mudarIdioma(escolha, atual) {
+  escolhaIdioma = escolha;
+  lingua = LINGUAS.includes(atual) ? atual : "pt";
+  raiz.lang = lingua;
+  traduzir();
+  $("#versao").textContent = ultimaVersao ? t("versao", { v: ultimaVersao }) : t("versao.dev");
+  mostrarStatus();
+  desenharTemas();
+  const caixa = $("#idiomas");
+  const ordem = ["auto", "pt", "en", "es"];
+  caixa.style.setProperty("--i", Math.max(0, ordem.indexOf(escolha)));
+  caixa.querySelectorAll("button").forEach((b) => b.setAttribute("aria-checked", String(b.dataset.idioma === escolha)));
+}
+$("#idiomas").addEventListener("click", async (ev) => {
+  const b = ev.target.closest("button");
+  if (!b || b.dataset.idioma === escolhaIdioma) return;
+  const antes = [escolhaIdioma, lingua];
+  // desenha na hora e confirma com o PC (ele guarda e troca o menu da bandeja)
+  mudarIdioma(b.dataset.idioma, b.dataset.idioma === "auto" ? lingua : b.dataset.idioma);
+  try {
+    const r = await api("/api/idioma", { idioma: b.dataset.idioma });
+    mudarIdioma(r.idioma, r.idioma_atual);
+  } catch (e) { mudarIdioma(...antes); toast(e.message); }
+});
 $("#opcoes").addEventListener("change", async (ev) => {
   const k = ev.target.dataset.k;
   if (!k) return;
-  try { desenharOpcoes(await api("/api/opcoes", { [k]: ev.target.checked })); toast("Salvo"); }
+  try { desenharOpcoes(await api("/api/opcoes", { [k]: ev.target.checked })); toast(t("salvo")); }
   catch (e) { toast(e.message); ev.target.checked = !ev.target.checked; }
 });
 
 // ---------- status ----------
-let boot = null, falhas = 0;
+let boot = null, falhas = 0, conectado = null;
+function mostrarStatus() {
+  const s = $("#status");
+  s.classList.toggle("on", conectado === true);
+  s.querySelector("span").textContent = t(conectado === null ? "status.procurando" : conectado ? "status.conectado" : "status.esperando");
+}
 async function pulso() {
   try {
     const a = await api("/api/atividade");
@@ -582,9 +748,8 @@ async function pulso() {
     $("#offline").classList.remove("vis");
     if (boot && a.boot !== boot) location.reload();  // reiniciou: pega a versao nova
     boot = a.boot;
-    const s = $("#status");
-    s.classList.toggle("on", a.conectado);
-    s.querySelector("span").textContent = a.conectado ? "Conectado ao LoL" : "Esperando o LoL abrir";
+    conectado = !!a.conectado;
+    mostrarStatus();
   } catch (e) {
     if (++falhas >= 3) $("#offline").classList.add("vis");
   }
@@ -592,9 +757,11 @@ async function pulso() {
 
 // ---------- tema ----------
 // regiao + modo, os mesmos do celular (app/lib/tema.dart). A lista do script do <head> tem que bater com esta
+// o nome vem de t("t.<id>") quando a regiao tem nome traduzido; as outras sao nomes proprios iguais nas tres linguas
 const TEMAS = [["escuro", "Client"], ["demacia", "Demacia"], ["noxus", "Noxus"], ["piltover", "Piltover"], ["zaun", "Zaun"],
-  ["freljord", "Freljord"], ["ionia", "Ionia"], ["shurima", "Shurima"], ["bilgewater", "Águas de Sentina"],
-  ["sombras", "Ilha das Sombras"], ["targon", "Targon"], ["bandopolis", "Bandópolis"], ["ixtal", "Ixtal"], ["vazio", "Vazio"]];
+  ["freljord", "Freljord"], ["ionia", "Ionia"], ["shurima", "Shurima"], ["bilgewater", ""],
+  ["sombras", ""], ["targon", "Targon"], ["bandopolis", ""], ["ixtal", "Ixtal"], ["vazio", ""]];
+const nomeTema = (id, nome) => nome || t("t." + id);
 const raiz = document.documentElement;
 const temaAtual = () => raiz.dataset.tema || "escuro";
 const claroAtual = () => raiz.dataset.modo === "claro";
@@ -605,9 +772,9 @@ function trocarTema(muda) {
 }
 function desenharTemas() {
   const modo = claroAtual() ? ' data-modo="claro"' : "";
-  $("#temas").innerHTML = TEMAS.map(([id, nome]) => `<button type="button" class="tc" role="radio" data-tema="${id}"${modo}
-      aria-checked="${id === temaAtual()}" aria-label="Tema ${nome}"><i class="tex" aria-hidden="true"></i><span class="pontos"><i></i><i></i><i></i><i></i></span>
-      <span class="tn">${nome}</span></button>`).join("");
+  $("#temas").innerHTML = TEMAS.map(([id, n]) => { const nome = nomeTema(id, n); return `<button type="button" class="tc" role="radio" data-tema="${id}"${modo}
+      aria-checked="${id === temaAtual()}" aria-label="${esc(t("tema.aria", { nome }))}"><i class="tex" aria-hidden="true"></i><span class="pontos"><i></i><i></i><i></i><i></i></span>
+      <span class="tn">${esc(nome)}</span></button>`; }).join("");
   document.querySelectorAll(".seg button").forEach((b) => b.setAttribute("aria-checked", String((b.dataset.modo === "claro") === claroAtual())));
 }
 $("#temas").addEventListener("click", (ev) => {
@@ -649,7 +816,7 @@ janelaDesinstalar.addEventListener("cancel", (ev) => { if (desinstalado) ev.prev
 $("#jdConfirmar").onclick = async () => {
   const botoes = janelaDesinstalar.querySelectorAll(".jd-pergunta button");
   botoes.forEach((b) => (b.disabled = true));
-  $("#jdConfirmar").textContent = "Desinstalando...";
+  $("#jdConfirmar").textContent = t("desinstalando");
   try {
     await api("/api/desinstalar", {});
     desinstalado = true;
@@ -658,7 +825,7 @@ $("#jdConfirmar").onclick = async () => {
     setTimeout(() => window.close(), 6000);
   } catch (e) {
     $("#jdErro").textContent = e.message;
-    $("#jdConfirmar").textContent = "Desinstalar";
+    $("#jdConfirmar").textContent = t("desinstalar");
     botoes.forEach((b) => (b.disabled = false));
   }
 };
@@ -694,6 +861,7 @@ addEventListener("resize", () => { if (!ajustando) sess("janela_mexeu", "1"); })
 let ajusteAgendado = 0;
 new ResizeObserver(() => { clearTimeout(ajusteAgendado); ajusteAgendado = setTimeout(ajustarJanela, 60); }).observe($("main"));
 
+traduzir();
 carregarConta().catch((e) => toast(e.message));
 api("/api/opcoes").then(desenharOpcoes).catch(() => {});
 pulso();

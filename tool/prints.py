@@ -87,12 +87,12 @@ def moldura(navegador, em_pe, deitado):
 
 def painel(navegador, qr, claro):
     """Janela do PC sem o Ping rodando: o HTML e a API saem daqui, com o mesmo formato do pc/painel.py."""
-    html = (RAIZ / "pc/ui/index.html").read_text(encoding="utf-8").replace("__TOKEN__", "0" * 32)
+    html = (RAIZ / "pc/ui/index.html").read_text(encoding="utf-8").replace("__TOKEN__", "0" * 32).replace("__IDIOMA__", "pt")
     respostas = {
         "/api/atividade": {"conectado": True, "fase": "None", "boot": 1, "erro": None},
         "/api/conta": {"conta": None, "qr": qr},
         "/api/opcoes": {"opcoes": {"abrir_com_windows": True, "atualizar_sozinho": True}, "versao": None,
-                        "desinstalar": False},
+                        "desinstalar": False, "idioma": "auto", "idioma_atual": "pt"},
     }
 
     def rota(r):

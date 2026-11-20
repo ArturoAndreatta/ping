@@ -124,7 +124,8 @@ def _ja_rodando():
 
 if _ja_rodando():
     if not _mostrar_painel_aberto():
-        ctypes.windll.user32.MessageBoxW(None, "O Ping já está rodando na bandeja.", "Ping", 0x40)
+        import idioma
+        ctypes.windll.user32.MessageBoxW(None, idioma.t("ja_rodando"), "Ping", 0x40)
     sys.exit(0)
 
 # ---------------- log em arquivo ----------------
@@ -215,17 +216,20 @@ class Icone(pystray.Icon):
 
 
 ICONES = {k: icone(v) for k, v in CORES.items()}
-icon = (Icone if sys.platform == "win32" else pystray.Icon)("Ping", ICONES["esperando"], "Ping: iniciando")
+import idioma
+
+icon = (Icone if sys.platform == "win32" else pystray.Icon)("Ping", ICONES["esperando"], idioma.t("bandeja.iniciando"))
 _status_lock = threading.Lock()
 
 
 def status(estado, texto):
+    """texto: chave de idioma.py ("bandeja.esperando"...); o titulo sai no idioma em uso."""
     # varias threads escrevem no log ao mesmo tempo: trocar o icone junto da "identificador invalido"
     with _status_lock:
         try:
             if icon.icon is not ICONES[estado]:
                 icon.icon = ICONES[estado]
-            icon.title = ("Ping: " + texto)[:120]
+            icon.title = idioma.t(texto)[:120]
         except OSError:
             pass
 
@@ -275,9 +279,9 @@ def vigiar_client():
         try:
             fase = lcu.get("/lol-gameflow/v1/gameflow-phase")
             if fase is None:
-                status("esperando", "esperando o LoL abrir")
+                status("esperando", "bandeja.esperando")
             else:
-                status("conectado", "conectado ao LoL")
+                status("conectado", "bandeja.conectado")
         except Exception:
             pass
         time.sleep(3)
@@ -289,7 +293,7 @@ def abrir_painel(_icon=None, _item=None):
         painel.abrir()
     except Exception:
         _erro("ao abrir o painel")
-        status("erro", "erro ao abrir o painel, veja o log")
+        status("erro", "bandeja.erro_painel")
 
 
 def ver_log(_icon, _item):
@@ -339,12 +343,17 @@ def sair(_icon, _item):
     _fechar()
 
 
+def _texto_menu(chave):
+    """Texto de item do menu como funcao: sai no idioma em uso toda vez que o menu abre."""
+    return lambda _item: idioma.t(chave)
+
+
 icon.menu = pystray.Menu(
-    pystray.MenuItem("Abrir o Ping", abrir_painel, default=True),
-    pystray.MenuItem("Ver log", ver_log),
+    pystray.MenuItem(_texto_menu("menu.abrir"), abrir_painel, default=True),
+    pystray.MenuItem(_texto_menu("menu.log"), ver_log),
     pystray.Menu.SEPARATOR,
-    pystray.MenuItem("Reiniciar", reiniciar),
-    pystray.MenuItem("Sair", sair),
+    pystray.MenuItem(_texto_menu("menu.reiniciar"), reiniciar),
+    pystray.MenuItem(_texto_menu("menu.sair"), sair),
 )
 
 
@@ -361,6 +370,7 @@ def _iniciar_painel():
     import painel
     painel.ao_reiniciar = lambda: reiniciar(None, None)
     painel.ao_sair = _fechar
+    painel.ao_idioma = lambda: icon.update_menu()  # troca de idioma na janela: o menu da bandeja acompanha
     painel.iniciar()
     primeira = not (BASE / "cache" / "conta.json").exists()
     if "--painel" in sys.argv:

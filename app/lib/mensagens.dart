@@ -417,7 +417,7 @@ class _FolhaMensagensState extends State<_FolhaMensagens> {
     final aberta = _puuid != null;
     final status = amigo == null
         ? context.txt.msgOffline
-        : '${amigo['status']}';
+        : textoStatus(context.txt, '${amigo['status']}');
     return Padding(
       padding: const EdgeInsets.fromLTRB(8, 6, 8, 10),
       child: Row(
@@ -492,8 +492,8 @@ class _FolhaMensagensState extends State<_FolhaMensagens> {
 Color _corStatus(Map? amigo) {
   if (amigo == null) return Cor.apagado;
   final s = '${amigo['status']}';
-  if (s == 'Disponível') return Cor.teal;
-  if (s == 'Ausente' || s == 'Ocupado') return Cor.aviso;
+  if (statusDisponivel(s)) return Cor.teal;
+  if (statusAusente(s)) return Cor.aviso;
   return Cor.ouro; // em partida, na fila, na seleção
 }
 
@@ -581,7 +581,9 @@ class _LinhaConversa extends StatelessWidget {
         ? u['eu'] == true
               ? context.txt.msgVoceDois('${u['texto']}')
               : '${u['texto']}'
-        : (amigo == null ? context.txt.msgOffline : '${amigo!['status']}');
+        : (amigo == null
+              ? context.txt.msgOffline
+              : textoStatus(context.txt, '${amigo!['status']}'));
     final tem = novas > 0;
     return Semantics(
       button: true,

@@ -227,6 +227,28 @@ def json_cache(nome, dados=None):
 # ---------------- Data Dragon (client fechado) ----------------
 
 _dd = {}
+_loc = {"v": None, "t": 0.0}
+LOCALE_VALIDO = re.compile(r"[a-z]{2}_[A-Z]{2}")  # pt_BR, en_US, es_MX...
+
+
+def locale_dd():
+    """Locale dos nomes do jogo (Data Dragon): o do client quando aberto (GET /riotclient/region-locale), guardado em
+    cache/locale.json; sem client, o ultimo guardado; sem nada guardado, o do idioma do PC (pt_BR, en_US, es_ES)."""
+    if _loc["v"] and time.time() - _loc["t"] < 60:
+        return _loc["v"]
+    d = get("/riotclient/region-locale")
+    loc = d.get("locale") if isinstance(d, dict) else None
+    if isinstance(loc, str) and LOCALE_VALIDO.fullmatch(loc):
+        if (json_cache("locale.json") or {}).get("locale") != loc:
+            json_cache("locale.json", {"locale": loc})
+    else:
+        guardado = json_cache("locale.json")
+        loc = guardado.get("locale") if isinstance(guardado, dict) else None
+        if not (isinstance(loc, str) and LOCALE_VALIDO.fullmatch(loc)):
+            import idioma
+            loc = idioma.locale_dd()
+    _loc.update(v=loc, t=time.time())
+    return loc
 
 
 def _baixar(url, timeout=8):
@@ -236,16 +258,20 @@ def _baixar(url, timeout=8):
 
 
 def ddragon():
+    loc = locale_dd()
+    if _dd.get("locale") != loc:  # idioma do client mudou: baixa de novo
+        _dd.clear()
     # sem internet: nao tenta de novo a cada chamada (cada tentativa segura ate 8s)
     if "champs" not in _dd and time.time() - _dd.get("falhou", 0) > 300:
         try:
             ver = json.loads(_baixar(f"{DDRAGON}/api/versions.json"))[0]
-            data = json.loads(_baixar(f"{DDRAGON}/cdn/{ver}/data/pt_BR/champion.json"))["data"]
+            data = json.loads(_baixar(f"{DDRAGON}/cdn/{ver}/data/{loc}/champion.json"))["data"]
             _dd["ver"] = ver
             _dd["champs"] = [{"id": int(v["key"]), "name": v["name"], "alias": v["id"]}
                              for v in data.values()]
         except Exception:
             _dd["falhou"] = time.time()
+        _dd["locale"] = loc
     return _dd
 
 
@@ -263,27 +289,40 @@ def _so_base(lst):
 
 
 def campeoes():
+    """Campeoes no idioma do client. O cache (campeoes.json) guarda o locale: se ele mudou, baixa de novo."""
+    loc = locale_dd()
     data, novo = fixo("/lol-game-data/assets/v1/champion-summary.json")
     if isinstance(data, list) and data:
         lst = _so_base([{"id": c["id"], "name": c["name"], "alias": c["alias"]}
                         for c in data if c.get("id", -1) > 0])
         if novo:
-            json_cache("campeoes.json", lst)
+            json_cache("campeoes.json", {"locale": loc, "campeoes": lst})
         return lst, "client"
     cache = json_cache("campeoes.json")
-    if isinstance(cache, list) and cache:
-        return _so_base(cache), "cache"
+    velho = None  # lista de outro idioma (ou do formato antigo, sem locale): so serve se nao der pra baixar
+    if isinstance(cache, dict) and cache.get("campeoes"):
+        if cache.get("locale") == loc:
+            return _so_base(cache["campeoes"]), "cache"
+        velho = cache["campeoes"]
+    elif isinstance(cache, list) and cache:
+        velho = cache
     dd = ddragon()
     if dd.get("champs"):
-        json_cache("campeoes.json", dd["champs"])
+        json_cache("campeoes.json", {"locale": loc, "campeoes": dd["champs"]})
         return dd["champs"], "ddragon"
+    if velho:
+        return _so_base(velho), "cache"
     return [], None
 
 
-FEITICOS_FALLBACK = [
-    (4, "Flash"), (14, "Incendiar"), (3, "Exaustão"), (7, "Curar"), (21, "Barreira"), (12, "Teleporte"),
-    (11, "Golpear"), (6, "Fantasma"), (1, "Purificar"), (13, "Clareza"), (32, "Marca"),
-]
+# feiticos com o client fechado e sem cache: id -> nome em pt, en e es
+FEITICOS_FALLBACK = {
+    4: ("Flash", "Flash", "Destello"), 14: ("Incendiar", "Ignite", "Ignición"),
+    3: ("Exaustão", "Exhaust", "Extenuación"), 7: ("Curar", "Heal", "Curación"),
+    21: ("Barreira", "Barrier", "Barrera"), 12: ("Teleporte", "Teleport", "Teletransporte"),
+    11: ("Golpear", "Smite", "Castigo"), 6: ("Fantasma", "Ghost", "Fantasmal"),
+    1: ("Purificar", "Cleanse", "Purificar"), 13: ("Clareza", "Clarity", "Claridad"), 32: ("Marca", "Mark", "Marca"),
+}
 MODOS_ATUAIS = {"CLASSIC", "ARAM"}  # Summoner's Rift e ARAM
 
 
@@ -314,7 +353,8 @@ def feiticos():
     brutos = _feiticos_brutos()
     if brutos:
         return _so_atuais(brutos)
-    return [{"id": i, "nome": n, "icone": None, "modos": []} for i, n in FEITICOS_FALLBACK]
+    col = {"pt": 0, "es": 2}.get(locale_dd()[:2], 1)  # o idioma do locale; qualquer outro em ingles
+    return [{"id": i, "nome": n[col], "icone": None, "modos": []} for i, n in FEITICOS_FALLBACK.items()]
 
 
 def feiticos_arena():

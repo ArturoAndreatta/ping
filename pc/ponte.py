@@ -25,6 +25,7 @@ from urllib.parse import quote
 
 import requests
 
+import idioma
 import lcu
 import qrcodegen
 import servidor
@@ -42,11 +43,11 @@ LIMITES = {"chat": (5, 10), "dm": (5, 10), "convidar": (3, 20), "criar_sala": (3
            "fechar_lol": (3, 60)}
 VISTO_CADA = 30       # de quanto em quanto tempo avisa que o PC continua ligado
 COMANDOS = {
-    "aceitar": ("POST", "/lol-matchmaking/v1/ready-check/accept", "Partida aceita"),
-    "recusar": ("POST", "/lol-matchmaking/v1/ready-check/decline", "Partida recusada"),
-    "sair_fila": ("DELETE", "/lol-lobby/v2/lobby/matchmaking/search", "Saiu da fila"),
-    "buscar": ("POST", "/lol-lobby/v2/lobby/matchmaking/search", "Fila iniciada"),
-    "sair_sala": ("DELETE", "/lol-lobby/v2/lobby", "Saiu da sala"),
+    "aceitar": ("POST", "/lol-matchmaking/v1/ready-check/accept", "Partida aceita", "partida_aceita"),
+    "recusar": ("POST", "/lol-matchmaking/v1/ready-check/decline", "Partida recusada", "partida_recusada"),
+    "sair_fila": ("DELETE", "/lol-lobby/v2/lobby/matchmaking/search", "Saiu da fila", "saiu_fila"),
+    "buscar": ("POST", "/lol-lobby/v2/lobby/matchmaking/search", "Fila iniciada", "fila_iniciada"),
+    "sair_sala": ("DELETE", "/lol-lobby/v2/lobby", "Saiu da sala", "saiu_sala"),
 }
 
 _conta = {"uid": None, "refresh": None, "id_token": None, "expira": 0.0}
@@ -149,7 +150,7 @@ def _criar_conta():
     if r.status_code != 200:
         msg = (j.get("error") or {}).get("message", str(r.status_code))
         if "ADMIN_ONLY" in msg or "OPERATION_NOT_ALLOWED" in msg:
-            raise PermissionError("Ative o login anônimo no Firebase (Authentication > Sign-in method > Anônimo)")
+            raise PermissionError(idioma.t("firebase.anonimo"))
         raise PermissionError(f"login anonimo falhou ({msg})")
     _conta.update(uid=j["localId"], refresh=j["refreshToken"], id_token=j["idToken"],
                   expira=time.time() + int(j.get("expiresIn", 3600)) - 60)
@@ -271,14 +272,15 @@ def _svg(texto):
 # cache/conta.json.
 
 ARQ_CONTA = CACHE / "conta.json"
-ERROS_CONTA = (("EMAIL_EXISTS", "Esse e-mail já tem conta. Use Entrar."),
-               ("INVALID_EMAIL", "Esse e-mail não parece certo."),
-               ("WEAK_PASSWORD", "A senha precisa de pelo menos 6 letras."),
-               ("INVALID_LOGIN_CREDENTIALS", "E-mail ou senha errados."),
-               ("EMAIL_NOT_FOUND", "E-mail ou senha errados."),
-               ("INVALID_PASSWORD", "E-mail ou senha errados."),
-               ("TOO_MANY_ATTEMPTS", "Muitas tentativas. Espere um pouco."),
-               ("USER_DISABLED", "Essa conta foi desativada."))
+# erro do Firebase -> codigo; o texto (idioma.t("conta.<codigo>")) sai no idioma da janela do PC
+ERROS_CONTA = (("EMAIL_EXISTS", "email_existe"),
+               ("INVALID_EMAIL", "email_invalido"),
+               ("WEAK_PASSWORD", "senha_fraca"),
+               ("INVALID_LOGIN_CREDENTIALS", "login_errado"),
+               ("EMAIL_NOT_FOUND", "login_errado"),
+               ("INVALID_PASSWORD", "login_errado"),
+               ("TOO_MANY_ATTEMPTS", "muitas_tentativas"),
+               ("USER_DISABLED", "desativada"))
 
 
 def conta():
@@ -293,14 +295,14 @@ def conta():
 def entrar_conta(email, senha, criar=False):
     email = (email or "").strip() if isinstance(email, str) else ""
     if not email or not isinstance(senha, str) or not senha:
-        raise ValueError("Preencha o e-mail e a senha.")
+        raise ValueError(idioma.t("conta.preencha"))
     rota = "signUp" if criar else "signInWithPassword"
     r = requests.post(f"https://identitytoolkit.googleapis.com/v1/accounts:{rota}?key={API_KEY}",
                       json={"email": email, "password": senha, "returnSecureToken": True}, timeout=15)
     j = r.json() if r.content else {}
     if r.status_code != 200:
         msg = (j.get("error") or {}).get("message", "")
-        raise ValueError(next((t for k, t in ERROS_CONTA if k in msg), "Não deu certo. Tente de novo."))
+        raise ValueError(idioma.t("conta." + next((c for k, c in ERROS_CONTA if k in msg), "generico")))
     cuid, ctok = j["localId"], j["idToken"]
     eu = uid()
     _db("PUT", f"pcs/{eu}/conta", json=cuid)
@@ -322,7 +324,7 @@ def entrar_conta(email, senha, criar=False):
         ok = False
     if not ok:  # a URL leva o token: nunca mostrar o erro do requests
         _db("DELETE", f"pcs/{eu}/conta")
-        raise ValueError("Não consegui pôr este PC na conta. Tente de novo.")
+        raise ValueError(idioma.t("conta.nao_pus"))
     CACHE.mkdir(exist_ok=True)
     ARQ_CONTA.write_text(json.dumps({"email": email, "uid": cuid}), encoding="utf-8")
     _log("conta conectada")
@@ -440,8 +442,8 @@ def _chat(cid, eu):
     for x in (_get(f"/lol-chat/v1/conversations/{quote(cid)}/messages") or [])[-CHAT_MAX:] if cid else []:
         tipo, corpo, de = x.get("type"), str(x.get("body") or ""), x.get("fromPuuid") or ""
         if tipo == "system" and corpo in ("joined_room", "left_room"):
-            nome = (_riot_id(de)[0] if de else "") or "Alguém"
-            item = {"tipo": "aviso", "texto": f"{nome} {'entrou' if corpo == 'joined_room' else 'saiu'}"}
+            nome = (_riot_id(de)[0] if de else "") or ""
+            item = {"tipo": "aviso", "texto": "entrou" if corpo == "joined_room" else "saiu", "quem": nome}  # app traduz
         elif tipo == "information":
             item = {"tipo": "aviso", "texto": corpo[:200]}
         elif tipo in ("groupchat", "chat"):
@@ -455,11 +457,12 @@ def _chat(cid, eu):
 # ---------------- criar sala e convidar ----------------
 
 # grupos da tela Jogar do client (gameSelectCategory / gameSelectModeGroup), na ordem em que aparecem
-GRUPOS_MODO = {"kSummonersRift": "Summoner's Rift", "kARAM": "ARAM", "kJade": "Rift Clássico",
-               "kAlternativeLeagueGameModes": "Outros modos", "kTeamfightTactics": "TFT"}
-GRUPOS_CATEGORIA = {"kVersusAI": "Contra a IA", "CreateCustom": "Personalizada", "kTraining": "Treino"}
-ORDEM_GRUPOS = ["Summoner's Rift", "ARAM", "Rift Clássico", "Outros modos", "Contra a IA", "Personalizada",
-                "Treino", "TFT"]
+# (codigos de grupo: o app traduz; os nomes das filas vem do client, ja no idioma dele)
+GRUPOS_MODO = {"kSummonersRift": "summoners_rift", "kARAM": "aram", "kJade": "rift_classico",
+               "kAlternativeLeagueGameModes": "outros_modos", "kTeamfightTactics": "tft"}
+GRUPOS_CATEGORIA = {"kVersusAI": "contra_ia", "CreateCustom": "personalizada", "kTraining": "treino"}
+ORDEM_GRUPOS = ["summoners_rift", "aram", "rift_classico", "outros_modos", "contra_ia", "personalizada",
+                "treino", "tft"]
 # personalizada: o client pede o jeito de escolher (mutador). Fila fora daqui vai como escolha as cegas
 MUTADOR = {3100: 1, 3200: 1, 3260: 1, 3270: 1, 3110: 2, 3210: 2, 3262: 2, 3120: 4, 3220: 4, 3130: 6, 3230: 6}
 FASES_SALA = ("None", "Lobby")  # fora disso (fila, selecao, partida) nao da pra criar sala nem convidar
@@ -493,25 +496,25 @@ def filas_sala():
 
 
 def _status_amigo(f):
-    """(texto, da pra convidar) do jeito que a lista de amigos do client mostra."""
+    """(codigo do status, da pra convidar) do jeito que a lista de amigos do client mostra. O app traduz."""
     jogo, disp = (f.get("lol") or {}).get("gameStatus") or "", f.get("availability")
     if disp == "mobile":
-        return "No celular", False
+        return "no_celular", False
     if jogo == "inGame":
-        return "Em partida", False
+        return "em_partida", False
     if jogo == "championSelect":
-        return "Na seleção", False
+        return "na_selecao", False
     if jogo == "inQueue":
-        return "Na fila", True
+        return "na_fila", True
     if jogo.startswith("hosting_"):
-        return "Numa sala", True
+        return "numa_sala", True
     if jogo == "spectating":
-        return "Assistindo", True
+        return "assistindo", True
     if disp == "away":
-        return "Ausente", True
+        return "ausente", True
     if disp == "dnd":
-        return "Ocupado", False
-    return "Disponível", True
+        return "ocupado", False
+    return "disponivel", True
 
 
 def _amigos_client():
@@ -592,11 +595,11 @@ def _dm_lida(puuid):
     mudar. So mexe se o client ainda conta mensagem nao lida."""
     cid = _conv_de.get(puuid) if isinstance(puuid, str) else None
     if not cid:
-        return False, "Conversa não encontrada"
+        return False, "conversa_nao_achada"
     caminho = f"/lol-chat/v1/conversations/{quote(cid)}"
     conv = _get(caminho)
     if not isinstance(conv, dict):
-        return False, "LoL fechado"
+        return False, "lol_fechado"
     if not conv.get("unreadMessageCount"):
         return True, ""
     antes = (_get("/lol-chat/v1/conversations/active") or {}).get("id")
@@ -612,10 +615,10 @@ def _dm_lida(puuid):
             # o client nao zerou pela ativa: zera direto na conversa
             r = _lcu("PUT", caminho, json={**conv, "unreadMessageCount": 0})
     except requests.RequestException:
-        return False, "LoL fechado"
+        return False, "lol_fechado"
     if r is None or not r.ok:
         _log(f"conversa nao marcada como lida no client ({getattr(r, 'status_code', '-')})")
-        return False, "O LoL recusou"
+        return False, "lol_recusou"
     return True, ""
 
 
@@ -623,14 +626,14 @@ def _mandar_dm(puuid, texto):
     """Manda mensagem particular pra um amigo, como na janela de chat do client."""
     texto = str(texto or "").strip()[:200]
     if not texto:
-        return False, "Mensagem vazia"
+        return False, "mensagem_vazia"
     _amg["t"] = 0.0
     f = next((x for x in _amigos_client() if isinstance(puuid, str) and x.get("puuid") == puuid), None)
     if not f:
-        return False, "Amigo não encontrado"
+        return False, "amigo_nao_achado"
     cid = f.get("pid") or f.get("id")
     if not cid:
-        return False, "Amigo não encontrado"
+        return False, "amigo_nao_achado"
     caminho = f"/lol-chat/v1/conversations/{quote(cid)}/messages"
     try:
         r = _lcu("POST", caminho, json={"body": texto, "type": "chat"})
@@ -640,10 +643,10 @@ def _mandar_dm(puuid, texto):
     except requests.RequestException:
         r = None
     if r is None:
-        return False, "LoL fechado"
+        return False, "lol_fechado"
     if not r.ok:
         _log(f"mensagem pra amigo recusada pelo client ({r.status_code})")
-        return False, "O LoL recusou a mensagem"
+        return False, "lol_recusou_mensagem"
     _dms.pop(cid, None)
     _log(f"mensagem mandada pra {ascii_log(f.get('gameName') or 'amigo')}")
     return True, ""
@@ -652,19 +655,19 @@ def _mandar_dm(puuid, texto):
 def _criar_sala(fila, quem):
     """Cria a sala no modo escolhido (ou troca o modo da sala atual, se voce for o lider) e convida."""
     if not isinstance(fila, int) or fila <= 0:
-        return False, "Modo inválido"
+        return False, "modo_invalido"
     fase = _get("/lol-gameflow/v1/gameflow-phase")
     if fase is None:
-        return False, "LoL fechado"
+        return False, "lol_fechado"
     if fase not in FASES_SALA:
-        return False, "Agora não dá pra criar sala"
+        return False, "sala_agora_nao"
     q = next((x for x in _filas_brutas() if x.get("id") == fila), None)
     if not q or q.get("queueAvailability") != "Available":
-        return False, "Esse modo não está aberto agora"
+        return False, "modo_fechado"
     if fase == "Lobby":
         lobby = _get("/lol-lobby/v2/lobby") or {}
         if len(lobby.get("members") or []) > 1 and not (lobby.get("localMember") or {}).get("isLeader"):
-            return False, "Só o líder da sala troca o modo"
+            return False, "so_lider_modo"
     tentativas = [{"queueId": fila}]
     if q.get("isCustom"):
         me = _get("/lol-summoner/v1/current-summoner") or {}
@@ -684,15 +687,16 @@ def _criar_sala(fila, quem):
             break
         _log(f"criar sala {fila} recusado ({r.status_code}) com {'+'.join(sorted(corpo))}")
     if r is None:
-        return False, "LoL fechado"
+        return False, "lol_fechado"
     if not r.ok:
-        return False, "O LoL recusou esse modo"
+        return False, "lol_recusou_modo"
     _log(f"sala criada: {ascii_log(q.get('description') or str(fila))} ({fila})")
     if not quem:
-        return True, "Sala criada"
+        return True, "sala_criada"
     time.sleep(0.6)  # a sala nova demora um pouco pra aceitar convite
     ok, msg = _convidar(quem)
-    return True, f"Sala criada. {msg}"
+    depois, p = _msg_partes(msg)
+    return True, ("sala_criada_e", dict(p, depois=depois))
 
 
 def _convidar(quem):
@@ -700,26 +704,26 @@ def _convidar(quem):
     if isinstance(quem, dict):  # lista gravada no Firebase pode voltar como mapa {0: ..}
         quem = list(quem.values())
     if not isinstance(quem, list) or not quem:
-        return False, "Ninguém escolhido"
+        return False, "ninguem_escolhido"
     _amg["t"] = 0.0
     amigos = {f.get("puuid"): f for f in _amigos_client() if f.get("puuid")}
     alvos = [amigos[p] for p in quem[:20] if isinstance(p, str) and p in amigos]
     if not alvos:
-        return False, "Amigo não encontrado"
+        return False, "amigo_nao_achado"
     if not isinstance(_get("/lol-lobby/v2/lobby"), dict):
-        return False, "Você não está numa sala"
+        return False, "fora_da_sala"
     corpo = [{"toSummonerId": f.get("summonerId"), "toPuuid": f["puuid"]} for f in alvos]
     try:
         r = _lcu("POST", "/lol-lobby/v2/lobby/invitations", json=corpo)
     except requests.RequestException:
         r = None
     if r is None:
-        return False, "LoL fechado"
+        return False, "lol_fechado"
     if not r.ok:
         _log(f"convite recusado pelo client ({r.status_code})")
-        return False, "O LoL recusou o convite"
+        return False, "lol_recusou_convite"
     _log(f"convite mandado pra {len(alvos)} amigo(s)")
-    return True, "Convite mandado" if len(alvos) == 1 else f"{len(alvos)} convites mandados"
+    return True, "convite_mandado" if len(alvos) == 1 else ("convites_mandados", {"n": len(alvos)})
 
 
 def _regras_posicao(lobby, primeira):
@@ -742,19 +746,19 @@ def _posicao_sala(papel, pos):
     """Escolhe a primeira (papel 0) ou a segunda (papel 1) posicao na sala, como o seletor do client: escolher
     a que ja esta no outro lado troca as duas. Mesma rota e corpo da tela (PUT .../position-preferences)."""
     if papel not in (0, 1) or pos not in POSICOES:
-        return False, "Posição inválida"
+        return False, "posicao_invalida"
     lobby = _get("/lol-lobby/v2/lobby")
     if not isinstance(lobby, dict) or not lobby.get("members"):
-        return False, "Você não está numa sala"
+        return False, "fora_da_sala"
     if not (lobby.get("gameConfig") or {}).get("showPositionSelector"):
-        return False, "Esse modo não tem posição"
+        return False, "modo_sem_posicao"
     eu = lobby.get("localMember") or {}
     p1 = eu.get("firstPositionPreference") or "UNSELECTED"
     p2 = eu.get("secondPositionPreference") or "UNSELECTED"
     if papel == 1:
         ok, opcoes = _regras_posicao(lobby, p1)
         if not ok or pos not in opcoes:
-            return False, "Essa posição não dá na segunda"
+            return False, "posicao_segunda_nao"
     n1, n2 = (pos, p2) if papel == 0 else (p1, pos)
     if (n1, n2) == (p1, p2):
         return True, ""
@@ -770,10 +774,10 @@ def _posicao_sala(papel, pos):
         r = None
     _vivo["escrita_sel"] = time.time()
     if r is None:
-        return False, "LoL fechado"
+        return False, "lol_fechado"
     if not r.ok:
         _log(f"posicao recusada pelo client ({r.status_code})")
-        return False, "O LoL recusou essa posição"
+        return False, "lol_recusou_posicao"
     _log(f"posicao na sala pelo celular: {n1} / {n2}")
     return True, ""
 
@@ -816,16 +820,16 @@ def _trocar_skin(sid):
     tem = {x["id"] for x in sk.get("lista") or [] if x["tem"]} | \
         {c["id"] for x in sk.get("lista") or [] for c in x["chromas"] if c["tem"]}
     if not isinstance(sid, int) or sid not in tem:
-        return False, "Skin indisponível"
+        return False, "skin_indisponivel"
     try:
         r = _lcu("PATCH", "/lol-champ-select/v1/session/my-selection", json={"selectedSkinId": sid})
     except requests.RequestException:
         r = None
     if r is None:
-        return False, "LoL fechado"
+        return False, "lol_fechado"
     if not r.ok:
         _log(f"skin recusada pelo client ({r.status_code})")
-        return False, "O LoL recusou essa skin"
+        return False, "lol_recusou_skin"
     _log(f"skin: {sid}")
     return True, ""
 
@@ -881,21 +885,21 @@ def _trocar_feitico(slot, fid):
     """Troca o feitico D (slot 0) ou F (slot 1), como na grade de feitico do client: escolher o que ja esta no
     outro lado inverte os dois."""
     if slot not in (0, 1) or not isinstance(fid, int):
-        return False, "Feitiço inválido"
+        return False, "feitico_invalido"
     s = _get("/lol-champ-select/v1/session")
     if not isinstance(s, dict) or not s.get("myTeam"):
-        return False, "Você não está na seleção"
+        return False, "fora_da_selecao"
     eu = next((m for m in s["myTeam"] if m.get("cellId") == s.get("localPlayerCellId")), {})
     par = [eu.get("spell1Id") or 0, eu.get("spell2Id") or 0]
     if _arena(s.get("queueId")):
         # Arena: o par e sempre Fuga + Flash, so da pra inverter D e F (escolher o do outro lado)
         if fid not in ARENA_FEITICOS or set(par) != set(ARENA_FEITICOS):
-            return False, "Na Arena só dá pra trocar a ordem dos feitiços"
+            return False, "arena_so_ordem"
     elif fid not in {f["id"] for f in _feiticos(_modo_jogo(), par)}:
-        return False, "Esse feitiço não vale nesse modo"
+        return False, "feitico_modo"
     pos = (eu.get("assignedPosition") or "").lower()
     if fid == GOLPEAR and fid not in par and pos and pos != "jungle":
-        return False, "Golpear só na selva"
+        return False, "golpear_selva"
     if par[slot] == fid:
         return True, ""
     novo = list(par)
@@ -909,10 +913,10 @@ def _trocar_feitico(slot, fid):
         r = None
     _vivo["escrita_sel"] = time.time()
     if r is None:
-        return False, "LoL fechado"
+        return False, "lol_fechado"
     if not r.ok:
         _log(f"feitico recusado pelo client ({r.status_code})")
-        return False, "O LoL recusou esse feitiço"
+        return False, "lol_recusou_feitico"
     _log(f"feiticos pelo celular: {novo[0]} + {novo[1]}")
     return True, ""
 
@@ -978,10 +982,10 @@ def _usar_pagina(pid):
     """Troca a pagina em uso, igual escolher na lista de paginas da selecao do client."""
     pages = _get("/lol-perks/v1/pages")
     if not isinstance(pages, list):
-        return False, "LoL fechado"
+        return False, "lol_fechado"
     p = next((x for x in pages if isinstance(x, dict) and x.get("id") == pid), None)
     if not p:
-        return False, "Página não encontrada"
+        return False, "pagina_nao_achada"
     if p.get("current"):
         return True, ""
     try:
@@ -989,10 +993,10 @@ def _usar_pagina(pid):
     except requests.RequestException:
         r = None
     if r is None:
-        return False, "LoL fechado"
+        return False, "lol_fechado"
     if not r.ok:
         _log(f"pagina de runa recusada pelo client ({r.status_code})")
-        return False, "O LoL recusou essa página"
+        return False, "lol_recusou_pagina"
     _log(f"runas: pagina '{ascii_log(p.get('name') or '')}'")
     return True, ""
 
@@ -1001,39 +1005,39 @@ def _salvar_pagina(pid, nome, prim, sec, perks):
     """Salva a pagina editada no celular (pid 0 = pagina nova) e deixa ela em uso. Como no client: salvar e uma
     gravacao; se ela nao ficou em uso, escolhe ela um instante depois (nunca as duas juntas)."""
     if not isinstance(perks, list) or not _runas_certas(prim, sec, perks):
-        return False, "Página incompleta"
+        return False, "pagina_incompleta"
     nome = (nome if isinstance(nome, str) else "").strip()[:PAGINA_NOME_MAX]
     pages = _get("/lol-perks/v1/pages")
     if not isinstance(pages, list):
-        return False, "LoL fechado"
+        return False, "lol_fechado"
     corpo = {"name": nome or "Página nova", "primaryStyleId": prim, "subStyleId": sec,
              "selectedPerkIds": perks, "current": True}
     try:
         if pid:
             p = next((x for x in pages if isinstance(x, dict) and x.get("id") == pid), None)
             if not p:
-                return False, "Página não encontrada"
+                return False, "pagina_nao_achada"
             if p.get("isEditable", True) is False or p.get("isTemporary"):
-                return False, "Essa página não dá pra editar"
+                return False, "pagina_nao_edita"
             r = _lcu("PUT", f"/lol-perks/v1/pages/{pid}", json={**p, **corpo})
         else:
             if not (_get("/lol-perks/v1/inventory") or {}).get("canAddCustomPage"):
-                return False, "Sem espaço pra página nova"
+                return False, "pagina_sem_espaco"
             r = _lcu("POST", "/lol-perks/v1/pages", json=corpo)
         if r is None:
-            return False, "LoL fechado"
+            return False, "lol_fechado"
         if not r.ok:
             _log(f"pagina de runa recusada pelo client ({r.status_code})")
-            return False, "O LoL recusou a página"
+            return False, "lol_recusou_pagina"
         if not pid:
             pid = ((r.json() if r.content else {}) or {}).get("id")
         if pid and (_get("/lol-perks/v1/currentpage") or {}).get("id") != pid:
             time.sleep(random.uniform(0.4, 0.9))
             _lcu("PUT", "/lol-perks/v1/currentpage", json=pid)
     except (requests.RequestException, ValueError):
-        return False, "LoL fechado"
+        return False, "lol_fechado"
     _log(f"runas: pagina '{ascii_log(corpo['name'])}' salva pelo celular")
-    return True, "Página salva"
+    return True, "pagina_salva"
 
 
 def _grade(sid):
@@ -1780,10 +1784,20 @@ def fim(fase, gf):
 
 # ---------------- loops ----------------
 
+def _msg_partes(msg):
+    """A mensagem de um comando e um codigo (o app traduz) ou (codigo, parametros)."""
+    if isinstance(msg, tuple):
+        return msg[0], dict(msg[1])
+    return msg, {}
+
+
 def _responder(cid, ok, msg):
+    codigo, params = _msg_partes(msg)
+    resposta = {"id": cid, "ok": ok, "msg": codigo, "em": {".sv": "timestamp"}}
+    if params:
+        resposta["p"] = params  # dado variavel da mensagem (nome, quantidade)
     try:
-        _db("PATCH", f"ao_vivo/{uid()}", json={"resposta": {"id": cid, "ok": ok, "msg": msg,
-                                                             "em": {".sv": "timestamp"}}})
+        _db("PATCH", f"ao_vivo/{uid()}", json={"resposta": resposta})
     except requests.RequestException:
         pass
 
@@ -1791,15 +1805,15 @@ def _responder(cid, ok, msg):
 def executar(cid, cmd):
     """Roda um comando do celular. Devolve (ok, mensagem pro celular)."""
     if not isinstance(cmd, dict):
-        return False, "comando invalido"
+        return False, "comando_invalido"
     # as regras do banco ja so deixam a conta deste PC gravar comando; conferir de novo aqui cobre o comando que
     # ficou na fila de uma conta que saiu (trocou de conta no painel) e regra mexida por engano
     dono = (conta() or {}).get("uid")
     if not dono or cmd.get("de") != dono:
-        return False, "Comando de outra conta"
+        return False, "comando_outra_conta"
     em = cmd.get("em")
     if not isinstance(em, (int, float)) or abs(agora_ms() - em) > VALIDADE_CMD * 1000:
-        return False, "Comando chegou atrasado"
+        return False, "comando_atrasado"
     tipo = cmd.get("tipo")
     if tipo == "chat":
         return _mandar_chat(cmd.get("texto"))
@@ -1837,19 +1851,19 @@ def executar(cid, cmd):
     if tipo == "fechar_lol":
         return _fechar_lol()
     if tipo not in COMANDOS:
-        return False, "Comando desconhecido"
-    metodo, caminho, texto = COMANDOS[tipo]
+        return False, "comando_desconhecido"
+    metodo, caminho, texto, codigo = COMANDOS[tipo]
     try:
         r = _lcu(metodo, caminho)
     except requests.RequestException:
         r = None
     if r is None:
-        return False, "LoL fechado"
+        return False, "lol_fechado"
     if not r.ok:
         _log(f"{tipo} recusado pelo client ({r.status_code})")
-        return False, "O LoL recusou"
-    _log(texto.lower())
-    return True, texto
+        return False, "lol_recusou"
+    _log(texto.lower())  # o log fica em portugues; o celular recebe o codigo
+    return True, codigo
 
 
 PROCESSOS_LOL = {"LeagueClient.exe", "LeagueClientUx.exe", "League of Legends.exe"}
@@ -2168,36 +2182,36 @@ def _abrir_lol(tocou_ms=None):
 def _abrir_lol_ja(tocou_ms):
     import subprocess
     if _vivo["fechando"]:
-        return False, "Espere o LoL terminar de fechar"
+        return False, "lol_fechando_espere"
     # so pergunta pro client com ele rodando: client morrendo ou subindo segura cada leitura ate 3s
     if _ux_rodando() and _get("/lol-gameflow/v1/gameflow-phase"):
-        return False, "O LoL já está aberto"
+        return False, "lol_ja_aberto"
     if _vivo.get("abertura"):  # toque de novo no meio: a barra continua de onde estava, nao recomeca
-        return True, "O LoL já está abrindo"
+        return True, "lol_ja_abrindo"
     if _lol_rodando():
         _vivo["abrindo"] = time.time()
-        return True, "O LoL já está abrindo"
+        return True, "lol_ja_abrindo"
     if _jogar_riot_client():
         _vivo["abrindo"] = time.time()
         _comecar_abertura("quente", tocou_ms)
         _log("abrindo o LoL pelo celular (Riot Client ja aberto)")
-        return True, "Abrindo o LoL"
+        return True, "abrindo_lol"
     cmd = _riot_client()
     if not cmd:
-        return False, "Não achei o LoL neste PC"
+        return False, "lol_nao_achado"
     try:
         subprocess.Popen(cmd, close_fds=True,
                          creationflags=getattr(subprocess, "DETACHED_PROCESS", 0)
                          | getattr(subprocess, "CREATE_NEW_PROCESS_GROUP", 0))
     except OSError as e:
         _log(f"falha ao abrir o LoL: {e}")
-        return False, "Não consegui abrir o LoL"
+        return False, "lol_nao_abriu"
     _vivo["abrindo"] = time.time()
     _comecar_abertura("frio" if len(cmd) > 1 else "quente", tocou_ms)
     _log("abrindo o LoL pelo celular")
     if len(cmd) > 1:  # Riot Client: confere se ele deu o Jogar sozinho
         threading.Thread(target=_vigiar_abertura, daemon=True).start()
-    return True, "Abrindo o LoL"
+    return True, "abrindo_lol"
 
 
 PROCESSOS_RIOT = {"RiotClientServices.exe", "Riot Client.exe", "RiotClientUx.exe", "RiotClientUxRender.exe"}
@@ -2264,16 +2278,16 @@ def _fechar_lol():
     """Fecha o LoL e o Riot Client, como fechar pelo X e sair do Riot Client na bandeja. Nunca no meio de partida."""
     fase = _get("/lol-gameflow/v1/gameflow-phase") if not _vivo["fechando"] else None
     if fase in FASES_SEM_FECHAR:
-        return False, "Agora não: você sairia da partida"
+        return False, "fechar_em_partida"
     if _vivo["fechando"]:  # toque de novo enquanto fecha: nao e erro
-        return True, "O LoL já está fechando"
+        return True, "lol_ja_fechando"
     if not fase and not _lol_rodando() and not _riot_rodando():
-        return False, "O LoL já está fechado"
+        return False, "lol_ja_fechado"
     _vivo["abrindo"] = 0.0
     _vivo["abertura"] = None
     _vivo["fechando"] = time.time()
     threading.Thread(target=_fechar_tudo, daemon=True).start()
-    return True, "Fechando o LoL"
+    return True, "fechando_lol"
 
 
 def _sair_selecao():
@@ -2282,24 +2296,24 @@ def _sair_selecao():
     servidor seguia com voce na partida, que comecava sozinha logo depois."""
     s = _get("/lol-champ-select/v1/session")
     if not isinstance(s, dict) or not s.get("showQuitButton"):
-        return False, "Aqui não dá pra sair"
+        return False, "sair_selecao_nao"
     try:
         r = _lcu("POST", "/lol-lobby-team-builder/champ-select/v1/session/quit")
     except requests.RequestException:
         r = None
     if r is None:
-        return False, "LoL fechado"
+        return False, "lol_fechado"
     if not r.ok:
         _log(f"sair da selecao recusado pelo client ({r.status_code})")
-        return False, "O LoL recusou"
+        return False, "lol_recusou"
     _log("saiu da selecao")
-    return True, "Saiu da seleção"
+    return True, "saiu_selecao"
 
 
 # troca com aliado, como na tela do client: grupo -> (lista na sessao, rota da tela, chave no aliado, nome)
 GRUPOS_TROCA = {
     "troca": ("trades", "champion-swaps", "troca", "Troca"),
-    "pos": ("positionSwaps", "position-swaps", "troca_pos", "Troca de posição"),
+    "pos": ("positionSwaps", "position-swaps", "troca_pos", "Troca de posicao"),
     "ordem": ("pickOrderSwaps", "pick-order-swaps", "troca_ordem", "Troca de ordem"),
 }
 # acao -> (acao na LCU, estado que a troca tem que ter, fim do que aparece no celular)
@@ -2309,8 +2323,8 @@ TROCAS = {f"{g}_{a}": (g, a) for g in GRUPOS_TROCA for a in ACOES_TROCA}
 TROCA_PENDENTE = ("SENT", "RECEIVED")   # voce pediu ou pediram pra voce
 FASES_BANCO = ("BAN_PICK", "FINALIZATION")
 BANCO_ESPERA = (3.2, 4.5)  # a tela do client trava o banco 3s depois de cada troca
-TROCA_ESTADOS = {"BUSY": "Esse aliado está em outra troca", "INVALID": "Agora não dá pra trocar com ele",
-                 "SENT": "Você já pediu essa troca", "RECEIVED": "Ele já pediu troca com você"}
+TROCA_ESTADOS = {"BUSY": "troca_aliado_ocupado", "INVALID": "troca_agora_nao",
+                 "SENT": "troca_ja_pediu", "RECEIVED": "troca_ele_pediu"}
 TROCA_FIM_S = 5   # a tela do client some com os botoes de troca nos 5s finais dos picks e da finalizacao
 
 
@@ -2366,10 +2380,10 @@ def _troca(tipo, tid, cell):
     resto pelo id e cai pro aliado."""
     grupo, nome_acao = TROCAS[tipo]
     acao, precisa, fim = ACOES_TROCA[nome_acao]
-    lista, rota, _, nome = GRUPOS_TROCA[grupo]
+    lista, rota, chave_aliado, nome = GRUPOS_TROCA[grupo]
     s = _get("/lol-champ-select/v1/session")
     if not isinstance(s, dict) or not s.get("myTeam"):
-        return False, "Você não está na seleção"
+        return False, "fora_da_selecao"
     trocas = [t for t in s.get(lista) or [] if isinstance(t, dict)]
     t = None
     if nome_acao != "pedir" and isinstance(tid, int):
@@ -2377,55 +2391,55 @@ def _troca(tipo, tid, cell):
     if t is None and isinstance(cell, int):
         t = next((x for x in trocas if x.get("cellId") == cell), None)
     if t is None:
-        return False, "Essa troca não existe mais"
+        return False, "troca_inexistente"
     # uma troca por vez, de qualquer tipo (o client tambem: as outras viram INVALID)
     todas = [x for g in GRUPOS_TROCA.values() for x in s.get(g[0]) or [] if isinstance(x, dict)]
     if nome_acao == "pedir" and any(x.get("state") in TROCA_PENDENTE for x in todas):
-        return False, "Termine a outra troca antes"
+        return False, "troca_termine_outra"
     if t.get("state") != precisa:
-        return False, TROCA_ESTADOS.get(t.get("state"), "Essa troca não está mais valendo")
+        return False, TROCA_ESTADOS.get(t.get("state"), "troca_invalida")
     if nome_acao in ("pedir", "aceitar"):
         if _fim_da_selecao(s):
-            return False, "Tarde demais pra trocar"
+            return False, "troca_tarde"
         if grupo == "ordem":
             acoes = [x for g in s.get("actions") or [] for x in g]
             travou = {x.get("actorCellId") for x in acoes if x.get("type") == "pick" and x.get("completed")}
             if not _ordem_ok(s, travou, t.get("cellId")):
-                return False, "Agora não dá pra trocar a ordem"
+                return False, "troca_ordem_nao"
     _espacar()
     # so a rota que a tela do client usa (a antiga /session/trades saiu: rota que o client nao usa destoa)
     r = _post_selecao([f"/lol-champ-select/v1/session/{rota}/{t['id']}/{acao}"])
     if r is None:
-        return False, "LoL fechado"
+        return False, "lol_fechado"
     if not r.ok:
         _log(f"{tipo} recusado pelo client ({r.status_code})")
-        return False, "O LoL recusou a troca"
+        return False, "lol_recusou_troca"
     m = next((x for x in s.get("myTeam") or [] if x.get("cellId") == t.get("cellId")), {})
     nomes = _nomes_campeoes()
-    feito = "Pedido cancelado" if nome_acao == "cancelar" else f"{nome} {fim}"
+    feito = "Pedido cancelado" if nome_acao == "cancelar" else f"{nome} {fim}"  # so pro log (portugues)
     _log(f"{ascii_log(feito.lower())} com {ascii_log(m.get('gameName') or 'aliado')} "
          f"({ascii_log(nomes.get(m.get('championId') or 0, '?'))}, {m.get('assignedPosition') or '-'})")
-    return True, feito
+    return True, "pedido_cancelado" if nome_acao == "cancelar" else f"{chave_aliado}_{fim}"
 
 
 def _escolher_carta(cid):
     """ARAM Desordem: escolhe uma das cartas do comeco, como clicar nela no client (a tela faz o PATCH com
     completed true direto, sem marcar antes). Confere de novo na sessao e na lista de cartas antes."""
     if not isinstance(cid, int) or cid <= 0:
-        return False, "Campeão inválido"
+        return False, "campeao_invalido"
     s = _get("/lol-champ-select/v1/session")
     if not isinstance(s, dict) or not s.get("myTeam"):
-        return False, "Você não está na seleção"
+        return False, "fora_da_selecao"
     if s.get("queueId") not in lcu.FILAS_ARAM or (s.get("timer") or {}).get("phase") != "BAN_PICK":
-        return False, "As cartas já fecharam"
+        return False, "cartas_fecharam"
     eu = s.get("localPlayerCellId")
     acao = next((a for g in s.get("actions") or [] for a in g if a.get("actorCellId") == eu
                  and a.get("type") == "pick" and not a.get("completed")), None)
     if not acao:
-        return False, "Você já escolheu"
+        return False, "ja_escolheu"
     sub = _get("/lol-lobby-team-builder/champ-select/v1/subset-champion-list")
     if not isinstance(sub, list) or cid not in sub:
-        return False, "Essa carta não está mais valendo"
+        return False, "carta_invalida"
     _espacar()
     try:
         # mesma rota e corpo da tela do client (champSelectService.selectChampion(acao, campeao, true))
@@ -2435,30 +2449,30 @@ def _escolher_carta(cid):
         r = None
     _vivo["escrita_sel"] = time.time()
     if r is None:
-        return False, "LoL fechado"
+        return False, "lol_fechado"
     nome = _nomes_campeoes().get(cid, "")
     if not r.ok:
         _log(f"carta recusada pelo client ({r.status_code})")
-        return False, f"O LoL não deixou escolher {nome or 'essa carta'}"
+        return False, ("lol_negou_carta", {"nome": nome}) if nome else "lol_recusou_carta"
     _log(f"escolheu a carta {ascii_log(nome or str(cid))} pelo celular")
-    return True, f"Escolheu {nome}" if nome else "Carta escolhida"
+    return True, ("carta_escolheu", {"nome": nome}) if nome else "carta_escolhida"
 
 
 def _pegar_banco(cid):
     """Pega um campeao do banco (ARAM), como clicar nele no client. So se ele ainda esta la e nao tem troca com
     aliado no meio (pegar do banco desfaria a troca)."""
     if not isinstance(cid, int) or cid <= 0:
-        return False, "Campeão inválido"
+        return False, "campeao_invalido"
     s = _get("/lol-champ-select/v1/session")
     if not isinstance(s, dict) or not s.get("myTeam"):
-        return False, "Você não está na seleção"
+        return False, "fora_da_selecao"
     if cid not in [b.get("championId") for b in s.get("benchChampions") or [] if isinstance(b, dict)]:
-        return False, "Esse campeão saiu do banco"
+        return False, "banco_saiu"
     if any(t.get("state") in TROCA_PENDENTE for g in GRUPOS_TROCA.values() for t in s.get(g[0]) or []
            if isinstance(t, dict)):
-        return False, "Termine a troca com o aliado antes"
+        return False, "banco_termine_troca"
     if (s.get("timer") or {}).get("phase") not in FASES_BANCO:
-        return False, "Ainda não dá pra pegar do banco"
+        return False, "banco_ainda_nao"
     _espacar()
     # o client trava o banco por 3s depois de cada troca: espera passar, como quem toca de novo
     falta = _vivo["banco_t"] + random.uniform(*BANCO_ESPERA) - time.time()
@@ -2467,33 +2481,33 @@ def _pegar_banco(cid):
         s = _get("/lol-champ-select/v1/session")  # nessa espera alguem pode ter pego
         if not isinstance(s, dict) or cid not in [b.get("championId") for b in s.get("benchChampions") or []
                                                   if isinstance(b, dict)]:
-            return False, "Esse campeão saiu do banco"
+            return False, "banco_saiu"
     r = _post_selecao([f"/lol-champ-select/v1/session/bench/swap/{cid}"])
     _vivo["banco_t"] = time.time()
     if r is None:
-        return False, "LoL fechado"
+        return False, "lol_fechado"
     nome = _nomes_campeoes().get(cid, "")
     if not r.ok:
         _log(f"banco recusado pelo client ({r.status_code})")
-        return False, f"O LoL não deixou pegar {nome or 'esse campeão'}"
+        return False, ("lol_negou_banco", {"nome": nome}) if nome else "lol_recusou_banco"
     _log(f"pegou {ascii_log(nome or str(cid))} do banco pelo celular")
-    return True, f"Pegou {nome}" if nome else "Pegou do banco"
+    return True, ("banco_pegou", {"nome": nome}) if nome else "banco_pegou_sem"
 
 
 def _escolher(cid, acao, travar):
     """Marca (hover) ou trava/bane um campeao na SUA acao da selecao, conforme o toque no celular. No
     planejamento, marcar e declarar intencao."""
     if not isinstance(cid, int) or cid <= 0 or acao not in ("pick", "ban"):
-        return False, "Campeão inválido"
+        return False, "campeao_invalido"
     s = _get("/lol-champ-select/v1/session")
     if not isinstance(s, dict):
-        return False, "Você não está na seleção"
+        return False, "fora_da_selecao"
     if s.get("queueId") in lcu.FILAS_ARAM:
-        return False, "Na ARAM: Desordem o campeão é sorteado"
+        return False, "aram_sorteado"
     arena = _arena(s.get("queueId"))
     if arena and (s.get("timer") or {}).get("phase") != "BAN_PICK":
         # na Arena o ban aparece em andamento ja no planejamento, mas ali ninguem bane nem escolhe
-        return False, "Ainda não abriu a escolha"
+        return False, "escolha_nao_abriu"
     eu = s.get("localPlayerCellId")
     minhas = [a for g in s.get("actions") or [] for a in g
               if a.get("actorCellId") == eu and a.get("type") == acao and not a.get("completed")]
@@ -2501,9 +2515,9 @@ def _escolher(cid, acao, travar):
     if not a and acao == "pick" and minhas and not travar and not arena:
         a = minhas[0]  # antes da sua vez (planejamento ou bans): so declara intencao (a Arena nao tem)
     if not a:
-        return False, "Não é sua vez"
+        return False, "nao_sua_vez"
     if acao == "pick" and cid in lcu.banidos_da_sessao(s):
-        return False, "Esse campeão foi banido"
+        return False, "campeao_banido"
     corpo = {"championId": cid}
     if travar:
         corpo["completed"] = True
@@ -2514,7 +2528,7 @@ def _escolher(cid, acao, travar):
             except requests.RequestException:
                 r = None
             if r is None or not r.ok:
-                return False, "O LoL recusou esse campeão"
+                return False, "lol_recusou_campeao"
             # intervalo curto entre marcar e travar, sem passar do turno (antes travar rapido que perder a vez)
             t = s.get("timer") or {}
             fim = (t.get("internalNowInEpochMs") or 0) + (t.get("adjustedTimeLeftInPhase") or 0)
@@ -2525,15 +2539,15 @@ def _escolher(cid, acao, travar):
     except requests.RequestException:
         r = None
     if r is None:
-        return False, "LoL fechado"
+        return False, "lol_fechado"
     if not r.ok:
         _log(f"{acao} recusado pelo client ({r.status_code})")
-        return False, "O LoL recusou esse campeão"
+        return False, "lol_recusou_campeao"
     nomes = _nomes_campeoes()
     feito = ("Banido" if acao == "ban" else "Travado") if travar else (
         "Marcado" if a.get("isInProgress") else "Intencao")
     _log(f"{feito.lower()}: {ascii_log(nomes.get(cid, str(cid)))}")
-    return True, "" if not travar else f"{feito}: {nomes.get(cid, '')}"
+    return True, "" if not travar else (("banido" if acao == "ban" else "travado"), {"nome": nomes.get(cid, "")})
 
 
 def ascii_log(t):
@@ -2543,14 +2557,14 @@ def ascii_log(t):
 def _mandar_chat(texto):
     texto = str(texto or "").strip()[:200]
     if not texto:
-        return False, "Mensagem vazia"
+        return False, "mensagem_vazia"
     sessao = _get("/lol-champ-select/v1/session") if _get("/lol-gameflow/v1/gameflow-phase") == "ChampSelect" else None
     if isinstance(sessao, dict):  # na selecao o chat e o dela
         cid = _id_conversa((sessao.get("chatDetails") or {}).get("multiUserChatId"))
     else:
         cid = _id_conversa((_get("/lol-lobby/v2/lobby") or {}).get("multiUserChatId"))
     if not cid:
-        return False, "Sem chat agora"
+        return False, "sem_chat"
     try:
         r = _lcu("POST", f"/lol-chat/v1/conversations/{quote(cid)}/messages", json={"body": texto, "type": "groupchat"})
         if r is not None and not r.ok:  # formato recusado: tenta so com o texto
@@ -2559,10 +2573,10 @@ def _mandar_chat(texto):
     except requests.RequestException:
         r = None
     if r is None:
-        return False, "LoL fechado"
+        return False, "lol_fechado"
     if not r.ok:
         _log(f"chat recusado pelo client ({r.status_code})")
-        return False, "O LoL recusou a mensagem"
+        return False, "lol_recusou_mensagem"
     _log("mensagem mandada no chat da sala")
     return True, ""
 
@@ -2627,10 +2641,10 @@ def _tratar(dados, prefixo=""):
                 ok, msg = executar(cid, cmd)
             else:
                 _log(f"comando {cmd.get('tipo')} ignorado (muitos seguidos)")
-                ok, msg = False, "Muitos comandos seguidos: espere um pouco"
+                ok, msg = False, "muitos_comandos"
         except Exception as e:
             _log(f"comando {cmd.get('tipo')} falhou ({e.__class__.__name__})")
-            ok, msg = False, "Deu erro no PC"
+            ok, msg = False, "erro_no_pc"
         try:
             if cmd.get("tipo") not in SEM_RESPOSTA:
                 _responder(cid, ok, msg)

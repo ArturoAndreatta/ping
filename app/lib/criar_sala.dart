@@ -471,7 +471,7 @@ class _Modos extends StatelessWidget {
                 Padding(
                   padding: const EdgeInsets.only(right: 8),
                   child: _Aba(
-                    texto: x,
+                    texto: textoGrupo(context.txt, x),
                     ativo: x == g,
                     aoTocar: () => aoGrupo(x),
                   ),
@@ -747,12 +747,12 @@ class _Amigo extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final pode = a['pode'] == true && ocupado == null;
-    final status = ocupado ?? '${a['status']}';
+    final status = ocupado ?? textoStatus(context.txt, '${a['status']}');
     final corStatus = ocupado != null
         ? Cor.ouro
         : a['pode'] != true
         ? Cor.apagado
-        : (status == 'Disponível' ? Cor.teal : Cor.aviso);
+        : (statusDisponivel('${a['status']}') ? Cor.teal : Cor.aviso);
     return Semantics(
       button: pode,
       checked: pode ? marcado : null,

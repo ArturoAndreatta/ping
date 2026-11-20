@@ -89,6 +89,8 @@ class ConexaoVitrine extends Conexao {
   };
 
   final _rnd = math.Random();
+  // parâmetros da mensagem da resposta (nome), como o `p` que o PC manda
+  Map<String, dynamic>? _pMsg;
   final _timers = <Timer>[];
   int _n = 0;
   List<Map> _campeoes = const [];
@@ -297,9 +299,17 @@ class ConexaoVitrine extends Conexao {
     // o tempo do comando ir e o PC responder
     await Future.delayed(Duration(milliseconds: 350 + _rnd.nextInt(350)));
     if (_esperando != id) return;
+    _pMsg = null;
     final (ok, msg) = _executar(tipo, extra);
+    final p = _pMsg;
     _mexer(
-      (e) => e['resposta'] = {'id': id, 'ok': ok, 'msg': msg, 'em': _agora},
+      (e) => e['resposta'] = {
+        'id': id,
+        'ok': ok,
+        'msg': msg,
+        'p': ?p,
+        'em': _agora,
+      },
     );
   }
 
@@ -310,7 +320,7 @@ class ConexaoVitrine extends Conexao {
     switch (tipo) {
       case 'aceitar' || 'recusar':
         final p = estado['partida'];
-        if (fase != 'ReadyCheck' || p is! Map) return (false, 'O LoL recusou');
+        if (fase != 'ReadyCheck' || p is! Map) return (false, 'lol_recusou');
         final aceitou = tipo == 'aceitar';
         _mexer(
           (e) => e['partida'] = {
@@ -321,24 +331,24 @@ class ConexaoVitrine extends Conexao {
         if (!aceitou) {
           _depois(1500, () => _mexer((e) => _irPara(e, 'Lobby')));
         }
-        return (true, aceitou ? 'Partida aceita' : 'Partida recusada');
+        return (true, aceitou ? 'partida_aceita' : 'partida_recusada');
       case 'buscar':
         _mexer((e) {
           _irPara(e, 'Matchmaking');
           e['fila_inicio'] = _agora;
           e['fila_estimado'] = 95;
         });
-        return (true, 'Fila iniciada');
+        return (true, 'fila_iniciada');
       case 'sair_fila':
         _mexer((e) => _irPara(e, e['sala'] is Map ? 'Lobby' : 'None'));
-        return (true, 'Saiu da fila');
+        return (true, 'saiu_fila');
       case 'sair_sala' || 'sair_selecao':
         _mexer((e) {
           _irPara(e, 'None');
           e.remove('sala');
           e['filas'] = _filas();
         });
-        return (true, tipo == 'sair_sala' ? 'Saiu da sala' : 'Saiu da seleção');
+        return (true, tipo == 'sair_sala' ? 'saiu_sala' : 'saiu_selecao');
       case 'criar_sala':
         final fila = (x['fila'] as num?)?.toInt() ?? 420;
         final f = _filas().firstWhere(
@@ -357,7 +367,7 @@ class ConexaoVitrine extends Conexao {
         return (true, '');
       case 'convidar':
         final sala = estado['sala'];
-        if (sala is! Map) return (false, 'Você não está numa sala');
+        if (sala is! Map) return (false, 'fora_da_sala');
         final quem = (x['quem'] as List?) ?? const [];
         final amigos = ((estado['amigos'] as List?) ?? const []).cast<Map>();
         final novos = [
@@ -381,7 +391,7 @@ class ConexaoVitrine extends Conexao {
       case 'posicao':
         // mesma regra do PC (_posicao_sala): a que já está no outro lado troca as duas
         final sala = estado['sala'];
-        if (sala is! Map) return (false, 'Você não está numa sala');
+        if (sala is! Map) return (false, 'fora_da_sala');
         final papel = x['papel'];
         final pos = '${x['pos']}';
         final l = (sala['minhas_pos'] as List?) ?? const ['', ''];
@@ -418,10 +428,10 @@ class ConexaoVitrine extends Conexao {
         return _dm('${x['puuid'] ?? ''}', '${x['texto'] ?? ''}');
       case 'abrir_lol':
         if (estado['fechando'] == true) {
-          return (false, 'Espere o LoL terminar de fechar');
+          return (false, 'lol_fechando_espere');
         }
         _simularAbertura();
-        return (true, 'Abrindo o LoL');
+        return (true, 'abrindo_lol');
       case 'fechar_lol':
         _mexer((e) {
           e.removeWhere((k, _) => !_base.contains(k));
@@ -429,7 +439,7 @@ class ConexaoVitrine extends Conexao {
           e['fechando'] = true;
         });
         _depois(2600, () => _mexer((e) => e.remove('fechando')));
-        return (true, 'Fechando o LoL');
+        return (true, 'fechando_lol');
       case 'campeao':
         return _campeao(
           (x['campeao'] as num?)?.toInt() ?? 0,
@@ -442,7 +452,7 @@ class ConexaoVitrine extends Conexao {
         return _banco((x['campeao'] as num?)?.toInt() ?? 0);
       case 'skin':
         final sel = estado['selecao'];
-        if (sel is! Map) return (false, 'Você não está na seleção');
+        if (sel is! Map) return (false, 'fora_da_selecao');
         _mexer((e) => e['selecao'] = {...sel, 'skin': x['skin']});
         return (true, '');
       case 'feitico':
@@ -460,7 +470,7 @@ class ConexaoVitrine extends Conexao {
           ).hasMatch(t):
         return _troca(tipo, (x['cell'] as num?)?.toInt());
     }
-    return (false, 'Comando desconhecido');
+    return (false, 'comando_desconhecido');
   }
 
   static const _base = {'fase', 'visto', 'resposta'};
@@ -528,10 +538,10 @@ class ConexaoVitrine extends Conexao {
 
   (bool, String) _chat(String texto) {
     final t = texto.trim();
-    if (t.isEmpty) return (false, 'Mensagem vazia');
+    if (t.isEmpty) return (false, 'mensagem_vazia');
     final chave = fase == 'ChampSelect' ? 'selecao' : 'sala';
     final onde = estado[chave];
-    if (onde is! Map) return (false, 'Sem chat agora');
+    if (onde is! Map) return (false, 'sem_chat');
     final msg = {
       'tipo': 'msg',
       'texto': t,
@@ -551,7 +561,7 @@ class ConexaoVitrine extends Conexao {
 
   (bool, String) _dm(String puuid, String texto) {
     final t = texto.trim();
-    if (t.isEmpty) return (false, 'Mensagem vazia');
+    if (t.isEmpty) return (false, 'mensagem_vazia');
     final conv = Map<String, dynamic>.from(
       (estado['conversas'] as Map?) ?? const {},
     );
@@ -612,13 +622,13 @@ class ConexaoVitrine extends Conexao {
       .firstWhere((m) => m['eu'] == true);
 
   (bool, String) _campeao(int cid, String acao, bool travar) {
-    if (estado['selecao'] is! Map) return (false, 'Você não está na seleção');
-    if (cid <= 0) return (false, 'Campeão inválido');
+    if (estado['selecao'] is! Map) return (false, 'fora_da_selecao');
+    if (cid <= 0) return (false, 'campeao_invalido');
     final sel = _sel;
     if (sel['arena'] == true) return _campeaoArena(cid, acao, travar);
     final minhaVez = '${sel['minha_vez'] ?? ''}';
     if (acao == 'ban') {
-      if (minhaVez != 'ban') return (false, 'Não é sua vez');
+      if (minhaVez != 'ban') return (false, 'nao_sua_vez');
       if (!travar) {
         _mudarSel((s) {
           _eu(s)['campeao'] = cid;
@@ -634,9 +644,10 @@ class ConexaoVitrine extends Conexao {
         (s['bans'] as Map)['meu'] = [...(s['bans'] as Map)['meu'] as List, cid];
         return s;
       });
-      return (true, 'Banido: ${_nome(cid)}');
+      _pMsg = {'nome': _nome(cid)};
+      return (true, 'banido');
     }
-    if (sel['pick_pendente'] != true) return (false, 'Não é sua vez');
+    if (sel['pick_pendente'] != true) return (false, 'nao_sua_vez');
     if (!travar || minhaVez != 'pick') {
       // fora da vez é só intenção; na vez, só marcado
       _mudarSel((s) {
@@ -664,14 +675,15 @@ class ConexaoVitrine extends Conexao {
         ..['skin'] = cid * 1000;
       return s;
     });
-    return (true, 'Travado: ${_nome(cid)}');
+    _pMsg = {'nome': _nome(cid)};
+    return (true, 'travado');
   }
 
   (bool, String) _carta(int cid) {
-    if (estado['selecao'] is! Map) return (false, 'Você não está na seleção');
+    if (estado['selecao'] is! Map) return (false, 'fora_da_selecao');
     final cartas = (_sel['cartas'] as List?) ?? const [];
     if (!cartas.contains(cid)) {
-      return (false, 'Essa carta não está mais valendo');
+      return (false, 'carta_invalida');
     }
     _mudarSel((s) {
       _eu(s)
@@ -683,16 +695,17 @@ class ConexaoVitrine extends Conexao {
         ..['skin'] = cid * 1000;
       return s;
     });
-    return (true, 'Escolheu ${_nome(cid)}');
+    _pMsg = {'nome': _nome(cid)};
+    return (true, 'carta_escolheu');
   }
 
   (bool, String) _banco(int cid) {
-    if (estado['selecao'] is! Map) return (false, 'Você não está na seleção');
+    if (estado['selecao'] is! Map) return (false, 'fora_da_selecao');
     final sel = _sel;
     final banco = ((sel['banco'] as List?) ?? const []).cast<num>();
-    if (!banco.contains(cid)) return (false, 'Esse campeão saiu do banco');
+    if (!banco.contains(cid)) return (false, 'banco_saiu');
     if (sel['banco_ok'] != true) {
-      return (false, 'Termine a troca com o aliado antes');
+      return (false, 'banco_termine_troca');
     }
     _mudarSel((s) {
       final eu = _eu(s);
@@ -708,27 +721,28 @@ class ConexaoVitrine extends Conexao {
         ..['skin'] = cid * 1000;
       return s;
     });
-    return (true, 'Pegou ${_nome(cid)}');
+    _pMsg = {'nome': _nome(cid)};
+    return (true, 'banco_pegou');
   }
 
   /// Troca com aliado (campeão, posição ou ordem de pick), como o PC responderia: pedir deixa SENT, o resto
   /// volta pra AVAILABLE; aceitar troca o campeão, a posição ou o lugar na ordem.
   (bool, String) _troca(String tipo, int? cell) {
-    if (estado['selecao'] is! Map) return (false, 'Você não está na seleção');
+    if (estado['selecao'] is! Map) return (false, 'fora_da_selecao');
     final grupo = tipo.split('_').first;
     final acao = tipo.split('_').last;
     final lista = grupo == 'troca' ? 'trocas' : 'trocas_$grupo';
     final chave = grupo == 'troca' ? 'troca' : 'troca_$grupo';
     final trocas = ((_sel[lista] as List?) ?? const []).cast<Map>();
     final t = trocas.where((t) => t['cell'] == cell).firstOrNull;
-    if (t == null) return (false, 'Essa troca não existe mais');
+    if (t == null) return (false, 'troca_inexistente');
     final precisa = switch (acao) {
       'pedir' => 'AVAILABLE',
       'cancelar' => 'SENT',
       _ => 'RECEIVED',
     };
     if (t['estado'] != precisa) {
-      return (false, 'Essa troca não está mais valendo');
+      return (false, 'troca_invalida');
     }
     final novoEstado = acao == 'pedir' ? 'SENT' : 'AVAILABLE';
     _mudarSel((s) {
@@ -762,30 +776,30 @@ class ConexaoVitrine extends Conexao {
       return s;
     });
     final nome = switch (grupo) {
-      'pos' => 'Troca de posição',
-      'ordem' => 'Troca de ordem',
-      _ => 'Troca',
+      'pos' => 'troca_pos',
+      'ordem' => 'troca_ordem',
+      _ => 'troca',
     };
     return (
       true,
       switch (acao) {
-        'pedir' => '$nome pedida',
-        'aceitar' => '$nome aceita',
-        'recusar' => '$nome recusada',
-        _ => 'Pedido cancelado',
+        'pedir' => '${nome}_pedida',
+        'aceitar' => '${nome}_aceita',
+        'recusar' => '${nome}_recusada',
+        _ => 'pedido_cancelado',
       },
     );
   }
 
   (bool, String) _feitico(int slot, int fid) {
-    if (estado['selecao'] is! Map) return (false, 'Você não está na seleção');
+    if (estado['selecao'] is! Map) return (false, 'fora_da_selecao');
     final par = ((_sel['feiticos'] as List?) ?? const [0, 0])
         .map((e) => (e as num).toInt())
         .toList();
-    if (slot < 0 || slot > 1) return (false, 'Feitiço inválido');
+    if (slot < 0 || slot > 1) return (false, 'feitico_invalido');
     if ((estado['selecao'] as Map)['arena'] == true &&
         !{2201, 2202}.contains(fid)) {
-      return (false, 'Na Arena só dá pra trocar a ordem dos feitiços');
+      return (false, 'arena_so_ordem');
     }
     if (par[slot] == fid) return (true, '');
     final novo = [...par];
@@ -797,10 +811,10 @@ class ConexaoVitrine extends Conexao {
 
   (bool, String) _usarPagina(int id) {
     final rn = estado['runas'];
-    if (rn is! Map) return (false, 'LoL fechado');
+    if (rn is! Map) return (false, 'lol_fechado');
     final pags = (rn['paginas'] as List).cast<Map>();
     if (!pags.any((p) => p['id'] == id)) {
-      return (false, 'Página não encontrada');
+      return (false, 'pagina_nao_achada');
     }
     _mexer(
       (e) => e['runas'] = {
@@ -815,10 +829,10 @@ class ConexaoVitrine extends Conexao {
 
   (bool, String) _salvarPagina(Map<String, Object> x) {
     final rn = estado['runas'];
-    if (rn is! Map) return (false, 'LoL fechado');
+    if (rn is! Map) return (false, 'lol_fechado');
     final pags = (rn['paginas'] as List).cast<Map>();
     final perks = (x['perks'] as List?) ?? const [];
-    if (perks.length != 9) return (false, 'Página incompleta');
+    if (perks.length != 9) return (false, 'pagina_incompleta');
     final id = (x['pagina'] as num?)?.toInt() ?? 0;
     final nova = {
       'id': id > 0 ? id : 9000 + _n++,
@@ -844,7 +858,7 @@ class ConexaoVitrine extends Conexao {
         'pode_criar': lista.length < 5,
       },
     );
-    return (true, 'Página salva');
+    return (true, 'pagina_salva');
   }
 
   // ---------------- dados de mentira ----------------
@@ -852,54 +866,84 @@ class ConexaoVitrine extends Conexao {
   String _nome(int id) =>
       '${_campeoes.where((c) => c['id'] == id).firstOrNull?['name'] ?? ''}';
 
+  /// Texto no idioma do app: o que o client mandaria (nome de fila, aviso do chat) já vem no idioma dele.
+  String _l(String pt, String en, String es) => switch (Idioma.txt.localeName) {
+    'en' => en,
+    'es' => es,
+    _ => pt,
+  };
+
   List<Map<String, dynamic>> _filas() => [
     {
       'id': 420,
-      'nome': 'Ranqueada Solo/Duo',
-      'grupo': "Summoner's Rift",
+      'nome': _l(
+        'Ranqueada Solo/Duo',
+        'Ranked Solo/Duo',
+        'Clasificatoria Solo/Dúo',
+      ),
+      'grupo': 'summoners_rift',
       'custom': false,
     },
     {
       'id': 440,
-      'nome': 'Ranqueada Flexível',
-      'grupo': "Summoner's Rift",
+      'nome': _l(
+        'Ranqueada Flexível',
+        'Ranked Flex',
+        'Clasificatoria Flexible',
+      ),
+      'grupo': 'summoners_rift',
       'custom': false,
     },
     {
       'id': 400,
-      'nome': 'Escolha Alternada',
-      'grupo': "Summoner's Rift",
+      'nome': _l('Escolha Alternada', 'Draft Pick', 'Reclutamiento'),
+      'grupo': 'summoners_rift',
       'custom': false,
     },
     {
       'id': 490,
-      'nome': 'Partida Rápida',
-      'grupo': "Summoner's Rift",
+      'nome': _l('Partida Rápida', 'Quickplay', 'Partida rápida'),
+      'grupo': 'summoners_rift',
       'custom': false,
     },
-    {'id': 450, 'nome': 'ARAM', 'grupo': 'ARAM', 'custom': false},
-    {'id': 2400, 'nome': 'ARAM: Desordem', 'grupo': 'ARAM', 'custom': false},
-    {'id': 1700, 'nome': 'Arena', 'grupo': 'Outros modos', 'custom': false},
-    {'id': 870, 'nome': 'Introdução', 'grupo': 'Contra a IA', 'custom': false},
+    {'id': 450, 'nome': 'ARAM', 'grupo': 'aram', 'custom': false},
+    {
+      'id': 2400,
+      'nome': _l('ARAM: Desordem', 'ARAM: Mayhem', 'ARAM: Caos'),
+      'grupo': 'aram',
+      'custom': false,
+    },
+    {'id': 1700, 'nome': 'Arena', 'grupo': 'outros_modos', 'custom': false},
+    {
+      'id': 870,
+      'nome': _l('Introdução', 'Intro', 'Introducción'),
+      'grupo': 'contra_ia',
+      'custom': false,
+    },
     {
       'id': 880,
-      'nome': 'Intermediário',
-      'grupo': 'Contra a IA',
+      'nome': _l('Intermediário', 'Intermediate', 'Intermedio'),
+      'grupo': 'contra_ia',
       'custom': false,
     },
     {
       'id': 3100,
-      'nome': 'Escolha às Cegas',
-      'grupo': 'Personalizada',
+      'nome': _l('Escolha às Cegas', 'Blind Pick', 'Selección a ciegas'),
+      'grupo': 'personalizada',
       'custom': true,
     },
     {
       'id': 3130,
-      'nome': 'Escolha Alternada',
-      'grupo': 'Personalizada',
+      'nome': _l('Escolha Alternada', 'Draft Pick', 'Reclutamiento'),
+      'grupo': 'personalizada',
       'custom': true,
     },
-    {'id': 3140, 'nome': 'Modo de Treino', 'grupo': 'Treino', 'custom': true},
+    {
+      'id': 3140,
+      'nome': _l('Modo de Treino', 'Practice Tool', 'Herramienta de práctica'),
+      'grupo': 'treino',
+      'custom': true,
+    },
   ];
 
   static const _gente = [
@@ -920,13 +964,13 @@ class ConexaoVitrine extends Conexao {
         'tag': g.$2,
         'icone': g.$3,
         'status': const [
-          'Disponível',
-          'Na fila',
-          'Em partida',
-          'Disponível',
-          'Ausente',
-          'Na seleção',
-          'No celular',
+          'disponivel',
+          'na_fila',
+          'em_partida',
+          'disponivel',
+          'ausente',
+          'na_selecao',
+          'no_celular',
         ][i],
         'pode': const [true, true, false, true, true, false, false][i],
       },
@@ -943,20 +987,37 @@ class ConexaoVitrine extends Conexao {
         'msgs': [
           {
             'id': 'd1',
-            'texto': 'bora uma flex hoje?',
+            'texto': _l(
+              'bora uma flex hoje?',
+              'wanna play flex today?',
+              '¿jugamos flex hoy?',
+            ),
             'hora': h - 3600000,
             'eu': false,
           },
           {
             'id': 'd2',
-            'texto': 'bora, lá pelas 21h',
+            'texto': _l(
+              'bora, lá pelas 21h',
+              'sure, around 9pm',
+              'dale, sobre las 21h',
+            ),
             'hora': h - 3500000,
             'eu': true,
           },
-          {'id': 'd3', 'texto': 'fechou', 'hora': h - 240000, 'eu': false},
+          {
+            'id': 'd3',
+            'texto': _l('fechou', 'deal', 'hecho'),
+            'hora': h - 240000,
+            'eu': false,
+          },
           {
             'id': 'd4',
-            'texto': 'me chama quando abrir a sala',
+            'texto': _l(
+              'me chama quando abrir a sala',
+              'ping me when the lobby opens',
+              'avísame cuando abras la sala',
+            ),
             'hora': h - 200000,
             'eu': false,
           },
@@ -970,13 +1031,21 @@ class ConexaoVitrine extends Conexao {
         'msgs': [
           {
             'id': 'd5',
-            'texto': 'gg aquela última',
+            'texto': _l(
+              'gg aquela última',
+              'gg that last one',
+              'gg esa última',
+            ),
             'hora': h - 86400000,
             'eu': true,
           },
           {
             'id': 'd6',
-            'texto': 'gg! que virada',
+            'texto': _l(
+              'gg! que virada',
+              'gg! what a comeback',
+              'gg! qué remontada',
+            ),
             'hora': h - 86000000,
             'eu': false,
           },
@@ -1047,13 +1116,14 @@ class ConexaoVitrine extends Conexao {
         if (!sozinho) ...[
           {
             'tipo': 'aviso',
-            'texto': 'Ventania entrou',
+            'texto': 'entrou',
+            'quem': 'Ventania',
             'id': 's1',
             'hora': h - 300000,
           },
           {
             'tipo': 'msg',
-            'texto': 'cheguei',
+            'texto': _l('cheguei', "I'm here", 'ya llegué'),
             'de': 'Ventania',
             'eu': false,
             'id': 's2',
@@ -1061,13 +1131,18 @@ class ConexaoVitrine extends Conexao {
           },
           {
             'tipo': 'aviso',
-            'texto': 'Suporte Fiel entrou',
+            'texto': 'entrou',
+            'quem': 'Suporte Fiel',
             'id': 's3',
             'hora': h - 200000,
           },
           {
             'tipo': 'msg',
-            'texto': 'vou de sup hoje',
+            'texto': _l(
+              'vou de sup hoje',
+              "I'm going support today",
+              'hoy voy de support',
+            ),
             'de': 'Suporte Fiel',
             'eu': false,
             'id': 's4',
@@ -1075,7 +1150,11 @@ class ConexaoVitrine extends Conexao {
           },
           {
             'tipo': 'msg',
-            'texto': 'fechou, chamei o Sorte também',
+            'texto': _l(
+              'fechou, chamei o Sorte também',
+              'deal, I invited Sorte too',
+              'hecho, invité a Sorte también',
+            ),
             'de': 'Voce',
             'eu': true,
             'id': 's5',
@@ -1470,13 +1549,17 @@ class ConexaoVitrine extends Conexao {
     return [
       {
         'tipo': 'aviso',
-        'texto': 'Você entrou na sala de seleção',
+        'texto': _l(
+          'Você entrou na sala de seleção',
+          'You joined the champion select room',
+          'Entraste en la sala de selección',
+        ),
         'id': 'c1',
         'hora': h - 40000,
       },
       {
         'tipo': 'msg',
-        'texto': 'mid ou jungle?',
+        'texto': _l('mid ou jungle?', 'mid or jungle?', '¿mid o jungla?'),
         'de': 'Ventania',
         'eu': false,
         'id': 'c2',
@@ -1484,7 +1567,7 @@ class ConexaoVitrine extends Conexao {
       },
       {
         'tipo': 'msg',
-        'texto': 'vou mid',
+        'texto': _l('vou mid', "I'm going mid", 'voy mid'),
         'de': 'Voce',
         'eu': true,
         'id': 'c3',
@@ -1762,7 +1845,7 @@ class ConexaoVitrine extends Conexao {
   (bool, String) _campeaoArena(int cid, String acao, bool travar) {
     final sel = _sel;
     final minhaVez = '${sel['minha_vez'] ?? ''}';
-    if (minhaVez != acao) return (false, 'Não é sua vez');
+    if (minhaVez != acao) return (false, 'nao_sua_vez');
     if (acao == 'ban') {
       _mudarSel((s) {
         final eu = _eu(s);
@@ -1776,7 +1859,8 @@ class ConexaoVitrine extends Conexao {
         return s;
       });
       if (travar) _arenaAndar();
-      return (true, travar ? 'Banido: ${_nome(cid)}' : '');
+      if (travar) _pMsg = {'nome': _nome(cid)};
+      return (true, travar ? 'banido' : '');
     }
     _mudarSel((s) {
       final eu = _eu(s);
@@ -1794,7 +1878,8 @@ class ConexaoVitrine extends Conexao {
       return s;
     });
     if (travar) _arenaAndar();
-    return (true, travar ? 'Travado: ${_nome(cid)}' : '');
+    if (travar) _pMsg = {'nome': _nome(cid)};
+    return (true, travar ? 'travado' : '');
   }
 
   /// Os outros jogadores terminando a ação deles, um ou dois por vez, até acabar a etapa.

@@ -9,6 +9,7 @@ import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:web/web.dart' as web;
 
+import 'codigos.dart';
 import 'idioma.dart';
 import 'navegador.dart';
 
@@ -314,7 +315,15 @@ class Conexao extends ChangeNotifier {
     if (r is Map && r['id'] == _esperando) {
       _esperando = null;
       final ok = r['ok'] == true;
-      respostas.add((ok: ok, msg: '${r['msg'] ?? ''}'));
+      // o PC manda um código (e `p` com nome ou número); o PC antigo manda a frase pronta, que passa como veio
+      respostas.add((
+        ok: ok,
+        msg: textoMsg(
+          Idioma.txt,
+          '${r['msg'] ?? ''}',
+          r['p'] is Map ? r['p'] as Map : null,
+        ),
+      ));
       if (ok) {
         // deu certo: segue carregando até a tela mudar (no máximo 3s)
         _antes = _retrato();

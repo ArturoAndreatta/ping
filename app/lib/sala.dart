@@ -189,7 +189,7 @@ class _CartaoSala extends StatelessWidget {
           _Entrada(
             key: ValueKey('c-${c['puuid']}'),
             chave: 'c-${c['puuid']}',
-            child: _Lugar.convidado(c),
+            child: _Lugar.convidado(context.txt, c),
           ),
         for (var i = 0; i < vagas; i++)
           _Entrada(
@@ -568,10 +568,10 @@ class _Lugar extends StatelessWidget {
     );
   }
 
-  factory _Lugar.convidado(Map c) => _Lugar._(
+  factory _Lugar.convidado(Txt t, Map c) => _Lugar._(
     avatar: Center(child: Losango(cor: Cor.ouro, tamanho: 8, pulsar: true)),
     nome: '${c['nome']}',
-    linhas: const ['Convidado'],
+    linhas: [t.criarConvidado],
     corNome: Cor.apagado,
     corLinha2: Cor.ouro,
   );
@@ -1090,7 +1090,7 @@ class _Mensagem2 extends StatelessWidget {
       return Padding(
         padding: const EdgeInsets.symmetric(vertical: 5),
         child: Text(
-          '${m['texto']}  ·  $hh',
+          '${textoAvisoChat(context.txt, m)}  ·  $hh',
           textAlign: TextAlign.center,
           style: TextStyle(
             color: Cor.apagado,
